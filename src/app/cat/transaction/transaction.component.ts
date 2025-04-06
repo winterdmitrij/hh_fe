@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { TransactionModel } from "../cat.model";
 import { TransactionService } from "./transaction.service";
 import { response } from "express";
-import { error } from "console";
+import { error, log } from "console";
 import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
@@ -11,6 +11,8 @@ import { HttpErrorResponse } from "@angular/common/http";
   styleUrl: "./transaction.component.css",
 })
 export class TransactionComponent implements OnInit {
+  title = "Transaktionen";
+
   transactions: TransactionModel[] = [];
 
   constructor(private traSrv: TransactionService) {}

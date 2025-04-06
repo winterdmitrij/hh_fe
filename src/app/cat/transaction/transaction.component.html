@@ -1,15 +1,38 @@
-<p>transaction works!</p>
+<div class="container-fluid">
+    <h1 class="text-center">{{ title }}</h1>
 
-<div *ngIf="transactions">
-    <p>transaction !</p>
-    <ul>
-        <li *ngFor="let tra of transactions">
-            {{ tra.id }} - {{ tra.dsg }}
-        </li>
-    </ul>
-</div>
+    <!-- Tabelle Transactions -->
+    <div class="row" *ngIf="transactions">
+        <div class="col-lg-12">
+            <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-dark table-striped table-hover">
+                            <thead class="text-center">
+                                <tr class="table-primary">
+                                    <th score="col"><span>Id</span></th>
+                                    <th score="col"><span>Bezeichnung</span></th>
+                                    <th score="col"><span>Rang</span></th>
+                                    <th score="col"><span>Anzahl der Postgruppen</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let tra of transactions">
+                                    <th score="row" class="text-center"><span>{{ tra.id }}</span></th>
+                                    <td><span>{{ tra.dsg }}</span></td>
+                                    <td class="text-center"><span>{{ tra.rnk }}</span></td>
+                                    <td class="text-center"><span>{{ tra.postgroups?.length }}</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="transactions">
 
-
-<div *ngIf="!transactions">
-    <p>Fehler</p>
-</div>
+        <div *ngIf="!transactions">
+            <p>Fehler</p>
+        </div>
+    </div>
