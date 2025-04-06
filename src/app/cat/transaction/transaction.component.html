@@ -1,1 +1,15 @@
 <p>transaction works!</p>
+
+<div *ngIf="transactions">
+    <p>transaction !</p>
+    <ul>
+        <li *ngFor="let tra of transactions">
+            {{ tra.id }} - {{ tra.dsg }}
+        </li>
+    </ul>
+</div>
+
+
+<div *ngIf="!transactions">
+    <p>Fehler</p>
+</div>
