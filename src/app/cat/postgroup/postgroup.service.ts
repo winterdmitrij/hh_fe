@@ -6,16 +6,12 @@ import { TransactionModel } from "../cat.model";
 @Injectable({
   providedIn: "root",
 })
-export class TransactionService {
+export class PostgroupService {
   private apiUrl = "http://localhost:3000";
-
   constructor(private http: HttpClient) {}
 
-  findAll(): Observable<TransactionModel[]> {
-    return this.http.get<TransactionModel[]>(`${this.apiUrl}/transactions`);
-  }
-
-  findOneById(id: string): Observable<TransactionModel> {
+  //ToDo: Löschen
+  findAllPstGrpByTra(id: string): Observable<TransactionModel> {
     return this.http.get<TransactionModel>(`${this.apiUrl}/transactions/${id}`);
   }
 }

@@ -1,1 +1,55 @@
-<p>postgroup works!</p>
+<div class="container-fluid">
+    <h1 class="text-center">{{ title }} {{ curTransaction?.dsg }}</h1>
+
+    <!-- Ausfallliste -->
+    <div class="container mb-2">
+        <div class="form-floating" *ngIf="transactions">
+            <select class="form-select" id="floatingSelect" aria-label="Floating label select example"
+                (change)="onTransactionChange($event)">
+                <option *ngFor="let tx of transactions" [value]="tx.id">
+                    {{ tx.dsg }}
+                </option>
+            </select>
+            <label for="floatingSelect">Transaction</label>
+        </div>
+        <div class="container" *ngIf="!transactions">
+            <a [routerLink]="['/transactions']">Zur Transaktionen</a>
+        </div>
+    </div>
+
+    <!-- Tabelle Postgruppen -->
+    <div class="row" *ngIf="curTransaction">
+        <div class="col-lg-12">
+            <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-dark table-striped table-hover">
+                            <thead class="text-center">
+                                <tr class="table-primary">
+                                    <th score="col"><span>Id</span></th>
+                                    <th score="col"><span>Bezeichnung</span></th>
+                                    <th score="col"><span>Beschreibung</span></th>
+                                    <th score="col"><span>Rang</span></th>
+                                    <th score="col"><span>Anzahl der Postgruppen</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let pstGrp of curTransaction.postgroups">
+                                    <th score="row" class="text-center"><span>{{ pstGrp.id }}</span></th>
+                                    <td><span>{{ pstGrp.dsg }}</span></td>
+                                    <td><span>{{ pstGrp.dsc }}</span></td>
+                                    <td class="text-center"><span>{{ pstGrp.rnk }}</span></td>
+                                    <td class="text-center"><span>{{ pstGrp.posts?.length }}</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="!curTransaction">
+        <p>Fehler</p>
+    </div>
+</div>

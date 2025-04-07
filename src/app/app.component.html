@@ -87,11 +87,33 @@
       -->
 
       <!-- Catalogs -->
-      <button [routerLink]="['transactions']" routerLinkActive="active" class="btn btn-outline-info me-2" type="button">
-        <i class="bi bi-info-circle me-2"></i>
-        Kataloge
-      </button>
-
+      <li class="nav-item dropdown">
+        <button class="btn btn-outline-info dropdown-toggle me-2" data-bs-toggle="dropdown" href="#"
+          aria-expanded="false">
+          <i class="bi bi-info-circle me-2"></i>
+          Kataloge
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" [routerLink]="['transactions']">
+              <i class="bi bi-database-down me-1" style="color: green;"></i>
+              Transaktionen
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" [routerLink]="['postgroups']">
+              <i class="bi bi-database-up me-1" style="color: red;"></i>
+              Postgruppen
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" [routerLink]="['posts']">
+              <i class="bi bi-database-gear me-1" style="color: red;"></i>
+              Posten
+            </a>
+          </li>
+        </ul>
+      </li>
 
 
       <!-- Settings -->

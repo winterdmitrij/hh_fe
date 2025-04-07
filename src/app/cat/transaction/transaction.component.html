@@ -18,8 +18,16 @@
                             </thead>
                             <tbody>
                                 <tr *ngFor="let tra of transactions">
-                                    <th score="row" class="text-center"><span>{{ tra.id }}</span></th>
-                                    <td><span>{{ tra.dsg }}</span></td>
+                                    <th score="row" class="text-center">
+                                        <span>
+                                            {{ tra.id }}
+                                        </span>
+                                    </th>
+                                    <td>
+                                        <a [routerLink]="['/transaction', tra.id]">
+                                            <span>{{ tra.dsg }}</span>
+                                        </a>
+                                    </td>
                                     <td class="text-center"><span>{{ tra.rnk }}</span></td>
                                     <td class="text-center"><span>{{ tra.postgroups?.length }}</span></td>
                                 </tr>
@@ -30,9 +38,8 @@
             </div>
         </div>
     </div>
-    <div *ngIf="transactions">
 
-        <div *ngIf="!transactions">
-            <p>Fehler</p>
-        </div>
+    <div *ngIf="!transactions">
+        <p>Fehler</p>
     </div>
+</div>
