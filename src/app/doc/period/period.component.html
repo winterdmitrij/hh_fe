@@ -1,0 +1,90 @@
+<div class="container-fluid">
+    <h1 class="text-center">Perioden</h1>
+
+    <!-- Tabelle -->
+    <div class="row" *ngIf="periods">
+        <div class="col-lg-12">
+            <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-dark table-striped table-hover">
+                            <thead class="text-center">
+                                <tr class="table-primary">
+                                    <th score="col"><span>Periode</span></th>
+                                    <th score="col"><span>Ist aktiv?</span></th>
+                                    <th score="col"><span>Ist geschloßen?</span></th>
+                                    <th score="col"><span>Aktionen</span></th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-center">
+                                <tr *ngFor="let period of periods">
+                                    <th score="row">
+                                        <span>{{ period.prd }}</span>
+                                    </th>
+                                    <td>
+                                        <i *ngIf="!period.act" class="bi bi-square" style="color: red"></i>
+                                        <i *ngIf="period.act" class="bi bi-check-square" style="color: green"></i>
+                                    </td>
+                                    <td>
+                                        <i *ngIf="!period.cls" class="bi bi-square" style="color: red"></i>
+                                        <i *ngIf="period.cls" class="bi bi-check-square" style="color: green"></i>
+                                    </td>
+                                    <td>
+                                        <a (click)="onClickEdit(period)" class="btn table-link text-info"
+                                            data-bs-toggle="modal" data-bs-target="#editPeriod">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Period Edit -->
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="editPeriod" tabindex="-1"
+    aria-labelledby="editPeriodLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">Periode: {{ updPeriod?.prd }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form #updForm="ngForm">
+                <!-- Body -->
+                <div class="modal-body" *ngIf="updPeriod">
+                    <div class="form-check">
+                        <input type="hidden" name="prd" [ngModel]="updPeriod.prd">
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="act" name="act" [(ngModel)]="updPeriod.act">
+                        <label class="form-check-label" for="act">ist aktiv?</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="cls" name="cls" [(ngModel)]="updPeriod.cls">
+                        <label class="form-check-label" for="cls">ist geschloßen?</label>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Schließen
+                    </button>
+                    <button (click)="onUpdPrd(updForm.value)" type="button" class="btn btn-primary"
+                        data-bs-dismiss="modal">
+                        Speichern
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>

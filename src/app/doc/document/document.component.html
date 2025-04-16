@@ -1,0 +1,61 @@
+<div class="container-fluid">
+    <h1 class="text-center">Dokumente</h1>
+
+
+    <!-- Select list Periods -->
+    <div class="container" *ngIf="periods">
+        <label for="periodSelect">Periode: </label>
+        <select id="periodSelect" class="form-select mb-3" [ngModel]="curPrd" (ngModelChange)="onSelectChange($event)">
+            <option *ngFor="let period of periods" [value]="period.prd">
+                {{ period.prd }}
+            </option>
+        </select>
+    </div>
+
+    <!-- Table Documents -->
+    <div class="row" *ngIf="documents">
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark table-striped table-hover">
+                <thead class="text-center">
+                    <tr class="table-primary">
+                        <th score="col"><span>Id</span></th>
+                        <th score="col"><span>Datum</span></th>
+                        <th score="col"><span>Betrag</span></th>
+                        <th score="col"><span>Ist freigegeben?</span></th>
+                        <th score="col"><span>Anzahl d. Positionen</span></th>
+                        <th score="col"><span>Aktionen</span></th>
+                    </tr>
+                </thead>
+
+                <tbody class="text-center">
+                    <tr *ngFor="let document of documents">
+                        <th score="row">
+                            <span>{{ document.id }}</span>
+                        </th>
+                        <th>
+                            <span>{{ document.dat }}</span> <!-- ToDo: Datumformat -->
+                        </th>
+                        <th>
+                            <span>{{ document.amt }}</span> <!-- ToDo: Geldformat -->
+                        </th>
+                        <th>
+                            <i *ngIf="!document.rls" class="bi bi-square" style="color: red"></i>
+                            <i *ngIf="document.rls" class="bi bi-check-square" style="color: green"></i>
+                        </th>
+                        <th>
+                            <span> ?? </span> <!-- ToDo: Positionenanzahl -->
+                        </th>
+                        <th> <!-- ToDo: Routerlink to Dokument -->
+                            <a href="#" class="btn table-link text-info" data-bs-toggle="modal"
+                                data-bs-target="#editPeriod">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>

@@ -10,46 +10,35 @@
 
     <!-- Dropdawn-Menu -->
     <ul class="nav nav-tabs">
-      <!-- Documents -->
+      <!-- Documents 
       <button [routerLink]="['documents']" routerLinkActive="active" class="btn btn-outline-primary me-2" type="button">
         <i class="bi bi-files me-2"></i>
         Dokumente
       </button>
-      <!-- ToDo: Am Ende löschen
-          <li class="nav-item dropdown">
-              <button class="btn btn-outline-primary dropdown-toggle me-2" data-bs-toggle="dropdown" href="#"
-                  aria-expanded="false">
-                  <i class="bi bi-files me-2"></i>
-                  Dokumente
-              </button>
-              <ul class="dropdown-menu">
-                  <li>
-                      <a class="dropdown-item" href="#">
-                          <i class="bi bi-credit-card me-1" style="color: yellow;"></i>
-                          Kontenauszüge
-                      </a>
-                  </li>
-                  <li>
-                      <a class="dropdown-item" href="#">
-                          <i class="bi bi-folder-minus me-1" style="color: red;"></i>
-                          Ausgaben
-                      </a>
-                  </li>
-                  <li>
-                      <a class="dropdown-item" href="#">
-                          <i class="bi bi-folder-plus me-1" style="color: green;"></i>
-                          Einkommen
-                      </a>
-                  </li>
-                  <li>
-                      <a class="dropdown-item" href="#">
-                          <i class="bi bi-piggy-bank me-1" style="color: palevioletred;"></i>
-                          Überweisungen
-                      </a>
-                  </li>
-              </ul>
+      -->
+      <!-- ToDo: Am Ende löschen -->
+      <li class="nav-item dropdown">
+        <button class="btn btn-outline-primary dropdown-toggle me-2" data-bs-toggle="dropdown" href="#"
+          aria-expanded="false">
+          <i class="bi bi-files me-2"></i>
+          Dokumente
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" [routerLink]="['periods']">
+              <i class="bi bi-calendar-month me-1" style="color: yellow;"></i>
+              Periode
+            </a>
           </li>
--->
+          <li>
+            <a class="dropdown-item" [routerLink]="['documents']">
+              <i class="bi bi-file-earmark-ruled me-1" style="color: red;"></i>
+              Dokumente
+            </a>
+          </li>
+        </ul>
+      </li>
+
 
       <!-- Reports -->
       <button [routerLink]="['reportss']" routerLinkActive="active" class="btn btn-outline-danger me-2" type="button">

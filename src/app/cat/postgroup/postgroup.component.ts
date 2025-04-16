@@ -10,7 +10,8 @@ import { TransactionService } from "../transaction/transaction.service";
   styleUrl: "./postgroup.component.css",
 })
 export class PostgroupComponent implements OnInit {
-  title = "Postgruppen der Transaktion ";
+  //ToDo: vllt brauche ich das nicht
+  title: string = "";
 
   transactions?: TransactionModel[];
   curTransaction?: TransactionModel;
@@ -32,10 +33,15 @@ export class PostgroupComponent implements OnInit {
 
       if (id !== null) {
         this.curTraId = id;
+        this.loadOneTransaction(this.curTraId);
+        //ToDo: vllt brauche ich das nicht
+        this.title = "Transaktion: ";
       } else {
         this.loadAllTransactions();
+        this.loadOneTransaction(this.curTraId);
+        //ToDo: vllt brauche ich das nicht
+        this.title = "Katalog 'Postgruppen'";
       }
-      this.loadOneTransaction(this.curTraId);
     });
   }
 
@@ -46,16 +52,11 @@ export class PostgroupComponent implements OnInit {
   loadOneTransaction(id: string) {
     this.traSrv.findOneById(this.curTraId).subscribe((data) => {
       this.curTransaction = data;
-      //ToDo: kann später weg
-      console.log("Selektierte Transaction: ", this.curTransaction?.dsg);
     });
   }
 
   onTransactionChange(event: Event) {
     const selId = (event.target as HTMLSelectElement).value;
-    //ToDo: Später löschen
-    console.log("Ausgewählte Transaction ID:", selId);
-
     this.curTraId = selId;
     this.loadOneTransaction(selId);
   }

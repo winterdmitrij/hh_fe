@@ -11,7 +11,7 @@ import { HttpErrorResponse } from "@angular/common/http";
   styleUrl: "./transaction.component.css",
 })
 export class TransactionComponent implements OnInit {
-  title = "Transaktionen";
+  title = "Katalog 'Transaktionen'";
 
   transactions: TransactionModel[] = [];
 

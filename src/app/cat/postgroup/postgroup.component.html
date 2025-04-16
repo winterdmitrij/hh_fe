@@ -1,5 +1,6 @@
 <div class="container-fluid">
-    <h1 class="text-center">{{ title }} {{ curTransaction?.dsg }}</h1>
+    <h1 *ngIf="transactions" class="text-center">{{ title }}</h1>
+    <h1 *ngIf="!transactions" class="text-center">{{ title }} '{{ curTransaction?.dsg }}'</h1>
 
     <!-- Ausfallliste -->
     <div class="container mb-2">
