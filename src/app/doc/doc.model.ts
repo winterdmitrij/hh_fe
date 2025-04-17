@@ -11,7 +11,7 @@ export interface DocumentModel {
   dat: Date;
   amt?: number;
   rls: boolean;
-  positions?: PositionModel;
+  positions?: PositionModel[];
 }
 
 export interface PositionModel {

@@ -1,1 +1,90 @@
-<p>position works!</p>
+<div class="container-fluid">
+    <h1 class="text-center">Dokument Nr. '{{ docId }}'</h1>
+
+    <div class="container mb-2">
+        <!-- : Plus -->
+        <button type="button" [routerLink]="['/documents']" class="btn btn-primary me-2">
+            <i class="bi bi-arrow-left-square me-2"></i>
+            <span>Zu Dokumenten</span>
+        </button>
+
+        <!-- Add Position Modal -->
+        <button type="button" (click)="onAddClick()" class="btn btn-success" [disabled]="document?.rls"
+            data-bs-toggle="modal" data-bs-target="#addPosition">
+            <i class="bi bi-plus-square me-2"></i>
+            <span>Neue Position</span>
+        </button>
+    </div>
+
+    <!-- Wenn Positionen existieren -->
+    <div class="row" *ngIf="document?.positions">
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark table-striped table-hover">
+
+                <thead class="text-center">
+                    <tr>
+                        <th score="col"><span>Id</span></th>
+                        <th score="col"><span>Konto</span></th>
+                        <th score="col"><span>Post</span></th>
+                        <th score="col"><span>Betrag</span></th>
+                        <th score="col"><span>Kommentar</span></th>
+                        <th score="col"><span>Actionen</span></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let position of document?.positions">
+                        <td score="row" class="text-center">
+                            <span>{{ position.id }}</span>
+                        </td>
+                        <td><span>{{ position.account?.dsg }}</span></td>
+                        <td><span>{{ position.post?.dsg }}</span></td>
+                        <td><span>{{ position.amt }}</span></td>
+                        <td><span>{{ position.cmt }}</span></td>
+
+                        <td class="text-center"> <!-- ToDo: Delete, Edit, [+ Dtl] -->
+                            <!-- [Exp ? Dtl]: Lupe -->
+                            <a href="#" class="btn table-link text-info">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <!-- Edit: Bleistift -->
+                            <a href="#" class="btn table-link text-info">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <!-- Delete: Mülleimer -->
+                            <a href="#" class="btn table-link text-danger">
+                                <i class="bi bi-x-square"></i>
+                            </a>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Wenn keine Positionen vorhanden sind -->
+    <div class="container-fluid" *ngIf="document?.positions?.length === 0">
+        <h2 class="text-center text-warning mt-4">Noch keine Positionen in dem Dokument!</h2>
+    </div>
+</div>
+
+
+<!-- Add Position Modal -->
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="addPosition" tabindex="-1"
+    aria-labelledby="addPositionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">Position hinzufügen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <app-position-form [document]="document" [posId]="posId" (save)="handlePositionSave($event)">
+            </app-position-form>
+
+        </div>
+    </div>
+
+</div>

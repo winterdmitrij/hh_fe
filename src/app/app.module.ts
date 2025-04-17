@@ -18,6 +18,7 @@ import { DocModule } from "./doc/doc.module";
     CatModule,
     DocModule,
   ],
+  exports: [CatModule],
   providers: [provideHttpClient(withFetch())],
   bootstrap: [AppComponent],
 })

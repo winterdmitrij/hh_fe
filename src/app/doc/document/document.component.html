@@ -18,7 +18,7 @@
         <div class="table-responsive">
             <table class="table table-bordered table-dark table-striped table-hover">
                 <thead class="text-center">
-                    <tr class="table-primary">
+                    <tr>
                         <th score="col"><span>Id</span></th>
                         <th score="col"><span>Datum</span></th>
                         <th score="col"><span>Betrag</span></th>
@@ -47,8 +47,7 @@
                             <span> ?? </span> <!-- ToDo: Positionenanzahl -->
                         </th>
                         <th> <!-- ToDo: Routerlink to Dokument -->
-                            <a href="#" class="btn table-link text-info" data-bs-toggle="modal"
-                                data-bs-target="#editPeriod">
+                            <a [routerLink]="['/documents/', document.id]" class="btn table-link text-info">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                         </th>

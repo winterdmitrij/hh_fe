@@ -2,12 +2,13 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { PeriodModel } from "../doc.model";
+import { enviroment } from "../../../enviroments/enviroment";
 
 @Injectable({
   providedIn: "root",
 })
 export class PeriodService {
-  private apiUrl = "http://localhost:3000";
+  private apiUrl = enviroment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
