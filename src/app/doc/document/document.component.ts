@@ -9,27 +9,37 @@ import { DocumentService } from "./document.service";
   styleUrl: "./document.component.css",
 })
 export class DocumentComponent implements OnInit {
+  /* ToDo:
+- Period festhalten:
+-- Wenn ich zu einem Dokument von einem geschloßenen Period navigiert wurde,
+-- beim Zurückgehen wird es automatisch den letzten aktiven Period eingeschaltet.
+*/
+
   periods: PeriodModel[] = [];
   curPrd?: string;
 
   documents: DocumentModel[] = [];
+  rlsDocument?: DocumentModel;
+  //  cncDocument?: DocumentModel;
 
   constructor(private prdSrv: PeriodService, private docSrv: DocumentService) {}
 
   ngOnInit(): void {
-    this.loadPeriods();
+    this.loadDropdowns();
   }
 
-  loadPeriods() {
+  // Select-List befüllen, und den letzten aktiven Period als aktuell setzen
+  loadDropdowns() {
     this.prdSrv.findAll().subscribe((data) => {
       this.periods = data;
 
-      // selected suchen
+      // Alle aktive Periode suchen und absteigend sortieren
       const actPeriods = this.periods
         .filter((p) => p.act)
         .sort((a, b) => b.prd.localeCompare(a.prd));
 
       if (actPeriods.length > 0) {
+        // erste Element des Period-Arrays ist aktuell
         this.curPrd = actPeriods[0].prd;
         this.loadDocuments();
       }
@@ -38,8 +48,8 @@ export class DocumentComponent implements OnInit {
 
   loadDocuments() {
     this.docSrv.findAll().subscribe((data) => {
-      const curDocuments = data.filter((d) => {
-        const docDate = new Date(d.dat).toDateString();
+      const curDocuments = data.filter((doc) => {
+        const docDate = new Date(doc.dat).toDateString();
         const prdDate = this.getDateByPrd(this.curPrd!).toDateString();
 
         return docDate === prdDate;
@@ -49,12 +59,36 @@ export class DocumentComponent implements OnInit {
     });
   }
 
-  // Select list changed
+  // den Wert der Select-Liste geändert ist
   onSelectChange(prd: string) {
     this.curPrd = prd;
     this.loadDocuments();
   }
 
+  // Freigabe/Stornierung des Dokuments
+  onRlsClick(document: DocumentModel) {
+    this.rlsDocument = document;
+  }
+
+  onDocumentRelease(document: DocumentModel) {
+    const updDocument = document;
+
+    updDocument.rls = !document.rls;
+
+    // ToDo: this.docSrv.update(document.id, { rls: !document.rls }).subscribe(...);
+    this.docSrv.update(updDocument).subscribe({
+      next: (res) => {
+        console.log("Aktualisiert: ", res);
+
+        this.loadDocuments();
+      },
+      error: (err) => {
+        console.log("Fehler beim Aktualisieren: ", err);
+      },
+    });
+  }
+
+  // Umwandelt Period (zB: 2503) ins Datum (31.03.2025)
   getDateByPrd(prd: string): Date {
     if (!/^\d{4}$/.test(prd)) {
       throw new Error('Ungültiges Format. Erwartet JJMM, z.B. "2503"');

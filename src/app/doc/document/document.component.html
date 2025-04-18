@@ -1,7 +1,6 @@
 <div class="container-fluid">
     <h1 class="text-center">Dokumente</h1>
 
-
     <!-- Select list Periods -->
     <div class="container" *ngIf="periods">
         <label for="periodSelect">Periode: </label>
@@ -44,11 +43,24 @@
                             <i *ngIf="document.rls" class="bi bi-check-square" style="color: green"></i>
                         </th>
                         <th>
-                            <span> ?? </span> <!-- ToDo: Positionenanzahl -->
+                            <span>{{ document.positions?.length }}</span>
                         </th>
-                        <th> <!-- ToDo: Routerlink to Dokument -->
-                            <a [routerLink]="['/documents/', document.id]" class="btn table-link text-info">
-                                <i class="bi bi-pencil-square"></i>
+                        <th>
+                            <!-- Zum Dokument -->
+                            <a type="botton" [routerLink]="['/documents/', document.id]"
+                                class="btn table-link text-warning">
+                                <i class="bi bi-search"></i>
+                            </a>
+                            <!-- Dokument freigeben/stornieren -->
+                            <a type="botton" (click)="onRlsClick(document)" class="btn table-link"
+                                data-bs-toggle="modal" data-bs-target="#rlsDocument" [ngClass]="{
+                                    'text-success': !document.rls,
+                                    'text-danger': document.rls
+                                }">
+                                <i class="bi" [ngClass]="{
+                                    'bi-check2-square': !document.rls,
+                                    'bi-x-square': document.rls
+                                }"> </i>
                             </a>
                         </th>
                     </tr>
@@ -56,5 +68,33 @@
             </table>
         </div>
 
+    </div>
+</div>
+
+<!-- Del Position Modal -->
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="rlsDocument" tabindex="-1"
+    aria-labelledby="rlsDocumentLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">Dokument {{ rlsDocument?.rls ? 'stornieren' : 'freigeben' }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Body -->
+            <div class="modal-body">
+                <p>Muss das Dokument '{{ rlsDocument?.id }}' wirklich {{ rlsDocument?.rls ? 'storniert' : 'freigegeben'
+                    }} werden?</p>
+            </div>
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" (click)="onDocumentRelease(rlsDocument!)" class="btn" [ngClass]="{
+                    'btn-success': !rlsDocument?.rls,
+                    'btn-danger': rlsDocument?.rls
+                }" data-bs-dismiss="modal">{{ rlsDocument?.rls ? 'Stornieren'
+                    : 'Freigeben' }}</button>
+            </div>
+        </div>
     </div>
 </div>

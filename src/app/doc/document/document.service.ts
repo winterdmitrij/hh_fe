@@ -15,4 +15,21 @@ export class DocumentService {
   findAll(): Observable<DocumentModel[]> {
     return this.http.get<DocumentModel[]>(`${this.apiUrl}/documents`);
   }
+
+  findOne(id: string): Observable<DocumentModel> {
+    return this.http.get<DocumentModel>(`${this.apiUrl}/documents/${id}`);
+  }
+
+  // ToDo: document: DocumentModel -> id: string, partial: Partial<DocumentModel>
+  update(document: DocumentModel): Observable<DocumentModel> {
+    return this.http.patch<DocumentModel>(
+      `${this.apiUrl}/documents/${document.id}`,
+      document
+    );
+  }
+  /**
+  update(id: string, partial: Partial<DocumentModel>): Observable<DocumentModel> {
+  return this.http.patch<DocumentModel>(`${this.apiUrl}/documents/${id}`, partial);
+}
+   */
 }

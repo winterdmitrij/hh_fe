@@ -16,10 +16,12 @@ export class PeriodService {
     return this.http.get<PeriodModel[]>(`${this.apiUrl}/periods`);
   }
 
+// ToDo: findOne!
   findOneById(prd: string): Observable<PeriodModel> {
     return this.http.get<PeriodModel>(`${this.apiUrl}/periods/${prd}`);
   }
 
+// ToDo: update(period)!
   update(prd: string, period: PeriodModel): Observable<PeriodModel> {
     return this.http.patch<PeriodModel>(
       `${this.apiUrl}/periods/${prd}`,

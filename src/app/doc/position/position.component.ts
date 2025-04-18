@@ -2,10 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { DocumentModel, PositionModel } from "../doc.model";
 import { PositionService } from "./position.service";
 import { ActivatedRoute } from "@angular/router";
-import { AccountModel, PostModel } from "../../cat/cat.model";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { PostService } from "../../cat/post/post.service";
-import { AccountService } from "../../cat/account/account.service";
+import { DocumentService } from "../document/document.service";
+import { catchError, of } from "rxjs";
 
 @Component({
   selector: "app-position",
@@ -13,15 +11,22 @@ import { AccountService } from "../../cat/account/account.service";
   styleUrl: "./position.component.css",
 })
 export class PositionComponent implements OnInit {
+  /* ToDo:
+- Siehbarkeit der Detail-Taste bei Exp-Dokument
+- Unnötige Sachen löschen
+*/
+
   document?: DocumentModel;
   docId?: string;
-  posId?: string;
 
-  addPosition?: PositionModel;
   updPosition?: PositionModel;
   delPosition?: PositionModel;
 
-  constructor(private posSrv: PositionService, private route: ActivatedRoute) {}
+  constructor(
+    private docSrv: DocumentService,
+    private posSrv: PositionService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.readPath();
@@ -34,7 +39,6 @@ export class PositionComponent implements OnInit {
 
       if (id) {
         this.docId = id;
-        //console.log("id: ", this.docId);
         this.loadDocument(this.docId);
       }
     });
@@ -42,22 +46,63 @@ export class PositionComponent implements OnInit {
 
   // lädt das Dokument
   loadDocument(id: string) {
-    this.posSrv.findDocBy(id).subscribe((data) => {
+    this.docSrv.findOne(id).subscribe((data) => {
       this.document = data;
-      //console.log("Dokument: ", this.document);
     });
   }
 
-  //?
-  onAddClick() {
-    const posCnt = this.document?.positions?.length;
-
-    this.posId = this.docId + "." + posCnt + 1;
-    console.log("Neuer PositionsId: ", this.posId);
+  onUpdClick(position: PositionModel) {
+    this.updPosition = position;
   }
 
-  handlePositionSave(position: any) {
-    console.log("Neue Position:", position);
-    // Speichern, API aufrufen, etc.
+  onDelClick(position: PositionModel) {
+    this.delPosition = position;
+  }
+
+  // --- Events-Behandlung ---
+  // Add new Position
+  handlePositionSave(position: PositionModel) {
+    this.posSrv.create(position).subscribe({
+      next: (res) => {
+        console.log("Gespeichert: ", res);
+
+        this.readPath();
+      },
+      error: (err) => {
+        console.log("Fehler beim Speichern: ", err);
+      },
+    });
+  }
+
+  // Update a Position
+  handlePositionUpdate(position: PositionModel) {
+    this.posSrv.update(position).subscribe({
+      next: (res) => {
+        console.log("Aktualisiert: ", res);
+
+        this.readPath();
+      },
+      error: (err) => {
+        console.log("Fehler beim Aktualisieren: ", err);
+      },
+    });
+  }
+
+  // Delete a Position
+  handlePositionDelete(position: PositionModel) {
+    this.posSrv
+      .delete(position)
+      .pipe(
+        catchError((error) => {
+          console.error("Fehler beim Löschen der Position:", error);
+          alert("Position konnte nicht gelöscht werden.");
+          return of(); // Leeres Observable zurückgeben, um die Kette fortzusetzen
+        })
+      )
+      .subscribe(() => {
+        console.log("Position erfolgreich gelöscht");
+
+        this.readPath();
+      });
   }
 }
