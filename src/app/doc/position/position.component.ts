@@ -1,24 +1,27 @@
-import { Component, OnInit } from "@angular/core";
+declare var bootstrap: any;
+import { Component } from "@angular/core";
+//import { Modal } from "bootstrap";
 import { DocumentModel, PositionModel } from "../doc.model";
 import { PositionService } from "./position.service";
 import { ActivatedRoute } from "@angular/router";
 import { DocumentService } from "../document/document.service";
-import { catchError, of } from "rxjs";
+import { catchError, Observable, of } from "rxjs";
 
 @Component({
   selector: "app-position",
   templateUrl: "./position.component.html",
   styleUrl: "./position.component.css",
 })
-export class PositionComponent implements OnInit {
-  /* ToDo:
-- Siehbarkeit der Detail-Taste bei Exp-Dokument
-- Unnötige Sachen löschen
-*/
+export class PositionComponent {
+  /**
+   * Hier werden alle Positionen des Dokuments angezeigt.
+   */
 
+  // Dokument und Id (werden von Parameter abgelesen)
   document?: DocumentModel;
   docId?: string;
 
+  // Variablen für Modalformen: Update und Delete
   updPosition?: PositionModel;
   delPosition?: PositionModel;
 
@@ -26,31 +29,27 @@ export class PositionComponent implements OnInit {
     private docSrv: DocumentService,
     private posSrv: PositionService,
     private route: ActivatedRoute
-  ) {}
-
-  ngOnInit(): void {
-    this.readPath();
-  }
-
-  // liest Pfadparameter ab
-  readPath(): void {
+  ) {
+    // Pfad-Parameter ablesen und Dokument laden
     this.route.paramMap.subscribe((params) => {
       const id = params.get("id");
 
       if (id) {
         this.docId = id;
-        this.loadDocument(this.docId);
+        this.loadDocument(id);
       }
     });
   }
 
-  // lädt das Dokument
-  loadDocument(id: string) {
-    this.docSrv.findOne(id).subscribe((data) => {
-      this.document = data;
-    });
+  private loadDocument(id: string): void {
+    this.docSrv.findOne(id).subscribe((data) => (this.document = data));
   }
 
+  private refreshData(): void {
+    if (this.docId) this.loadDocument(this.docId);
+  }
+
+  // Modal-Schaltflächen sind gedrückt
   onUpdClick(position: PositionModel) {
     this.updPosition = position;
   }
@@ -62,30 +61,12 @@ export class PositionComponent implements OnInit {
   // --- Events-Behandlung ---
   // Add new Position
   handlePositionSave(position: PositionModel) {
-    this.posSrv.create(position).subscribe({
-      next: (res) => {
-        console.log("Gespeichert: ", res);
-
-        this.readPath();
-      },
-      error: (err) => {
-        console.log("Fehler beim Speichern: ", err);
-      },
-    });
+    this.handleRequest(this.posSrv.create(position), "addPosition");
   }
 
   // Update a Position
   handlePositionUpdate(position: PositionModel) {
-    this.posSrv.update(position).subscribe({
-      next: (res) => {
-        console.log("Aktualisiert: ", res);
-
-        this.readPath();
-      },
-      error: (err) => {
-        console.log("Fehler beim Aktualisieren: ", err);
-      },
-    });
+    this.handleRequest(this.posSrv.update(position), "updPosition");
   }
 
   // Delete a Position
@@ -102,7 +83,46 @@ export class PositionComponent implements OnInit {
       .subscribe(() => {
         console.log("Position erfolgreich gelöscht");
 
-        this.readPath();
+        this.modalHide("delPosition");
+
+        this.refreshData();
       });
+  }
+
+  private handleRequest(obs$: Observable<any>, modalId: string) {
+    obs$.subscribe({
+      next: (res) => {
+        console.log("Erfolg: ", res);
+
+        this.modalHide(modalId);
+        this.refreshData();
+      },
+      error: (err) => {
+        console.error("Fehler: ", err);
+      },
+    });
+  }
+
+  // Schließt Modal Dialog
+  private modalHide(modalId: string) {
+    const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+
+    modal.hide();
+  }
+
+  // --- Für Template ---
+  // Gibt absteigent sortierte Positionen zurück
+  get sortedPositions(): PositionModel[] {
+    return [...(this.document?.positions || [])].sort((a, b) =>
+      b.id.localeCompare(a.id)
+    );
+  }
+
+  // Gibt TRUE, wenn Positionen vorhanden sind.
+  get hasPositions(): boolean {
+    return (
+      Array.isArray(this.document?.positions) &&
+      this.document.positions.length > 0
+    );
   }
 }

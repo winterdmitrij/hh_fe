@@ -21,10 +21,13 @@ export class DocumentService {
   }
 
   // ToDo: document: DocumentModel -> id: string, partial: Partial<DocumentModel>
-  update(document: DocumentModel): Observable<DocumentModel> {
+  update(
+    id: string,
+    partial: Partial<DocumentModel>
+  ): Observable<DocumentModel> {
     return this.http.patch<DocumentModel>(
-      `${this.apiUrl}/documents/${document.id}`,
-      document
+      `${this.apiUrl}/documents/${id}`,
+      partial
     );
   }
   /**

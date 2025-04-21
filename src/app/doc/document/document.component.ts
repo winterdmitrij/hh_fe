@@ -55,11 +55,10 @@ export class DocumentComponent implements OnInit {
         return docDate === prdDate;
       });
       this.documents = curDocuments;
-      console.log("Dokuments: ", this.documents.length);
     });
   }
 
-  // den Wert der Select-Liste geändert ist
+  // wenn Wert der Select-Liste geändert ist
   onSelectChange(prd: string) {
     this.curPrd = prd;
     this.loadDocuments();
@@ -71,12 +70,7 @@ export class DocumentComponent implements OnInit {
   }
 
   onDocumentRelease(document: DocumentModel) {
-    const updDocument = document;
-
-    updDocument.rls = !document.rls;
-
-    // ToDo: this.docSrv.update(document.id, { rls: !document.rls }).subscribe(...);
-    this.docSrv.update(updDocument).subscribe({
+    this.docSrv.update(document.id, { rls: !document.rls }).subscribe({
       next: (res) => {
         console.log("Aktualisiert: ", res);
 
