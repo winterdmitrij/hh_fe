@@ -14,11 +14,17 @@ import {
   ValidationErrors,
   Validators,
 } from "@angular/forms";
-import { AccountModel, InformationModel, PostModel } from "../../cat/cat.model";
+import {
+  AccountModel,
+  InformationModel,
+  PostModel,
+  TransactionModel,
+} from "../../cat/cat.model";
 import { AccountService } from "../../cat/account/account.service";
 import { PostService } from "../../cat/post/post.service";
 import { DocumentModel, PositionModel } from "../doc.model";
 import { InformationService } from "../../cat/services/information.service";
+import { TransactionService } from "../../cat/transaction/transaction.service";
 
 // Custom Validator
 function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
@@ -46,12 +52,16 @@ export class PositionFormComponent implements OnInit, OnChanges {
   @Output() submitPosition = new EventEmitter<any>();
 
   // Dropdown-Listen
-  posts: PostModel[] = [];
   accounts: AccountModel[] = [];
+  posts: PostModel[] = [];
+  transaction?: TransactionModel; // für Postsfilter
+  transactionen: TransactionModel[] = [];
 
   // Dokumenteninformation
   docInf?: InformationModel;
   defAccId?: number;
+  defTraId?: number; // für Postsfilter
+  canChanged: boolean = true; // wenn false, darf traId nicht geändert werden
 
   posId?: string;
 
@@ -85,6 +95,7 @@ export class PositionFormComponent implements OnInit, OnChanges {
   constructor(
     private accSrv: AccountService,
     private pstSrv: PostService,
+    private traSrv: TransactionService,
     private infSrv: InformationService
   ) {}
 
@@ -105,6 +116,16 @@ export class PositionFormComponent implements OnInit, OnChanges {
   loadDropdowns() {
     this.accSrv.findAll().subscribe((data) => (this.accounts = data));
     this.pstSrv.findAll().subscribe((data) => (this.posts = data));
+    this.traSrv.findAll().subscribe((data) => (this.transactionen = data));
+  }
+
+  loadTransaction(id: string) {
+    this.traSrv.findOne(id).subscribe((data) => (this.transaction = data));
+  }
+
+  onRadioChange(id: number) {
+    console.log("Transaktion geändert: ", id);
+    this.loadTransaction(String(id));
   }
 
   // gibt den Dokument-Type aus Dokument-Id zurück
@@ -116,6 +137,9 @@ export class PositionFormComponent implements OnInit, OnChanges {
       next: (info) => {
         this.docInf = info;
         this.defAccId = info.account.id;
+        this.defTraId = info.transaction?.id || 1; // defTraId ? defTraId : 1
+        if (info.transaction?.id) this.canChanged = false;
+
         this.patchForm(); // Initialisiere erst jetzt!
       },
       error: (err) => {

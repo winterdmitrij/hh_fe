@@ -28,6 +28,10 @@
                             <i *ngIf="period.cls" class="bi bi-check-square" style="color: green"></i>
                         </td>
                         <td>
+                            <a type="botton" [routerLink]="['/periods/', period.prd, 'documents']"
+                                class="btn table-link text-warning">
+                                <i class="bi bi-search"></i>
+                            </a>
                             <a type="botton" (click)="onClickEdit(period)" class="btn table-link text-info"
                                 data-bs-toggle="modal" data-bs-target="#editPeriod">
                                 <i class="bi bi-pencil-square"></i>

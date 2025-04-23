@@ -50,7 +50,7 @@ export class PostgroupComponent implements OnInit {
   }
 
   loadOneTransaction(id: string) {
-    this.traSrv.findOneById(this.curTraId).subscribe((data) => {
+    this.traSrv.findOne(this.curTraId).subscribe((data) => {
       this.curTransaction = data;
     });
   }

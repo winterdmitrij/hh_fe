@@ -12,8 +12,9 @@ const routes: Routes = [
   { path: "transaction/:id", component: PostgroupComponent },
   { path: "postgroups", component: PostgroupComponent },
   { path: "periods", component: PeriodComponent },
+  { path: "periods/:prd/documents", component: DocumentComponent },
   { path: "documents", component: DocumentComponent },
-  { path: "documents/:id", component: PositionComponent },
+  { path: "periods/:prd/documents/:id", component: PositionComponent }, //? periods/:prd/documents/:id
 ];
 
 @NgModule({

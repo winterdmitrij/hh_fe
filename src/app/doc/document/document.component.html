@@ -4,7 +4,8 @@
     <!-- Select list Periods -->
     <div class="container" *ngIf="periods">
         <label for="periodSelect">Periode: </label>
-        <select id="periodSelect" class="form-select mb-3" [ngModel]="curPrd" (ngModelChange)="onSelectChange($event)">
+        <select id="periodSelect" class="form-select mb-3" [(ngModel)]="curPrd"
+            (ngModelChange)="onSelectChange($event)">
             <option *ngFor="let period of periods" [value]="period.prd">
                 {{ period.prd }}
             </option>
@@ -36,7 +37,7 @@
                             <span>{{ document.dat }}</span> <!-- ToDo: Datumformat -->
                         </th>
                         <th>
-                            <span>{{ document.amt }}</span> <!-- ToDo: Geldformat -->
+                            <span>{{ document.amt | currency:'EUR' }}</span> <!-- ToDo: Geldformat -->
                         </th>
                         <th>
                             <i *ngIf="!document.rls" class="bi bi-square" style="color: red"></i>
@@ -47,7 +48,7 @@
                         </th>
                         <th>
                             <!-- Zum Dokument -->
-                            <a type="botton" [routerLink]="['/documents/', document.id]"
+                            <a type="botton" [routerLink]="['/periods/',curPrd,'documents',document.id]"
                                 class="btn table-link text-warning">
                                 <i class="bi bi-search"></i>
                             </a>

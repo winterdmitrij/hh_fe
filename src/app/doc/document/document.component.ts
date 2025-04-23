@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { PeriodService } from "../period/period.service";
 import { DocumentModel, PeriodModel } from "../doc.model";
 import { DocumentService } from "./document.service";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 
 @Component({
   selector: "app-document",
@@ -9,20 +10,18 @@ import { DocumentService } from "./document.service";
   styleUrl: "./document.component.css",
 })
 export class DocumentComponent implements OnInit {
-  /* ToDo:
-- Period festhalten:
--- Wenn ich zu einem Dokument von einem geschloßenen Period navigiert wurde,
--- beim Zurückgehen wird es automatisch den letzten aktiven Period eingeschaltet.
-*/
-
   periods: PeriodModel[] = [];
   curPrd?: string;
 
   documents: DocumentModel[] = [];
   rlsDocument?: DocumentModel;
-  //  cncDocument?: DocumentModel;
 
-  constructor(private prdSrv: PeriodService, private docSrv: DocumentService) {}
+  constructor(
+    private prdSrv: PeriodService,
+    private docSrv: DocumentService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadDropdowns();
@@ -30,27 +29,35 @@ export class DocumentComponent implements OnInit {
 
   // Select-List befüllen, und den letzten aktiven Period als aktuell setzen
   loadDropdowns() {
-    this.prdSrv.findAll().subscribe((data) => {
-      this.periods = data;
+    this.prdSrv.findAll().subscribe((prdLst) => {
+      this.periods = prdLst;
 
-      // Alle aktive Periode suchen und absteigend sortieren
-      const actPeriods = this.periods
-        .filter((p) => p.act)
-        .sort((a, b) => b.prd.localeCompare(a.prd));
+      // Pfad-Parameter ablesen und Dokument laden oder verlinken
+      this.route.params.subscribe((params: Params) => {
+        const prd = params["prd"];
 
-      if (actPeriods.length > 0) {
-        // erste Element des Period-Arrays ist aktuell
-        this.curPrd = actPeriods[0].prd;
-        this.loadDocuments();
-      }
+        if (prd) {
+          this.curPrd = prd;
+          console.log("curPrd von Pfad: ", prd);
+
+          this.loadDocuments(prd);
+        } else {
+          const maxActPrd = this.getLatestActivePeriod(prdLst);
+          console.log("curPrd von DB: ", maxActPrd);
+
+          if (maxActPrd) {
+            this.router.navigate(["/periods", maxActPrd.prd, "documents"]);
+          }
+        }
+      });
     });
   }
 
-  loadDocuments() {
+  loadDocuments(prd: string) {
     this.docSrv.findAll().subscribe((data) => {
       const curDocuments = data.filter((doc) => {
         const docDate = new Date(doc.dat).toDateString();
-        const prdDate = this.getDateByPrd(this.curPrd!).toDateString();
+        const prdDate = this.getDateByPrd(prd).toDateString();
 
         return docDate === prdDate;
       });
@@ -58,10 +65,12 @@ export class DocumentComponent implements OnInit {
     });
   }
 
-  // wenn Wert der Select-Liste geändert ist
-  onSelectChange(prd: string) {
-    this.curPrd = prd;
-    this.loadDocuments();
+  // Wenn Auswahl geändert → neue Route
+  onSelectChange(newPrd: string) {
+    //const newPrd = (event.target as HTMLSelectElement).value;
+    console.log("Neues ausgew. Period: ", newPrd);
+
+    this.router.navigate(["/periods", String(newPrd), "documents"]);
   }
 
   // Freigabe/Stornierung des Dokuments
@@ -74,7 +83,7 @@ export class DocumentComponent implements OnInit {
       next: (res) => {
         console.log("Aktualisiert: ", res);
 
-        this.loadDocuments();
+        this.loadDocuments(this.curPrd!);
       },
       error: (err) => {
         console.log("Fehler beim Aktualisieren: ", err);
@@ -83,7 +92,7 @@ export class DocumentComponent implements OnInit {
   }
 
   // Umwandelt Period (zB: 2503) ins Datum (31.03.2025)
-  getDateByPrd(prd: string): Date {
+  private getDateByPrd(prd: string): Date {
     if (!/^\d{4}$/.test(prd)) {
       throw new Error('Ungültiges Format. Erwartet JJMM, z.B. "2503"');
     }
@@ -94,5 +103,13 @@ export class DocumentComponent implements OnInit {
     // JavaScript zählt Monate ab 0 (Januar = 0), daher month = month
     // Letzter Tag des Monats: nächster Monat minus 1 Tag
     return new Date(year, month, 0); // z. B. new Date(2025, 3, 0) → 31. März 2025
+  }
+
+  private getLatestActivePeriod(
+    periods: PeriodModel[]
+  ): PeriodModel | undefined {
+    return periods
+      .filter((p) => p.act)
+      .sort((a, b) => b.prd.localeCompare(a.prd))[0];
   }
 }

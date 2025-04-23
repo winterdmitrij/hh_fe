@@ -15,7 +15,7 @@ export class TransactionService {
     return this.http.get<TransactionModel[]>(`${this.apiUrl}/transactions`);
   }
 
-  findOneById(id: string): Observable<TransactionModel> {
+  findOne(id: string): Observable<TransactionModel> {
     return this.http.get<TransactionModel>(`${this.apiUrl}/transactions/${id}`);
   }
 }
