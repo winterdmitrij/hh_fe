@@ -21,10 +21,10 @@ import {
   TransactionModel,
 } from "../../cat/cat.model";
 import { AccountService } from "../../cat/account/account.service";
-import { PostService } from "../../cat/post/post.service";
 import { DocumentModel, PositionModel } from "../doc.model";
 import { InformationService } from "../../cat/services/information.service";
 import { TransactionService } from "../../cat/transaction/transaction.service";
+import { firstValueFrom } from "rxjs";
 
 // Custom Validator
 function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
@@ -36,16 +36,10 @@ function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
   templateUrl: "./position-form.component.html",
   styleUrl: "./position-form.component.css",
 })
-export class PositionFormComponent implements OnInit, OnChanges {
+export class PositionFormComponent implements OnInit {
   /**
    * Diese Form wird fürs Hinzufügen oder Äktualisiren von Position benutzt
    */
-
-  /* ToDo:
-- Info-Elemente bei Feld.invalid (z.B Border: red, info: zu lang, oder Pflichtfeld...)
-- Filter-Möglichkeit für posts (vielleicht radios: nur Einkommen, nur Ausgaben)
-- HIER muss Schaltfläche mit Lupe beim EXP-Dokument angezeigt
-*/
   @Input() document?: DocumentModel;
   @Input() position?: PositionModel;
 
@@ -54,14 +48,14 @@ export class PositionFormComponent implements OnInit, OnChanges {
   // Dropdown-Listen
   accounts: AccountModel[] = [];
   posts: PostModel[] = [];
-  transaction?: TransactionModel; // für Postsfilter
-  transactionen: TransactionModel[] = [];
+
+  transactions: TransactionModel[] = [];
 
   // Dokumenteninformation
   docInf?: InformationModel;
   defAccId?: number;
-  defTraId?: number; // für Postsfilter
-  canChanged: boolean = true; // wenn false, darf traId nicht geändert werden
+  selTraId?: number; // TransactionId für Postsfilter
+  canChanged: boolean = false; // wenn false, darf traId nicht geändert werden
 
   posId?: string;
 
@@ -81,6 +75,7 @@ export class PositionFormComponent implements OnInit, OnChanges {
       Validators.required,
       Validators.min(100),
     ]),
+    tra_id: new FormControl<number>(1, Validators.required),
     pst_id: new FormControl<number | null>(null, [
       Validators.required,
       Validators.min(10000),
@@ -94,53 +89,74 @@ export class PositionFormComponent implements OnInit, OnChanges {
 
   constructor(
     private accSrv: AccountService,
-    private pstSrv: PostService,
     private traSrv: TransactionService,
     private infSrv: InformationService
   ) {}
 
-  ngOnInit(): void {
-    this.loadDropdowns();
-  }
+  async ngOnInit(): Promise<void> {
+    console.log("ngOnInit gestarted.");
+    await this.loadDropdowns();
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes["document"]) {
-      this.loadDocInfoAndInitForm();
-    }
-    if (changes["position"] && this.document) {
-      this.patchForm(); // Für Edit-Mode
-    }
+    // Jetzt kannst du die nächste Funktion starten
+    this.loadDocInfoAndInitForm(); // jetzt sicher nach Dropdowns
+
+    // Änderung des Transaktions
+    this.form.get("tra_id")?.valueChanges.subscribe((tra_id) => {
+      this.selTraId = Number(tra_id);
+      this.posts = this.getFiltredPosts(this.selTraId);
+    });
   }
 
   // --- Initialisierung ---
-  loadDropdowns() {
-    this.accSrv.findAll().subscribe((data) => (this.accounts = data));
-    this.pstSrv.findAll().subscribe((data) => (this.posts = data));
-    this.traSrv.findAll().subscribe((data) => (this.transactionen = data));
+  async loadDropdowns(): Promise<void> {
+    console.log("loadDropdowns gestarted.");
+
+    try {
+      const [accData, traData] = await Promise.all([
+        firstValueFrom(this.accSrv.findAll()),
+        firstValueFrom(this.traSrv.findAll()),
+      ]);
+
+      this.accounts = accData;
+      this.transactions = traData;
+    } catch (error) {
+      console.error("Fehler beim Laden der Dropdowns: ", error);
+    }
+
+    console.log("- Accounts: ", this.accounts);
+    console.log("- Transactions: ", this.transactions);
   }
 
-  loadTransaction(id: string) {
-    this.traSrv.findOne(id).subscribe((data) => (this.transaction = data));
-  }
-
-  onRadioChange(id: number) {
-    console.log("Transaktion geändert: ", id);
-    this.loadTransaction(String(id));
-  }
-
-  // gibt den Dokument-Type aus Dokument-Id zurück
+  // ermittelt Dokumentinfo
   loadDocInfoAndInitForm() {
+    console.log("loadDocInfoAndInitForm gestarted: ", this.document);
     if (!this.document) return;
+
     const docTyp = this.document.id.substring(5, 8);
 
     this.infSrv.findOne(docTyp).subscribe({
       next: (info) => {
         this.docInf = info;
         this.defAccId = info.account.id;
-        this.defTraId = info.transaction?.id || 1; // defTraId ? defTraId : 1
-        if (info.transaction?.id) this.canChanged = false;
+        if (info.transaction?.id) {
+          this.selTraId = info.transaction?.id;
+          //this.form.get("tra_id")?.setValue(this.selTraId);
+          this.canChanged = false;
+          this.form.get("tra_id")?.disable();
+        } else {
+          this.selTraId = 1;
+          //          this.form.get("tra_id")?.setValue(this.selTraId);
+          this.canChanged = true;
+          this.form.get("tra_id")?.enable();
+        }
+        console.log("- Selected TransactionId: ", this.selTraId);
+        this.form.get("tra_id")?.setValue(this.selTraId);
 
-        this.patchForm(); // Initialisiere erst jetzt!
+        this.posts = this.getFiltredPosts(this.selTraId);
+        console.log("- Aktuelle Posten: ", this.posts);
+
+        // PatchForm nur wenn Transaktionen schon geladen
+        if (this.transactions.length > 0) this.patchForm();
       },
       error: (err) => {
         console.error("Fehler beim Laden der Dokument-Information:", err);
@@ -149,7 +165,9 @@ export class PositionFormComponent implements OnInit, OnChanges {
   }
 
   // Befüllt der FormForm
+  // ToDo: beim Ändern befüllung der Konto
   patchForm() {
+    console.log("patchForm gestarted.");
     if (!this.document) return;
 
     if (!this.position) {
@@ -160,9 +178,10 @@ export class PositionFormComponent implements OnInit, OnChanges {
         id: this.posId,
         doc_id: this.document.id,
         acc_id: this.defAccId ?? null,
+        tra_id: this.selTraId ?? 1,
       });
 
-      console.log("Neue Position: ", this.posId);
+      //      console.log("Neue Position: ", this.posId);
     } else {
       // Vorhandene Position (Edit)
       this.posId = this.position.id;
@@ -171,12 +190,13 @@ export class PositionFormComponent implements OnInit, OnChanges {
         id: this.position.id,
         doc_id: this.document.id,
         acc_id: this.position.account?.id ?? null,
+        //       tra_id: this.selTraId,
         pst_id: this.position.post?.id ?? null,
         amt: this.position.amt ?? null,
         cmt: this.position.cmt ?? "",
       });
 
-      console.log("Position bearbeiten: ", this.posId);
+      //      console.log("Position bearbeiten: ", this.posId);
     }
   }
 
@@ -201,6 +221,7 @@ export class PositionFormComponent implements OnInit, OnChanges {
 
   // --- Hilfsmethoden ---
   getNextPosId(): string {
+    console.log("getNextPosId gestarted.");
     if (!this.document) return "";
     const docId = this.document.id;
 
@@ -220,5 +241,22 @@ export class PositionFormComponent implements OnInit, OnChanges {
     const nextNum = (maxNum + 1).toString().padStart(2, "0");
 
     return `${docId}.${nextNum}`;
+  }
+
+  // Gibt filtrierten Posts zurück
+  private getFiltredPosts(taId: number): PostModel[] {
+    console.log("getFilteredPosts gestarted. Id: ", taId); // Gibt richtig aus
+
+    const tra = this.transactions.find((t) => +t.id === +taId);
+    console.log("- Selected Transaction: ", tra); // Gibt undefined aus
+
+    if (!tra || !tra.postgroups) {
+      return [];
+    }
+
+    //    console.log("- Groups des Transaktions: ", tra.postgroups);
+    return tra.postgroups
+      .flatMap((pg) => pg.posts || []) // sammelt alle Posts aus allen Gruppen
+      .filter((post) => post.act); // optional: nur aktive/sichtbare
   }
 }

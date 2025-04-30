@@ -22,6 +22,8 @@ export class PositionComponent {
   docId?: string;
 
   // Variablen für Modalformen: Update und Delete
+  addMdlOpn: boolean = false;
+  updMdlOpn: boolean = false;
   updPosition?: PositionModel;
   delPosition?: PositionModel;
 
@@ -50,7 +52,12 @@ export class PositionComponent {
   }
 
   // Modal-Schaltflächen sind gedrückt
+  onAddClick() {
+    this.addMdlOpn = true;
+  }
+
   onUpdClick(position: PositionModel) {
+    this.updMdlOpn = true;
     this.updPosition = position;
   }
 
@@ -106,7 +113,8 @@ export class PositionComponent {
   // Schließt Modal Dialog
   private modalHide(modalId: string) {
     const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-
+    this.updMdlOpn = false;
+    this.addMdlOpn = false;
     modal.hide();
   }
 

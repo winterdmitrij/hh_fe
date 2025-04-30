@@ -26,41 +26,31 @@
             </div>
         </div>
 
-        <!-- Post -->
-        <div class="mt-3">
-            <label for="pst_id" class="form-label">Post</label>
-            <select id="pst_id" class="form-select" formControlName="pst_id"
-                [ngClass]="{ 'is-invalid': form.get('pst_id')?.invalid && form.get('pst_id')?.touched }">
-                <option value="" disabled selected>-- Post auswählen --</option>
-                <option *ngFor="let pst of posts" [value]="pst.id">{{ pst.dsg }}</option>
-            </select>
-            <div class="invalid-feedback" *ngIf="form.get('pst_id')?.errors">
-                Bitte ein gültiger Post auswählen.
-            </div>
-        </div>
-
-
-        <!-- ToDo: Post 2 -->
-        <div class="mt-3">
-            <div class="form-check form-check-inline" *ngFor="let tr of transactionen">
-                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="tra_id" [value]="tr.id"
-                    [(ngModel)]="defTraId" [disabled]="!canChanged && defTraId !== tr.id"
-                    (change)="onRadioChange(tr.id)">
-                <label class="form-check-label" for="tra_id">{{ tr.dsg }}</label>
-            </div>
-        </div>
 
         <div class="mt-3">
-            <label for="pst_id" class="form-label">Post</label>
-            <select id="pst_id" class="form-select" formControlName="pst_id"
-                [ngClass]="{ 'is-invalid': form.get('pst_id')?.invalid && form.get('pst_id')?.touched }">
-                <option value="" disabled selected>-- Post auswählen --</option>
-                <option *ngFor="let pst of transaction?.postgroups" [value]="pst.id">{{ pst.dsg }}</option>
-            </select>
-
-            <div class="invalid-feedback" *ngIf="form.get('pst_id')?.errors">
-                Bitte ein gültiger Post auswählen.
+            <!-- Transaction -->
+            <div class="mt-3">
+                <div class="form-check form-check-inline" *ngFor="let tr of transactions">
+                    <input class="form-check-input" type="radio" name="tra_id" [id]="'tra_' + tr.id" [value]="+tr.id"
+                        formControlName="tra_id">
+                    <label class="form-check-label" [for]="'tra_' + tr.id">{{ tr.dsg }}</label>
+                </div>
             </div>
+
+            <!-- ToDo: Post -->
+            <div class="mt-3">
+                <label for="pst_id" class="form-label">Post</label>
+                <select id="pst_id" class="form-select" formControlName="pst_id"
+                    [ngClass]="{ 'is-invalid': form.get('pst_id')?.invalid && form.get('pst_id')?.touched }">
+                    <option value="" disabled selected>-- Post auswählen --</option>
+                    <option *ngFor="let pst of posts" [value]="pst.id">{{ pst.dsg }}</option>
+                </select>
+
+                <div class="invalid-feedback" *ngIf="form.get('pst_id')?.errors">
+                    Bitte ein gültiger Post auswählen.
+                </div>
+            </div>
+
         </div>
 
         <!-- Betrag -->
@@ -93,4 +83,5 @@
             Speichern
         </button>
     </div>
+
 </form>

@@ -9,8 +9,8 @@
         </button>
 
         <!-- Add Position Modal -->
-        <button type="button" class="btn btn-success" [disabled]="document?.rls" data-bs-toggle="modal"
-            data-bs-target="#addPosition">
+        <button type="button" (click)="onAddClick()" class="btn btn-success" [disabled]="document?.rls"
+            data-bs-toggle="modal" data-bs-target="#addPosition">
             <i class="bi bi-plus-square me-2"></i>
             <span>Neue Position</span>
         </button>
@@ -68,66 +68,68 @@
             <h2 class="text-center text-warning mt-4">Noch keine Positionen in dem Dokument!</h2>
         </div>
     </ng-template>
-</div>
 
 
-<!-- Add Position Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="addPosition" tabindex="-1"
-    aria-labelledby="addPositionLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-light">
-            <!-- Header -->
-            <div class="modal-header">
-                <h5 class="modal-title">Position hinzufügen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+    <!-- Add Position Modal -->
+    <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="addPosition" tabindex="-1"
+        aria-labelledby="addPositionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">Position hinzufügen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <app-position-form *ngIf="addMdlOpn" [document]="document"
+                    (submitPosition)="handlePositionSave($event)">
+                </app-position-form>
+
             </div>
-
-            <app-position-form [document]="document" (submitPosition)="handlePositionSave($event)">
-            </app-position-form>
-
         </div>
     </div>
-</div>
 
-<!-- Upd Position Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="updPosition" tabindex="-1"
-    aria-labelledby="updPositionLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-light">
-            <!-- Header -->
-            <div class="modal-header">
-                <h5 class="modal-title">Position ändern</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Upd Position Modal -->
+    <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="updPosition" tabindex="-1"
+        aria-labelledby="updPositionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">Position ändern</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <app-position-form *ngIf="updMdlOpn" [document]="document" [position]="updPosition"
+                    (submitPosition)="handlePositionUpdate($event)">
+                </app-position-form>
+
             </div>
-
-            <app-position-form [document]="document" [position]="updPosition"
-                (submitPosition)="handlePositionUpdate($event)">
-            </app-position-form>
-
         </div>
     </div>
-</div>
 
-<!-- Del Position Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="delPosition" tabindex="-1"
-    aria-labelledby="delPositionLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-light">
-            <!-- Header -->
-            <div class="modal-header">
-                <h5 class="modal-title">Position löschen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+    <!-- Del Position Modal -->
+    <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="delPosition" tabindex="-1"
+        aria-labelledby="delPositionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">Position löschen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
-            <div class="modal-body">
-                <p>Muss die Position '{{ delPosition?.id }}' wirklich gelöscht werden?</p>
-            </div>
+                <div class="modal-body">
+                    <p>Muss die Position '{{ delPosition?.id }}' wirklich gelöscht werden?</p>
+                </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button (click)="handlePositionDelete(delPosition!)" class="btn btn-danger">
-                    Löschen
-                </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button (click)="handlePositionDelete(delPosition!)" class="btn btn-danger">
+                        Löschen
+                    </button>
+                </div>
             </div>
         </div>
     </div>
