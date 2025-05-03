@@ -24,3 +24,9 @@ input[type="radio"]:disabled+label {
 .modal-footer button+button {
     margin-left: 0.5rem;
 }
+
+input:focus,
+select:focus {
+    outline: 2px solid #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}

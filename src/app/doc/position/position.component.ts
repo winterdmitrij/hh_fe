@@ -18,12 +18,12 @@ export class PositionComponent {
    */
 
   // Dokument und Id (werden von Parameter abgelesen)
-  document?: DocumentModel;
+  document!: DocumentModel;
   docId?: string;
 
   // Variablen für Modalformen: Update und Delete
-  addMdlOpn: boolean = false;
-  updMdlOpn: boolean = false;
+  isEditMode: boolean = false;
+  modalOpen: boolean = false;
   updPosition?: PositionModel;
   delPosition?: PositionModel;
 
@@ -52,34 +52,50 @@ export class PositionComponent {
   }
 
   // Modal-Schaltflächen sind gedrückt
-  onAddClick() {
-    this.addMdlOpn = true;
+  openAddModal() {
+    this.updPosition = undefined;
+    this.modalOpen = true;
+    this.showModal();
   }
 
-  onUpdClick(position: PositionModel) {
-    this.updMdlOpn = true;
-    this.updPosition = position;
+  openUpdModal(pos: PositionModel) {
+    this.updPosition = pos;
+    this.modalOpen = true;
+    this.showModal();
   }
 
-  onDelClick(position: PositionModel) {
-    this.delPosition = position;
+  openDelModal(pos: PositionModel) {
+    this.delPosition = pos;
+  }
+
+  private showModal() {
+    const modalEl = document.getElementById("positionModal");
+
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  }
+
+  onModalClosed(modalId: string) {
+    this.modalHide(modalId);
   }
 
   // --- Events-Behandlung ---
-  // Add new Position
-  handlePositionSave(position: PositionModel) {
-    this.handleRequest(this.posSrv.create(position), "addPosition");
-  }
-
-  // Update a Position
-  handlePositionUpdate(position: PositionModel) {
-    this.handleRequest(this.posSrv.update(position), "updPosition");
+  // Add or Upd Position
+  handlePositionSave(pos: PositionModel) {
+    if (this.updPosition) {
+      this.handleRequest(this.posSrv.update(pos));
+    } else {
+      this.handleRequest(this.posSrv.create(pos));
+    }
+    console.log("Position erfolgreich gespeichert.");
   }
 
   // Delete a Position
-  handlePositionDelete(position: PositionModel) {
+  handlePositionDelete(pos: PositionModel) {
     this.posSrv
-      .delete(position)
+      .delete(pos)
       .pipe(
         catchError((error) => {
           console.error("Fehler beim Löschen der Position:", error);
@@ -88,7 +104,7 @@ export class PositionComponent {
         })
       )
       .subscribe(() => {
-        console.log("Position erfolgreich gelöscht");
+        console.log("Position erfolgreich gelöscht.");
 
         this.modalHide("delPosition");
 
@@ -96,12 +112,12 @@ export class PositionComponent {
       });
   }
 
-  private handleRequest(obs$: Observable<any>, modalId: string) {
+  private handleRequest(obs$: Observable<any>) {
     obs$.subscribe({
       next: (res) => {
         console.log("Erfolg: ", res);
 
-        this.modalHide(modalId);
+        this.modalHide("positionModal");
         this.refreshData();
       },
       error: (err) => {
@@ -113,8 +129,9 @@ export class PositionComponent {
   // Schließt Modal Dialog
   private modalHide(modalId: string) {
     const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-    this.updMdlOpn = false;
-    this.addMdlOpn = false;
+    this.updPosition = undefined;
+    this.delPosition = undefined;
+    this.modalOpen = false;
     modal.hide();
   }
 

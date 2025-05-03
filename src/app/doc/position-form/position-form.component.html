@@ -1,13 +1,14 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
     <!-- Modal Body -->
     <div class="modal-body">
-        <!-- Dokument-Id (versteckt) -->
-        <input type="hidden" id="doc_id" formControlName="doc_id" />
-        <div class="form-text">ins Dokument '{{ document?.id }}'</div>
-
         <!-- Position-Id (versteckt) -->
         <input type="hidden" id="id" formControlName="id" />
-        <div class="form-text">mit dem Position-Id '{{ posId }}'</div>
+        <div class="form-text">Position-Id: '{{ posId }}'</div>
+
+        <!-- Dokument-Id (versteckt) -->
+        <input type="hidden" id="doc_id" formControlName="doc_id" />
+        <div class="form-text">Dokument-Id: '{{ document?.id }}'</div>
 
         <!-- Konto -->
         <div class="mt-3">

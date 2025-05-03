@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from "@angular/core";
 import {
   AbstractControl,
   FormControl,
@@ -17,8 +26,9 @@ import { DocumentModel, PositionModel } from "../doc.model";
 import { InformationService } from "../../cat/services/information.service";
 import { TransactionService } from "../../cat/transaction/transaction.service";
 import { firstValueFrom } from "rxjs";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
-// Custom Validator
+// Validator für Betrag: darf nich 0 sein
 function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
   return control.value !== 0 ? null : { nonZero: true };
 }
@@ -28,8 +38,9 @@ function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
   templateUrl: "./position-form.component.html",
   styleUrl: "./position-form.component.css",
 })
-export class PositionFormComponent implements OnInit {
-  // ToDo: Beim Schließen Form reseten
+export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
+  // ToDo: Blokieren der Radio-Buttons
+  // ToDo: Ordnung
   @Input() document?: DocumentModel;
   @Input() position?: PositionModel;
   @Output() submitPosition = new EventEmitter<any>();
@@ -41,8 +52,9 @@ export class PositionFormComponent implements OnInit {
   docInf?: InformationModel;
   defAccId?: number;
   selTraId?: number;
-  canChanged: boolean = false;
 
+  canChanged: boolean = false;
+  isUpdMode: boolean = false;
   posId?: string;
 
   form = new FormGroup({
@@ -73,6 +85,7 @@ export class PositionFormComponent implements OnInit {
   });
 
   constructor(
+    private modalSrv: NgbModal,
     private accSrv: AccountService,
     private traSrv: TransactionService,
     private infSrv: InformationService
@@ -88,6 +101,16 @@ export class PositionFormComponent implements OnInit {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["position"] || changes["document"]) {
+      this.isUpdMode = !!this.position;
+
+      if (this.transactions.length > 0) {
+        this.loadDocInfoAndInitForm();
+      }
+    }
+  }
+
   async loadDropdowns(): Promise<void> {
     try {
       const [accData, traData] = await Promise.all([
@@ -101,27 +124,80 @@ export class PositionFormComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit(): void {
+    const modalEl = document.getElementById("positionModal");
+
+    if (!modalEl) return;
+
+    // Zurücksetzen beim Schließen
+    modalEl.addEventListener("hidden.bs.modal", () => {
+      this.form.reset();
+
+      // Touch-Status entfernen (sonst bleibt is-invalid sichtbar)
+      Object.keys(this.form.controls).forEach((key) =>
+        this.form.get(key)?.markAsUntouched()
+      );
+
+      this.posId = undefined;
+      this.position = undefined;
+
+      // Setze Defaultwerte für neue Position
+      this.form.patchValue({
+        acc_id: this.defAccId ?? null,
+        tra_id: this.selTraId ?? 1,
+      });
+    });
+  }
+
   loadDocInfoAndInitForm() {
     if (!this.document) return;
 
     const docTyp = this.document.id.substring(5, 8);
+
     this.infSrv.findOne(docTyp).subscribe({
       next: (info) => {
         this.docInf = info;
         this.defAccId = info.account.id;
 
-        if (info.transaction?.id) {
-          this.selTraId = info.transaction.id;
-          this.form.get("tra_id")?.setValue(this.selTraId);
-          this.canChanged = false;
-          this.form.get("tra_id")?.disable();
-        } else {
-          this.selTraId = 1;
-          this.form.get("tra_id")?.setValue(this.selTraId);
-          this.canChanged = true;
-          this.form.get("tra_id")?.enable();
+        // 1. Versuche die tra_id anhand des Post der Position zu bestimmen
+        if (this.position?.post?.id) {
+          const postId = this.position.post.id;
+          const matchedTra = this.transactions.find((t) =>
+            t.postgroups?.some((pg) => pg.posts?.some((p) => p.id === postId))
+          );
+          if (matchedTra) {
+            this.selTraId = matchedTra.id;
+          }
         }
 
+        // 2. Falls keine zugehörige Transaction gefunden, verwende die Dokument-Default-Transaction
+        if (!this.selTraId && info.transaction?.id) {
+          this.selTraId = info.transaction.id;
+        }
+
+        // 3. Wenn immer noch nichts gefunden, setze auf 1
+        if (!this.selTraId) {
+          this.selTraId = 1;
+        }
+
+        // 4. Setze Wert im Formular und (de)aktiviere entsprechend
+        this.form.get("tra_id")?.setValue(this.selTraId);
+        this.canChanged = !info.transaction?.id;
+        //      this.form.get("tra_id")?.disabled(!this.canChanged);
+
+        //  if (info.transaction?.id) {
+        //    this.selTraId = info.transaction.id;
+        //    this.form.get("tra_id")?.setValue(this.selTraId);
+        //    this.canChanged = false;
+        //    this.form.get("tra_id")?.disable();
+        //  } else {
+        //    this.selTraId = 1;
+        //    this.form.get("tra_id")?.setValue(this.selTraId);
+        //    this.canChanged = true;
+        //    this.form.get("tra_id")?.enable();
+        //  }
+
+        // 5. Filtere Posts und patchForm
         this.posts = this.getFiltredPosts(this.selTraId);
 
         if (this.transactions.length > 0) {
@@ -176,6 +252,8 @@ export class PositionFormComponent implements OnInit {
       this.form.markAllAsTouched();
     }
   }
+
+  onCancel() {}
 
   getNextPosId(): string {
     if (!this.document) return "";

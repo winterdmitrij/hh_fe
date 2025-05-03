@@ -8,9 +8,8 @@
             <span>Zu Dokumenten</span>
         </button>
 
-        <!-- Add Position Modal -->
-        <button type="button" (click)="onAddClick()" class="btn btn-success" [disabled]="document?.rls"
-            data-bs-toggle="modal" data-bs-target="#addPosition">
+        <!-- Add Position Modal data-bs-toggle="modal" data-bs-target="#addPosition"-->
+        <button type="button" (click)="openAddModal()" class="btn btn-success" [disabled]="document?.rls">
             <i class="bi bi-plus-square me-2"></i>
             <span>Neue Position</span>
         </button>
@@ -45,13 +44,12 @@
                         <td><span>{{ position.cmt }}</span></td>
 
                         <td class="text-center" *ngIf="!document?.rls">
-                            <!-- Edit: Bleistift -->
-                            <a type="button" (click)="onUpdClick(position)" class="btn table-link text-info"
-                                data-bs-toggle="modal" data-bs-target="#updPosition">
+                            <!-- Edit: Bleistift data-bs-toggle="modal" data-bs-target="#updPosition"-->
+                            <a type="button" (click)="openUpdModal(position)" class="btn table-link text-info">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                             <!-- Delete: Mülleimer -->
-                            <a type="button" (click)="onDelClick(position)" class="btn table-link text-danger"
+                            <a type="button" (click)="openDelModal(position)" class="btn table-link text-danger"
                                 data-bs-toggle="modal" data-bs-target="#delPosition">
                                 <i class="bi bi-x-square"></i>
                             </a>
@@ -71,38 +69,23 @@
 
 
 
-    <!-- Add Position Modal -->
-    <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="addPosition" tabindex="-1"
-        aria-labelledby="addPositionLabel" aria-hidden="true">
+    <!-- Add/Upd Position Modal -->
+    <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="positionModal" tabindex="-1"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-light">
-                <!-- Header -->
+
+                <!-- Modal Header -->
                 <div class="modal-header">
-                    <h5 class="modal-title">Position hinzufügen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">
+                        {{ isEditMode ? 'Position bearbeiten' : 'Position hinzufügen' }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"
+                        (click)="onModalClosed('positionModal')"></button>
                 </div>
 
-                <app-position-form *ngIf="addMdlOpn" [document]="document"
+                <app-position-form *ngIf="modalOpen" [document]="document" [position]="updPosition"
                     (submitPosition)="handlePositionSave($event)">
-                </app-position-form>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- Upd Position Modal -->
-    <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="updPosition" tabindex="-1"
-        aria-labelledby="updPositionLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-light">
-                <!-- Header -->
-                <div class="modal-header">
-                    <h5 class="modal-title">Position ändern</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <app-position-form *ngIf="updMdlOpn" [document]="document" [position]="updPosition"
-                    (submitPosition)="handlePositionUpdate($event)">
                 </app-position-form>
 
             </div>
@@ -125,7 +108,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        (click)="onModalClosed('delPosition')">Schließen</button>
                     <button (click)="handlePositionDelete(delPosition!)" class="btn btn-danger">
                         Löschen
                     </button>

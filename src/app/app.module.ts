@@ -1,4 +1,5 @@
 import { NgModule } from "@angular/core";
+import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
 import { BrowserModule } from "@angular/platform-browser";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
@@ -12,6 +13,7 @@ import { DocModule } from "./doc/doc.module";
   declarations: [AppComponent],
   imports: [
     BrowserModule,
+    NgbModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
