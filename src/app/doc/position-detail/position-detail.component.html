@@ -1,1 +1,29 @@
-<p>position-detail works!</p>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+        <!-- Position-Id (versteckt) -->
+        <input type="hidden" id="pos_id" formControlName="pos_id" />
+        <div class="form-text">Position-Id: '{{ detail?.pos_id }}'</div>
+
+        <!-- Betrag -->
+        <div class="mt-3">
+            <label for="amt_dtl" class="form-label">Detailierter Betrag</label>
+            <input id="amt_dtl" type="text" class="form-control" formControlName="amt_dtl"
+                [ngClass]="{ 'is-invalid': form.get('amt_dtl')?.invalid && form.get('amt_dtl')?.touched }" />
+            <div class="invalid-feedback" *ngIf="form.get('amt_dtl')?.errors">
+                Betrag muss ungleich 0 sein.
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Schließen
+        </button>
+        <button type="submit" class="btn btn-success" data-bs-dismiss="modal" [disabled]="form.invalid">
+            Speichern
+        </button>
+    </div>
+</form>

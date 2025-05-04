@@ -44,13 +44,17 @@
                         <td><span>{{ position.cmt }}</span></td>
 
                         <td class="text-center" *ngIf="!document?.rls">
+                            <!-- Detail: Lupe data-bs-toggle="modal" data-bs-target="#updPosition"-->
+                            <a *ngIf="docTyp === 'Exp'" type="button" (click)="openDtlModal(position)"
+                                class="btn table-link text-warning">
+                                <i class="bi bi-search"></i>
+                            </a>
                             <!-- Edit: Bleistift data-bs-toggle="modal" data-bs-target="#updPosition"-->
                             <a type="button" (click)="openUpdModal(position)" class="btn table-link text-info">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <!-- Delete: Mülleimer -->
-                            <a type="button" (click)="openDelModal(position)" class="btn table-link text-danger"
-                                data-bs-toggle="modal" data-bs-target="#delPosition">
+                            <!-- Delete: Mülleimer data-bs-toggle="modal" data-bs-target="#delPosition"-->
+                            <a type="button" (click)="openDelModal(position)" class="btn table-link text-danger">
                                 <i class="bi bi-x-square"></i>
                             </a>
                     </tr>
@@ -68,6 +72,30 @@
     </ng-template>
 
 
+    <!-- Detail-Position Modal -->
+    <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="detailModal" tabindex="-1"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Position detail
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"
+                        (click)="onModalClosed('detailModal')">
+                    </button>
+                </div>
+                <app-position-detail *ngIf="modalOpen" [position]="dtlPosition"
+                    (submitPosition)="handleDetailSave($event)">
+
+                </app-position-detail>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Add/Upd Position Modal -->
     <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="positionModal" tabindex="-1"
@@ -81,7 +109,8 @@
                         {{ isEditMode ? 'Position bearbeiten' : 'Position hinzufügen' }}
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"
-                        (click)="onModalClosed('positionModal')"></button>
+                        (click)="onModalClosed('positionModal')">
+                    </button>
                 </div>
 
                 <app-position-form *ngIf="modalOpen" [document]="document" [position]="updPosition"

@@ -1,11 +1,17 @@
 declare var bootstrap: any;
 import { Component } from "@angular/core";
 //import { Modal } from "bootstrap";
-import { DocumentModel, PositionModel } from "../doc.model";
+import {
+  DocumentModel,
+  PositionDetailModel,
+  PositionModel,
+} from "../doc.model";
 import { PositionService } from "./position.service";
 import { ActivatedRoute } from "@angular/router";
 import { DocumentService } from "../document/document.service";
 import { catchError, Observable, of } from "rxjs";
+import { log } from "console";
+import { PositionDetailService } from "../position-detail/position-detail.service";
 
 @Component({
   selector: "app-position",
@@ -20,16 +26,19 @@ export class PositionComponent {
   // Dokument und Id (werden von Parameter abgelesen)
   document!: DocumentModel;
   docId?: string;
+  docTyp?: string;
 
   // Variablen für Modalformen: Update und Delete
   isEditMode: boolean = false;
   modalOpen: boolean = false;
   updPosition?: PositionModel;
   delPosition?: PositionModel;
+  dtlPosition?: PositionModel;
 
   constructor(
     private docSrv: DocumentService,
     private posSrv: PositionService,
+    private posDtlSrv: PositionDetailService,
     private route: ActivatedRoute
   ) {
     // Pfad-Parameter ablesen und Dokument laden
@@ -38,6 +47,7 @@ export class PositionComponent {
 
       if (id) {
         this.docId = id;
+        this.docTyp = id.substring(5, 8);
         this.loadDocument(id);
       }
     });
@@ -55,21 +65,29 @@ export class PositionComponent {
   openAddModal() {
     this.updPosition = undefined;
     this.modalOpen = true;
-    this.showModal();
+    this.showModal("positionModal");
+  }
+
+  openDtlModal(pos: PositionModel) {
+    console.log("Position-Detail geöffnen!", pos.id);
+    this.dtlPosition = pos;
+    this.modalOpen = true;
+    this.showModal("detailModal");
   }
 
   openUpdModal(pos: PositionModel) {
     this.updPosition = pos;
     this.modalOpen = true;
-    this.showModal();
+    this.showModal("positionModal");
   }
 
   openDelModal(pos: PositionModel) {
     this.delPosition = pos;
+    this.showModal("delPosition");
   }
 
-  private showModal() {
-    const modalEl = document.getElementById("positionModal");
+  private showModal(modalId: string) {
+    const modalEl = document.getElementById(modalId);
 
     if (modalEl) {
       const modal = new bootstrap.Modal(modalEl);
@@ -85,11 +103,17 @@ export class PositionComponent {
   // Add or Upd Position
   handlePositionSave(pos: PositionModel) {
     if (this.updPosition) {
-      this.handleRequest(this.posSrv.update(pos));
+      this.handleRequest(this.posSrv.update(pos), "positionModal");
     } else {
-      this.handleRequest(this.posSrv.create(pos));
+      this.handleRequest(this.posSrv.create(pos), "positionModal");
     }
-    console.log("Position erfolgreich gespeichert.");
+    console.log("Position erfolgreich gespeichert.", pos);
+  }
+
+  // Upd Position-Detail
+  handleDetailSave(dtl: PositionDetailModel) {
+    this.handleRequest(this.posDtlSrv.update(dtl), "detailModal");
+    console.log("Position-Detail erfolgreich gespeichert.", dtl);
   }
 
   // Delete a Position
@@ -107,17 +131,16 @@ export class PositionComponent {
         console.log("Position erfolgreich gelöscht.");
 
         this.modalHide("delPosition");
-
         this.refreshData();
       });
   }
 
-  private handleRequest(obs$: Observable<any>) {
+  private handleRequest(obs$: Observable<any>, modalId: string) {
     obs$.subscribe({
       next: (res) => {
         console.log("Erfolg: ", res);
 
-        this.modalHide("positionModal");
+        this.modalHide(modalId);
         this.refreshData();
       },
       error: (err) => {

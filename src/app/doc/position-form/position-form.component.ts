@@ -26,7 +26,6 @@ import { DocumentModel, PositionModel } from "../doc.model";
 import { InformationService } from "../../cat/services/information.service";
 import { TransactionService } from "../../cat/transaction/transaction.service";
 import { firstValueFrom } from "rxjs";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
 // Validator für Betrag: darf nich 0 sein
 function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
@@ -39,8 +38,11 @@ function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
   styleUrl: "./position-form.component.css",
 })
 export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
-  // ToDo: Blokieren der Radio-Buttons
-  // ToDo: Ordnung
+  /** ToDos:
+   * - Validator: Betrag != 0 nicht mehr aktuell (wegen Exp)
+   * - Unnötige löschen
+   */
+
   @Input() document?: DocumentModel;
   @Input() position?: PositionModel;
   @Output() submitPosition = new EventEmitter<any>();
@@ -79,13 +81,12 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
     ]),
     amt: new FormControl<number | null>(null, [
       Validators.required,
-      nonZeroValidator,
+      //nonZeroValidator,
     ]),
     cmt: new FormControl(""),
   });
 
   constructor(
-    private modalSrv: NgbModal,
     private accSrv: AccountService,
     private traSrv: TransactionService,
     private infSrv: InformationService
@@ -131,21 +132,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
 
     // Zurücksetzen beim Schließen
     modalEl.addEventListener("hidden.bs.modal", () => {
-      this.form.reset();
-
-      // Touch-Status entfernen (sonst bleibt is-invalid sichtbar)
-      Object.keys(this.form.controls).forEach((key) =>
-        this.form.get(key)?.markAsUntouched()
-      );
-
-      this.posId = undefined;
-      this.position = undefined;
-
-      // Setze Defaultwerte für neue Position
-      this.form.patchValue({
-        acc_id: this.defAccId ?? null,
-        tra_id: this.selTraId ?? 1,
-      });
+      this.resetForm();
     });
   }
 
@@ -183,19 +170,11 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
         // 4. Setze Wert im Formular und (de)aktiviere entsprechend
         this.form.get("tra_id")?.setValue(this.selTraId);
         this.canChanged = !info.transaction?.id;
-        //      this.form.get("tra_id")?.disabled(!this.canChanged);
-
-        //  if (info.transaction?.id) {
-        //    this.selTraId = info.transaction.id;
-        //    this.form.get("tra_id")?.setValue(this.selTraId);
-        //    this.canChanged = false;
-        //    this.form.get("tra_id")?.disable();
-        //  } else {
-        //    this.selTraId = 1;
-        //    this.form.get("tra_id")?.setValue(this.selTraId);
-        //    this.canChanged = true;
-        //    this.form.get("tra_id")?.enable();
-        //  }
+        if (this.canChanged) {
+          this.form.get("tra_id")?.enable();
+        } else {
+          this.form.get("tra_id")?.disable();
+        }
 
         // 5. Filtere Posts und patchForm
         this.posts = this.getFiltredPosts(this.selTraId);
@@ -213,6 +192,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
   patchForm() {
     if (!this.document) return;
 
+    // Für neue Position
     if (!this.position) {
       this.posId = this.getNextPosId();
       this.form.patchValue({
@@ -222,6 +202,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
         tra_id: this.selTraId ?? 1,
       });
     } else {
+      // Für editierende Position
       this.posId = this.position.id;
       this.form.patchValue({
         id: this.position.id,
@@ -235,6 +216,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
+  // --- Form schließen --- //
   onSubmit() {
     if (this.form.valid) {
       const pos = {
@@ -247,15 +229,29 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
       };
 
       this.submitPosition.emit(pos);
-      this.form.reset();
+      //this.resetForm();
     } else {
       this.form.markAllAsTouched();
     }
   }
 
-  onCancel() {}
+  private resetForm() {
+    this.form.reset();
 
-  getNextPosId(): string {
+    // Touch-Status entfernen (sonst bleibt is-invalid sichtbar)
+    Object.keys(this.form.controls).forEach((key) =>
+      this.form.get(key)?.markAsUntouched()
+    );
+
+    // Setze Defaultwerte für neue Position
+    this.form.patchValue({
+      acc_id: this.defAccId,
+      tra_id: this.selTraId ?? 1,
+    });
+  }
+
+  // --- Hilfsfunktionen --- //
+  private getNextPosId(): string {
     if (!this.document) return "";
     const docId = this.document.id;
 
