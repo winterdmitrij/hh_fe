@@ -69,10 +69,13 @@ export class PositionComponent {
   }
 
   openDtlModal(pos: PositionModel) {
-    console.log("Position-Detail geöffnen!", pos.id);
-    this.dtlPosition = pos;
-    this.modalOpen = true;
-    this.showModal("detailModal");
+    this.dtlPosition = undefined;
+    setTimeout(() => {
+      //console.log("Position-Detail geöffnen!", pos.id);
+      this.dtlPosition = pos;
+      this.modalOpen = true;
+      this.showModal("detailModal");
+    });
   }
 
   openUpdModal(pos: PositionModel) {
