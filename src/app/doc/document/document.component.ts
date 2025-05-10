@@ -12,6 +12,7 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 export class DocumentComponent implements OnInit {
   periods: PeriodModel[] = [];
   curPrd?: string;
+  maxActPrd?: PeriodModel;
 
   documents: DocumentModel[] = [];
   rlsDocument?: DocumentModel;
@@ -28,7 +29,7 @@ export class DocumentComponent implements OnInit {
   }
 
   // Select-List befüllen, und den letzten aktiven Period als aktuell setzen
-  loadDropdowns() {
+  async loadDropdowns() {
     this.prdSrv.findAll().subscribe((prdLst) => {
       this.periods = prdLst;
 
@@ -42,12 +43,19 @@ export class DocumentComponent implements OnInit {
 
           this.loadDocuments(prd);
         } else {
-          const maxActPrd = this.getLatestActivePeriod(prdLst);
-          console.log("curPrd von DB: ", maxActPrd);
+          //const maxActPrd = this.getLatestActivePeriod(prdLst);
+          this.prdSrv.findCurPrd().subscribe((p) => {
+            this.maxActPrd = p;
 
-          if (maxActPrd) {
-            this.router.navigate(["/periods", maxActPrd.prd, "documents"]);
-          }
+            console.log("curPrd von DB: ", this.maxActPrd);
+            if (this.maxActPrd) {
+              this.router.navigate([
+                "/periods",
+                this.maxActPrd.prd,
+                "documents",
+              ]);
+            }
+          });
         }
       });
     });
@@ -105,6 +113,7 @@ export class DocumentComponent implements OnInit {
     return new Date(year, month, 0); // z. B. new Date(2025, 3, 0) → 31. März 2025
   }
 
+  // ToDo: Löschen: prdSvc.getCurPrd()
   private getLatestActivePeriod(
     periods: PeriodModel[]
   ): PeriodModel | undefined {

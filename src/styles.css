@@ -1,0 +1,34 @@
+/* Tabellen */
+.table-wrapper {
+    max-height: 700px;
+    overflow-y: auto;
+}
+
+.fixed-header thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #0d6efd;
+    color: white;
+    border: 1px solid white;
+}
+
+.fixed-header thead th {
+    color: white;
+    background-color: #0d6efd;
+    border: 1px solid white;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
+
+.fixed-header th {
+    position: sticky;
+    top: 0;
+    background-color: inherit;
+}
+
+/*ToDo: Negative Zahlen: Farbe ist kaum sichtbar*/
+.negative {
+    color: #ff000096;
+}

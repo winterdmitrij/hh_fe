@@ -1,0 +1,57 @@
+<!-- Header -->
+<div class="modal-header">
+    <h5 class="modal-title">Details {{ accountId }}. ({{ accountDsg }})</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+</div>
+
+<div class="modal-body">
+    <!-- Wenn Positionen existieren -->
+    <ng-container *ngIf="hasDetails; else noDetails">
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark table-striped table-hover">
+
+                <thead class="text-nowrap text-center">
+                    <tr>
+                        <th scope="col"><span>Konto</span></th>
+                        <th scope="col"><span>Postgruppe</span></th>
+                        <th scope="col"><span>Post</span></th>
+                        <th scope="col"><span>Betrag</span></th>
+                        <th scope="col"><span>Kommentar</span></th>
+                        <th scope="col"><span>Dokument-Id</span></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let dtl of details">
+                        <td scope="row" class="text-center">
+                            <span>{{ dtl.acc_dsg }}</span>
+                        </td>
+                        <td><span>{{ dtl.pg_dsg }}</span></td>
+                        <td><span>{{ dtl.pd_dsg }}</span></td>
+                        <td class="text-end">
+                            <span>{{ dtl.amt| currency:'EUR' }}</span>
+                        </td>
+                        <td><span>{{ dtl.cmt }}</span></td>
+                        <td><span>{{ dtl.doc_id }}</span></td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </ng-container>
+
+    <!-- Wenn keine Positionen vorhanden sind -->
+    <ng-template #noDetails>
+        <div class="container-fluid">
+            <h5 class="text-center text-warning mt-4">Es gibt keine Transaktionen für die Konto {{ accountId }} im
+                Period {{ period }}</h5>
+        </div>
+    </ng-template>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+        Schließen
+    </button>
+</div>

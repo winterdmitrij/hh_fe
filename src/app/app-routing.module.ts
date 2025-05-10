@@ -5,10 +5,13 @@ import { PostgroupComponent } from "./cat/postgroup/postgroup.component";
 import { PeriodComponent } from "./doc/period/period.component";
 import { DocumentComponent } from "./doc/document/document.component";
 import { PositionComponent } from "./doc/position/position.component";
+import { MonthBalanceComponent } from "./home/month-balance/month-balance.component";
 
 const routes: Routes = [
+  { path: "home", component: MonthBalanceComponent },
+  { path: "", redirectTo: "home", pathMatch: "full" },
+  { path: "home/:prd", component: MonthBalanceComponent },
   { path: "transactions", component: TransactionComponent },
-  //  { path: "", redirectTo: "transactions", pathMatch: "full" },
   { path: "transaction/:id", component: PostgroupComponent },
   { path: "postgroups", component: PostgroupComponent },
   { path: "periods", component: PeriodComponent },

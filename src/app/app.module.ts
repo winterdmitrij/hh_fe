@@ -8,6 +8,7 @@ import { AppComponent } from "./app.component";
 import { provideHttpClient, withFetch } from "@angular/common/http";
 import { CatModule } from "./cat/cat.module";
 import { DocModule } from "./doc/doc.module";
+import { HomeModule } from "./home/home.module";
 
 @NgModule({
   declarations: [AppComponent],
@@ -19,6 +20,7 @@ import { DocModule } from "./doc/doc.module";
     ReactiveFormsModule,
     CatModule,
     DocModule,
+    HomeModule,
   ],
   exports: [CatModule],
   providers: [provideHttpClient(withFetch())],

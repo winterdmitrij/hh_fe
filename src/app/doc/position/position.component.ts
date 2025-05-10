@@ -10,7 +10,6 @@ import { PositionService } from "./position.service";
 import { ActivatedRoute } from "@angular/router";
 import { DocumentService } from "../document/document.service";
 import { catchError, Observable, of } from "rxjs";
-import { log } from "console";
 import { PositionDetailService } from "../position-detail/position-detail.service";
 
 @Component({
