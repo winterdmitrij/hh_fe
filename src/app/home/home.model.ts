@@ -2,6 +2,10 @@ export interface MonthBalanceModel {
   prd: string;
   acc_id: number;
   acc_dsg: string;
+  pre: string;
+  act: boolean;
+  shw: boolean;
+  grp: boolean;
   beg_std: number;
   inc: number;
   exp: number;

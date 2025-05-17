@@ -13,8 +13,27 @@
                 </select>
             </div>
             <div class="col-12">
-                <button type="button" class="btn btn-primary" (click)="showAll = !showAll">
-                    Konten {{ showAll ? 'ausblenden' : 'einblenden' }}
+                <button type="button" class="btn btn-primary" [ngClass]="{
+                    'btn-primary': showAccounts,
+                    'btn-outline-primary': !showAccounts
+                }" (click)="showAccounts = !showAccounts">
+                    Konten {{ showAccounts ? 'verstecken' : 'anzeigen' }}
+                </button>
+            </div>
+            <div class="col-12">
+                <button type="button" class="btn" [ngClass]="{
+                    'btn-primary': includeInact,
+                    'btn-outline-primary': !includeInact
+                }" (click)="includeInact = !includeInact">
+                    Inaktive {{ includeInact ? 'verstecken' : 'anzeigen' }}
+                </button>
+            </div>
+            <div class="col-12">
+                <button type="button" class="btn" [ngClass]="{
+                    'btn-primary': includeHiden,
+                    'btn-outline-primary': !includeHiden
+                }" (click)="includeHiden = !includeHiden">
+                    Unsichtbare {{ includeHiden ? 'verstecken' : 'anzeigen' }}
                 </button>
             </div>
         </div>
@@ -36,12 +55,12 @@
 
                 <tbody *ngIf="filteredMonthBalances">
                     <tr *ngFor="let mntBal of filteredMonthBalances" [ngClass]="{
-                            'row-total': mntBal.acc_dsg === 'Insgesamt',
-                            'row-group': mntBal.acc_dsg.startsWith('Gesamt'),
-                            'row-sub': mntBal.acc_dsg.startsWith('- ')
+                            'row-total': mntBal.pre === 'Insgesamt',
+                            'row-group': mntBal.pre === 'Gesamt ',
+                            'row-sub': mntBal.pre === ' - '
                           }">
                         <th score="row">
-                            <span>{{ mntBal.acc_dsg }}</span>
+                            <span>{{ mntBal.pre }}{{ mntBal.acc_dsg }}</span>
                         </th>
                         <th class="text-end">
                             <span [ngClass]="{ 'negative': mntBal.beg_std < 0 }">
@@ -53,7 +72,7 @@
                                 {{ mntBal.inc | currency:'EUR' }}
                             </span>
                             <!-- Zum Detail -->
-                            <a *ngIf="mntBal.acc_dsg !== 'Insgesamt'" type="botton" class="btn table-link"
+                            <a *ngIf="mntBal.pre !== 'Insgesamt'" type="botton" class="btn table-link"
                                 (click)="onDetailClick(mntBal.acc_id, 'Einkommen')">
                                 <i class="bi bi-search"></i>
                             </a>
@@ -63,7 +82,7 @@
                                 {{ mntBal.exp | currency:'EUR' }}
                             </span>
                             <!-- Zum Detail -->
-                            <a *ngIf="mntBal.acc_dsg !== 'Insgesamt'" type="botton" class="btn table-link"
+                            <a *ngIf="mntBal.pre !== 'Insgesamt'" type="botton" class="btn table-link"
                                 (click)="onDetailClick(mntBal.acc_id, 'Ausgaben')">
                                 <i class="bi bi-search"></i>
                             </a>
@@ -73,7 +92,7 @@
                                 {{ mntBal.trf | currency:'EUR' }}
                             </span>
                             <!-- Zum Detail -->
-                            <a *ngIf="mntBal.acc_dsg !== 'Insgesamt'" type="botton" class="btn table-link"
+                            <a *ngIf="mntBal.pre !== 'Insgesamt'" type="botton" class="btn table-link"
                                 (click)="onDetailClick(mntBal.acc_id, 'Überweisungen')">
                                 <i class="bi bi-search"></i>
                             </a>
@@ -102,8 +121,8 @@
     aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
-            <app-transaction-detail *ngIf="modalOpen" [period]="dtlPrd!" [accountId]="dtlAcc!"
-                [transactionDsg]="dtlTra!">
+            <app-transaction-detail *ngIf="modalOpen" [period]="dtlPrd!" [accountId]="dtlAccId!"
+                [transactionDsg]="dtlTraDsg!">
             </app-transaction-detail>
         </div>
     </div>

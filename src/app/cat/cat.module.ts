@@ -6,6 +6,7 @@ import { PostComponent } from "./post/post.component";
 import { AccountgroupComponent } from "./accountgroup/accountgroup.component";
 import { AccountComponent } from "./account/account.component";
 import { RouterModule } from "@angular/router";
+import { CatRoutingModule } from "./cat-routing.module";
 
 @NgModule({
   declarations: [
@@ -15,7 +16,7 @@ import { RouterModule } from "@angular/router";
     AccountgroupComponent,
     AccountComponent,
   ],
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, CatRoutingModule, RouterModule],
   exports: [
     TransactionComponent,
     PostgroupComponent,

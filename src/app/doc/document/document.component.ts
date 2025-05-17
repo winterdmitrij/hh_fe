@@ -50,7 +50,7 @@ export class DocumentComponent implements OnInit {
             console.log("curPrd von DB: ", this.maxActPrd);
             if (this.maxActPrd) {
               this.router.navigate([
-                "/periods",
+                "/doc/periods",
                 this.maxActPrd.prd,
                 "documents",
               ]);
@@ -78,7 +78,7 @@ export class DocumentComponent implements OnInit {
     //const newPrd = (event.target as HTMLSelectElement).value;
     console.log("Neues ausgew. Period: ", newPrd);
 
-    this.router.navigate(["/periods", String(newPrd), "documents"]);
+    this.router.navigate(["/doc/periods", String(newPrd), "documents"]);
   }
 
   // Freigabe/Stornierung des Dokuments

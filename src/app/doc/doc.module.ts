@@ -6,7 +6,8 @@ import { PositionDetailComponent } from "./position-detail/position-detail.compo
 import { PeriodComponent } from "./period/period.component";
 import { RouterModule } from "@angular/router";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { PositionFormComponent } from './position-form/position-form.component';
+import { PositionFormComponent } from "./position-form/position-form.component";
+import { DocRoutingModule } from "./doc-routing.module";
 
 @NgModule({
   declarations: [
@@ -16,7 +17,13 @@ import { PositionFormComponent } from './position-form/position-form.component';
     PeriodComponent,
     PositionFormComponent,
   ],
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, RouterModule],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    DocRoutingModule,
+    RouterModule,
+  ],
   exports: [
     DocumentComponent,
     PositionComponent,

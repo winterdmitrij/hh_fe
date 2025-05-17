@@ -14,8 +14,6 @@ import { MonthBalanceModel } from "../home.model";
 export class MonthBalanceComponent implements OnInit {
   /**
    * ToDo:
-   * - Mehr Filtern: shw, act
-   * -- Dafür vllt. BE überarbeiten: Account komplett
    */
 
   periods: PeriodModel[] = [];
@@ -24,12 +22,15 @@ export class MonthBalanceComponent implements OnInit {
   period?: string;
   monthBalances: MonthBalanceModel[] = [];
 
-  showAll: boolean = true;
-  showInvisible: boolean = false;
+  // Filter
+  showAccounts: boolean = true;
+  includeHiden: boolean = false;
+  includeInact: boolean = false;
+
   modalOpen: boolean = false;
   dtlPrd?: string;
-  dtlAcc?: number;
-  dtlTra?: string;
+  dtlAccId?: number;
+  dtlTraDsg?: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -85,8 +86,8 @@ export class MonthBalanceComponent implements OnInit {
   // Transactiondetail gedrückt
   onDetailClick(accId: number, taDsg: string) {
     this.dtlPrd = this.period;
-    this.dtlAcc = accId;
-    this.dtlTra = taDsg;
+    this.dtlAccId = accId;
+    this.dtlTraDsg = taDsg;
 
     const modalEl = document.getElementById("transactionsDetail");
 
@@ -103,17 +104,27 @@ export class MonthBalanceComponent implements OnInit {
 
     if (modalEl) {
       this.dtlPrd = undefined;
-      this.dtlAcc = undefined;
-      this.dtlTra = undefined;
+      this.dtlAccId = undefined;
+      this.dtlTraDsg = undefined;
       this.modalOpen = false;
+      console.log("Modal geschloßen!");
       const modal = new bootstrap.Modal(modalEl);
       modal.hide();
     }
   }
 
   get filteredMonthBalances(): MonthBalanceModel[] {
-    return this.showAll
-      ? this.monthBalances
-      : this.monthBalances.filter((b) => !b.acc_dsg.startsWith("- "));
+    return this.monthBalances.filter((mb) => {
+      // 1. Filter: Gruppen oder Konten
+      if (!this.showAccounts && !mb.grp) return false;
+
+      // 2. Filter: Nur sichtbare?
+      if (!this.includeHiden && !mb.shw) return false;
+
+      // 3. Filter: Nur active?
+      if (!this.includeInact && !mb.act) return false;
+
+      return true; // Alle Bedingungen erfüllt
+    });
   }
 }

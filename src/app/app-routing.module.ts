@@ -8,16 +8,20 @@ import { PositionComponent } from "./doc/position/position.component";
 import { MonthBalanceComponent } from "./home/month-balance/month-balance.component";
 
 const routes: Routes = [
-  { path: "home", component: MonthBalanceComponent },
   { path: "", redirectTo: "home", pathMatch: "full" },
-  { path: "home/:prd", component: MonthBalanceComponent },
-  { path: "transactions", component: TransactionComponent },
-  { path: "transaction/:id", component: PostgroupComponent },
-  { path: "postgroups", component: PostgroupComponent },
-  { path: "periods", component: PeriodComponent },
-  { path: "periods/:prd/documents", component: DocumentComponent },
-  { path: "documents", component: DocumentComponent },
-  { path: "periods/:prd/documents/:id", component: PositionComponent },
+
+  {
+    path: "home",
+    loadChildren: () => import("./home/home.module").then((m) => m.HomeModule),
+  },
+  {
+    path: "cat",
+    loadChildren: () => import("./cat/cat.module").then((m) => m.CatModule),
+  },
+  {
+    path: "doc",
+    loadChildren: () => import("./doc/doc.module").then((m) => m.DocModule),
+  },
 ];
 
 @NgModule({
