@@ -5,7 +5,7 @@
         <!-- Select list Periods -->
         <div class="table-header-controls row row-cols-lg-auto g-3 align-items-cente" *ngIf="periods">
             <div class="col-12">
-                <select id="periodSelect" class="form-select mb-3" [(ngModel)]="period"
+                <select id="periodSelect" class="form-select mb-3" [(ngModel)]="curPrd"
                     (ngModelChange)="onSelectChange($event)">
                     <option *ngFor="let prd of periods" [value]="prd.prd">
                         {{ prd.prd }}
@@ -40,7 +40,7 @@
 
         <!-- Table Month-Balance -->
         <div class="table-wrapper">
-            <table class="table table-bordered  table-striped table-hover fixed-header">
+            <table class="table table-bordered table-striped table-hover fixed-header align-middle table-sm">
                 <thead class="text-center">
                     <tr>
                         <th score="col"><span>Konto</span></th>
@@ -53,7 +53,7 @@
                     </tr>
                 </thead>
 
-                <tbody *ngIf="filteredMonthBalances">
+                <tbody *ngIf="filteredMonthBalances" class="table-group-divider">
                     <tr *ngFor="let mntBal of filteredMonthBalances" [ngClass]="{
                             'row-total': mntBal.pre === 'Insgesamt',
                             'row-group': mntBal.pre === 'Gesamt ',
@@ -109,6 +109,20 @@
                         </th>
                     </tr>
                 </tbody>
+
+                <tfoot>
+                    <tr>
+                        <th class="text-light text-end"><span>Bargeld gesamt:</span></th>
+                        <th class="text-light text-end">
+                            <span>{{ cashTotal | currency:'EUR' }}</span>
+                        </th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                    </tr>
+                </tfoot>
             </table>
 
 

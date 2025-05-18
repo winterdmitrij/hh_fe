@@ -6,6 +6,17 @@ export interface PeriodModel {
   cls: boolean;
 }
 
+export interface MonthDocumentModel {
+  doc_rnk: string;
+  doc_id: string;
+  doc_dat: Date;
+  doc_amt: number;
+  doc_rls: boolean;
+  cnt_pos: number;
+  prd: string;
+  doc_typ: string;
+}
+
 export interface DocumentModel {
   id: string;
   dat: Date;

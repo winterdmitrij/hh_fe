@@ -195,6 +195,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
     // Für neue Position
     if (!this.position) {
       this.posId = this.getNextPosId();
+
       this.form.patchValue({
         id: this.posId,
         doc_id: this.document.id,
@@ -214,6 +215,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
         cmt: this.position.cmt ?? "",
       });
     }
+    console.log("PositionId: ", this.posId);
   }
 
   // --- Form schließen --- //

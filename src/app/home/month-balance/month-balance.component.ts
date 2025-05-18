@@ -12,18 +12,13 @@ import { MonthBalanceModel } from "../home.model";
   styleUrl: "./month-balance.component.css",
 })
 export class MonthBalanceComponent implements OnInit {
-  /**
-   * ToDo:
-   */
-
   periods: PeriodModel[] = [];
-  maxActPrd?: PeriodModel;
+  curPrd?: string;
 
-  period?: string;
   monthBalances: MonthBalanceModel[] = [];
 
   // Filter
-  showAccounts: boolean = true;
+  showAccounts: boolean = false;
   includeHiden: boolean = false;
   includeInact: boolean = false;
 
@@ -31,6 +26,10 @@ export class MonthBalanceComponent implements OnInit {
   dtlPrd?: string;
   dtlAccId?: number;
   dtlTraDsg?: string;
+
+  // Für Tabellenfuß
+  cashAccIds: number[] = [101, 102, 103, 104, 201];
+  cashTotal: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -52,18 +51,12 @@ export class MonthBalanceComponent implements OnInit {
         const prd = params["prd"];
 
         if (prd) {
-          this.period = prd;
-          console.log("curPrd von Pfad: ", prd);
-
+          this.curPrd = prd;
           this.loadMonthBalance(prd);
         } else {
-          //const maxActPrd = this.getLatestActivePeriod(prdLst);
-          this.prdSrv.findCurPrd().subscribe((p) => {
-            this.maxActPrd = p;
-
-            console.log("curPrd von DB: ", this.maxActPrd);
-            if (this.maxActPrd) {
-              this.router.navigate(["/home", this.maxActPrd.prd]);
+          this.prdSrv.findCurPrd().subscribe((period) => {
+            if (period) {
+              this.router.navigate(["/home", period.prd]);
             }
           });
         }
@@ -74,7 +67,10 @@ export class MonthBalanceComponent implements OnInit {
   loadMonthBalance(prd: string) {
     this.mntBalSrv.findAllBy(prd).subscribe((data) => {
       this.monthBalances = data;
-      console.log("Monats Daten: ", this.monthBalances);
+
+      this.cashTotal = data
+        .filter((mb) => this.cashAccIds.includes(+mb.acc_id))
+        .reduce((sum, mb) => sum + (+mb.end_std || 0), 0);
     });
   }
 
@@ -85,7 +81,7 @@ export class MonthBalanceComponent implements OnInit {
 
   // Transactiondetail gedrückt
   onDetailClick(accId: number, taDsg: string) {
-    this.dtlPrd = this.period;
+    this.dtlPrd = this.curPrd;
     this.dtlAccId = accId;
     this.dtlTraDsg = taDsg;
 

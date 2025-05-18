@@ -31,36 +31,36 @@
                 <tbody class="text-center">
                     <tr *ngFor="let document of documents">
                         <th score="row">
-                            <span>{{ document.id }}</span>
+                            <span>{{ document.doc_id }}</span>
                         </th>
                         <th>
-                            <span>{{ document.dat }}</span> <!-- ToDo: Datumformat -->
+                            <span>{{ document.doc_dat | date }}</span> <!-- ToDo: Datumformat -->
+                        </th>
+                        <th class="text-end">
+                            <span>{{ document.doc_amt | currency:'EUR' }}</span> <!-- ToDo: Format -->
                         </th>
                         <th>
-                            <span>{{ document.amt | currency:'EUR' }}</span> <!-- ToDo: Geldformat -->
+                            <i *ngIf="!document.doc_rls" class="bi bi-square" style="color: red"></i>
+                            <i *ngIf="document.doc_rls" class="bi bi-check-square" style="color: green"></i>
                         </th>
                         <th>
-                            <i *ngIf="!document.rls" class="bi bi-square" style="color: red"></i>
-                            <i *ngIf="document.rls" class="bi bi-check-square" style="color: green"></i>
-                        </th>
-                        <th>
-                            <span>{{ document.positions?.length }}</span>
+                            <span>{{ document.cnt_pos }}</span>
                         </th>
                         <th>
                             <!-- Zum Dokument -->
-                            <a type="botton" [routerLink]="['/doc/periods/',curPrd,'documents',document.id]"
+                            <a type="botton" [routerLink]="['/doc/periods/',curPrd,'documents',document.doc_id]"
                                 class="btn table-link text-warning">
                                 <i class="bi bi-search"></i>
                             </a>
                             <!-- Dokument freigeben/stornieren -->
-                            <a type="botton" (click)="onRlsClick(document)" class="btn table-link"
+                            <a type="botton" (click)="onRlsClick(document.doc_id)" class="btn table-link"
                                 data-bs-toggle="modal" data-bs-target="#rlsDocument" [ngClass]="{
-                                    'text-success': !document.rls,
-                                    'text-danger': document.rls
+                                    'text-success': !document.doc_rls,
+                                    'text-danger': document.doc_rls
                                 }">
                                 <i class="bi" [ngClass]="{
-                                    'bi-check2-square': !document.rls,
-                                    'bi-x-square': document.rls
+                                    'bi-check2-square': !document.doc_rls,
+                                    'bi-x-square': document.doc_rls
                                 }"> </i>
                             </a>
                         </th>
