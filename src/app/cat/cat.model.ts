@@ -43,3 +43,12 @@ export interface AccountModel {
   shw: boolean;
   sav: boolean;
 }
+
+export interface InformationModel {
+  typ: string;
+  dsg: string;
+  rnk: string;
+  frq: number;
+  account: AccountModel;
+  transaction?: TransactionModel;
+}

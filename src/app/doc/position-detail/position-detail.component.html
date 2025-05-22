@@ -1,0 +1,32 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+        <!-- Position-Id (versteckt) -->
+        <input type="hidden" id="pos_id" formControlName="pos_id" />
+        <div class="form-text">Position-Id: '{{ detail?.pos_id }}'</div>
+
+        <!-- Betrag 2.0 -->
+        <div class="mt-3">
+            <label for="amt_dtl" class="form-label">Detailierter Betrag</label>
+            <textarea id="amt_dtl" class="form-control" formControlName="amt_dtl" rows="2" maxlength="255"
+                [ngClass]="{ 'is-invalid': form.get('amt_dtl')?.invalid && form.get('amt_dtl')?.touched }">
+            </textarea>
+            <div class="invalid-feedback" *ngIf="form.get('amt_dtl') as control">
+                <div *ngIf="control.errors?.['invalidChars']">Nur Ziffern, Kommas, + und - erlaubt.</div>
+                <div *ngIf="control.errors?.['repeatedOperators']">Ungültige Zeichenkombination (z.B. ++ oder --).</div>
+                <div *ngIf="control.errors?.['invalidNumber']">Ungültiges Zahlenformat.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Schließen
+        </button>
+        <button type="submit" class="btn btn-success" data-bs-dismiss="modal" [disabled]="form.invalid">
+            Speichern
+        </button>
+    </div>
+</form>

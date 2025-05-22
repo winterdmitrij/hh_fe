@@ -1,0 +1,149 @@
+<div class="container-fluid">
+    <h1 class="text-center">Dokument Nr. '{{ docId }}'</h1>
+
+    <div class="container mb-2">
+        <!-- Zurück ToDo: vllt. [routerLink]="['../']" wird nicht immer funktionieren -->
+        <button type="button" [routerLink]="['../']" class="btn btn-primary me-2">
+            <i class="bi bi-arrow-left-square me-2"></i>
+            <span>Zu Dokumenten</span>
+        </button>
+
+        <!-- Add Position Modal data-bs-toggle="modal" data-bs-target="#addPosition"  [disabled]="document?.rls"-->
+        <button type="button" (click)="openAddModal()" class="btn btn-success">
+            <i class="bi bi-plus-square me-2"></i>
+            <span>Neue Position</span>
+        </button>
+    </div>
+
+    <!-- Wenn Positionen existieren -->
+    <ng-container *ngIf="hasPositions; else noPositions">
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark table-striped table-hover">
+
+                <thead class="text-nowrap text-center">
+                    <tr>
+                        <th scope="col"><span>Id</span></th>
+                        <th scope="col"><span>Konto</span></th>
+                        <th scope="col"><span>Post</span></th>
+                        <th scope="col"><span>Betrag</span></th>
+                        <th scope="col"><span>Kommentar</span></th>
+                        <th scope="col"><span>Actionen</span></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let position of sortedPositions">
+                        <td scope="row" class="text-center">
+                            <span>{{ position.id }}</span>
+                        </td>
+                        <td><span>{{ position.account?.dsg }}</span></td>
+                        <td><span>{{ position.post?.dsg }}</span></td>
+                        <td class="text-end">
+                            <span>{{ position.amt | currency:'EUR' }}</span>
+                        </td>
+                        <td><span>{{ position.cmt }}</span></td>
+
+                        <td class="text-center" *ngIf="!document?.rls">
+                            <!-- Detail: Lupe data-bs-toggle="modal" data-bs-target="#updPosition"-->
+                            <a *ngIf="docTyp === 'Exp'" type="button" (click)="openDtlModal(position)"
+                                class="btn table-link text-warning">
+                                <i class="bi bi-search"></i>
+                            </a>
+                            <!-- Edit: Bleistift data-bs-toggle="modal" data-bs-target="#updPosition"-->
+                            <a type="button" (click)="openUpdModal(position)" class="btn table-link text-info">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <!-- Delete: Mülleimer data-bs-toggle="modal" data-bs-target="#delPosition"-->
+                            <a type="button" (click)="openDelModal(position)" class="btn table-link text-danger">
+                                <i class="bi bi-x-square"></i>
+                            </a>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </ng-container>
+
+    <!-- Wenn keine Positionen vorhanden sind -->
+    <ng-template #noPositions>
+        <div class="container-fluid">
+            <h2 class="text-center text-warning mt-4">Noch keine Positionen in dem Dokument!</h2>
+        </div>
+    </ng-template>
+
+
+    <!-- Detail-Position Modal -->
+    <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="detailModal" tabindex="-1"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Position detail
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"
+                        (click)="onModalClosed('detailModal')">
+                    </button>
+                </div>
+                <app-position-detail *ngIf="modalOpen" [position]="dtlPosition"
+                    (submitPosition)="handleDetailSave($event)">
+
+                </app-position-detail>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Add/Upd Position Modal -->
+    <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="positionModal" tabindex="-1"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        {{ isEditMode ? 'Position bearbeiten' : 'Position hinzufügen' }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"
+                        (click)="onModalClosed('positionModal')">
+                    </button>
+                </div>
+
+                <app-position-form *ngIf="modalOpen" [document]="document" [position]="updPosition"
+                    (submitPosition)="handlePositionSave($event)">
+                </app-position-form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Del Position Modal -->
+    <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="delPosition" tabindex="-1"
+        aria-labelledby="delPositionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">Position löschen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p>Muss die Position '{{ delPosition?.id }}' wirklich gelöscht werden?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        (click)="onModalClosed('delPosition')">Schließen</button>
+                    <button (click)="handlePositionDelete(delPosition!)" class="btn btn-danger">
+                        Löschen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

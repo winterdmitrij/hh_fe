@@ -1,0 +1,32 @@
+/* Leicht abgesetzter Abstand zwischen Input-Gruppen */
+.modal-body .mt-3 {
+    margin-top: 1.25rem;
+}
+
+/* Für FormText unter versteckten Feldern */
+.form-text {
+    font-style: italic;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* Optional: Radio-Gruppen etwas lüften */
+.form-check-inline {
+    margin-right: 1rem;
+}
+
+/* Optional: Disabled Radio-Buttons visuell etwas schwächer */
+input[type="radio"]:disabled+label {
+    color: #aaa;
+}
+
+/* Optional: schmalerer Modal Footer Button-Abstand */
+.modal-footer button+button {
+    margin-left: 0.5rem;
+}
+
+input:focus,
+select:focus {
+    outline: 2px solid #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}

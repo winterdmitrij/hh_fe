@@ -1,0 +1,143 @@
+<div class="container-fluid">
+    <div class="month-balance-table-container">
+        <h1 class="text-center">Home</h1>
+
+        <!-- Select list Periods -->
+        <div class="table-header-controls row row-cols-lg-auto g-3 align-items-cente" *ngIf="periods">
+            <div class="col-12">
+                <select id="periodSelect" class="form-select mb-3" [(ngModel)]="curPrd"
+                    (ngModelChange)="onSelectChange($event)">
+                    <option *ngFor="let prd of periods" [value]="prd.prd">
+                        {{ prd.prd }}
+                    </option>
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="button" class="btn btn-primary" [ngClass]="{
+                    'btn-primary': showAccounts,
+                    'btn-outline-primary': !showAccounts
+                }" (click)="showAccounts = !showAccounts">
+                    Konten {{ showAccounts ? 'verstecken' : 'anzeigen' }}
+                </button>
+            </div>
+            <div class="col-12">
+                <button type="button" class="btn" [ngClass]="{
+                    'btn-primary': includeInact,
+                    'btn-outline-primary': !includeInact
+                }" (click)="includeInact = !includeInact">
+                    Inaktive {{ includeInact ? 'verstecken' : 'anzeigen' }}
+                </button>
+            </div>
+            <div class="col-12">
+                <button type="button" class="btn" [ngClass]="{
+                    'btn-primary': includeHiden,
+                    'btn-outline-primary': !includeHiden
+                }" (click)="includeHiden = !includeHiden">
+                    Unsichtbare {{ includeHiden ? 'verstecken' : 'anzeigen' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Month-Balance -->
+        <div class="table-wrapper">
+            <table class="table table-bordered table-striped table-hover fixed-header align-middle table-sm">
+                <thead class="text-center">
+                    <tr>
+                        <th score="col"><span>Konto</span></th>
+                        <th score="col"><span>Anfangsstand</span></th>
+                        <th score="col"><span>Einkommen</span></th>
+                        <th score="col"><span>Ausgaben</span></th>
+                        <th score="col"><span>Überweisungen</span></th>
+                        <th score="col"><span>Saldo</span></th>
+                        <th score="col"><span>Endstand</span></th>
+                    </tr>
+                </thead>
+
+                <tbody *ngIf="filteredMonthBalances" class="table-group-divider">
+                    <tr *ngFor="let mntBal of filteredMonthBalances" [ngClass]="{
+                            'row-total': mntBal.pre === 'Insgesamt',
+                            'row-group': mntBal.pre === 'Gesamt ',
+                            'row-sub': mntBal.pre === ' - '
+                          }">
+                        <th score="row">
+                            <span>{{ mntBal.pre }}{{ mntBal.acc_dsg }}</span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': mntBal.beg_std < 0 }">
+                                {{ mntBal.beg_std | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': mntBal.inc < 0 }">
+                                {{ mntBal.inc | currency:'EUR' }}
+                            </span>
+                            <!-- Zum Detail -->
+                            <a *ngIf="mntBal.pre !== 'Insgesamt'" type="botton" class="btn table-link"
+                                (click)="onDetailClick(mntBal.acc_id, 'Einkommen')">
+                                <i class="bi bi-search"></i>
+                            </a>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': mntBal.exp < 0 }">
+                                {{ mntBal.exp | currency:'EUR' }}
+                            </span>
+                            <!-- Zum Detail -->
+                            <a *ngIf="mntBal.pre !== 'Insgesamt'" type="botton" class="btn table-link"
+                                (click)="onDetailClick(mntBal.acc_id, 'Ausgaben')">
+                                <i class="bi bi-search"></i>
+                            </a>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': mntBal.trf < 0 }">
+                                {{ mntBal.trf | currency:'EUR' }}
+                            </span>
+                            <!-- Zum Detail -->
+                            <a *ngIf="mntBal.pre !== 'Insgesamt'" type="botton" class="btn table-link"
+                                (click)="onDetailClick(mntBal.acc_id, 'Überweisungen')">
+                                <i class="bi bi-search"></i>
+                            </a>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': mntBal.sld < 0 }">
+                                {{ mntBal.sld | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': mntBal.end_std < 0 }">
+                                {{ mntBal.end_std | currency:'EUR' }}
+                            </span>
+                        </th>
+                    </tr>
+                </tbody>
+
+                <tfoot>
+                    <tr>
+                        <th class="text-light text-end"><span>Bargeld gesamt:</span></th>
+                        <th class="text-light text-end">
+                            <span>{{ cashTotal | currency:'EUR' }}</span>
+                        </th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                    </tr>
+                </tfoot>
+            </table>
+
+
+        </div>
+    </div>
+</div>
+
+<!-- Del Position Modal -->
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="transactionsDetail" tabindex="-1"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <app-transaction-detail *ngIf="modalOpen" [period]="dtlPrd!" [accountId]="dtlAccId!"
+                [transactionDsg]="dtlTraDsg!">
+            </app-transaction-detail>
+        </div>
+    </div>
+</div>

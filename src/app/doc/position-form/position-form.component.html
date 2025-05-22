@@ -1,0 +1,81 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+        <!-- Position-Id (versteckt) -->
+        <input type="hidden" id="id" formControlName="id" />
+        <div class="form-text">Position-Id: '{{ posId }}'</div>
+
+        <!-- Dokument-Id (versteckt) -->
+        <input type="hidden" id="doc_id" formControlName="doc_id" />
+        <div class="form-text">Dokument-Id: '{{ document?.id }}'</div>
+
+        <!-- Konto -->
+        <div class="mt-3">
+            <label for="acc_id" class="form-label">Konto</label>
+            <select id="acc_id" class="form-select" formControlName="acc_id"
+                [ngClass]="{ 'is-invalid': form.get('acc_id')?.invalid && form.get('acc_id')?.touched }">
+                <option value="" disabled>-- Konto auswählen --</option>
+                <option *ngFor="let acc of accounts" [value]="acc.id">{{ acc.dsg }}</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="form.get('acc_id')?.errors">
+                Bitte ein gültiges Konto auswählen.
+            </div>
+        </div>
+
+        <!-- Transaktion -->
+        <div class="mt-3">
+            <label class="form-label d-block mb-2">Transaktion</label>
+            <div class="row g-2">
+                <div class="col-12 col-sm-6 col-md-4" *ngFor="let tr of transactions">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" [id]="'tra_' + tr.id" [value]="+tr.id"
+                            formControlName="tra_id" />
+                        <label class="form-check-label" [for]="'tra_' + tr.id">
+                            {{ tr.dsg }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post -->
+        <div class="mt-3">
+            <label for="pst_id" class="form-label">Post</label>
+            <select id="pst_id" class="form-select" formControlName="pst_id"
+                [ngClass]="{ 'is-invalid': form.get('pst_id')?.invalid && form.get('pst_id')?.touched }">
+                <option value="" disabled>-- Post auswählen --</option>
+                <option *ngFor="let pst of posts" [value]="pst.id">{{ pst.dsg }}</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="form.get('pst_id')?.errors">
+                Bitte einen gültigen Post auswählen.
+            </div>
+        </div>
+
+        <!-- Betrag -->
+        <div class="mt-3">
+            <label for="amt" class="form-label">Betrag</label>
+            <input id="amt" type="number" class="form-control" formControlName="amt"
+                [ngClass]="{ 'is-invalid': form.get('amt')?.invalid && form.get('amt')?.touched }" />
+            <div class="invalid-feedback" *ngIf="form.get('amt')?.errors">
+                Betrag muss ungleich 0 sein.
+            </div>
+        </div>
+
+        <!-- Kommentar -->
+        <div class="mt-3">
+            <label for="cmt" class="form-label">Kommentar</label>
+            <input id="cmt" type="text" class="form-control" formControlName="cmt" />
+        </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Schließen
+        </button>
+        <button type="submit" class="btn btn-success" [disabled]="form.invalid">
+            Speichern
+        </button>
+    </div>
+</form>
