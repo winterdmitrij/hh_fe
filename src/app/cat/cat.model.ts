@@ -22,6 +22,7 @@ export interface PostModel {
   act: boolean;
   shw: boolean;
   trf: boolean;
+  pstGrp: PostGroupModel;
 }
 
 export interface AccountGroupModel {
