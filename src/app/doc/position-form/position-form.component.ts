@@ -26,6 +26,7 @@ import { DocumentModel, PositionModel } from "../doc.model";
 import { InformationService } from "../../cat/services/information.service";
 import { TransactionService } from "../../cat/transaction/transaction.service";
 import { firstValueFrom } from "rxjs";
+import { PostService } from "../../cat/post/post.service";
 
 // Validator für Betrag: darf nich 0 sein
 function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
@@ -38,18 +39,14 @@ function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
   styleUrl: "./position-form.component.css",
 })
 export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
-  /** ToDos:
-   * - Validator: Betrag != 0 nicht mehr aktuell (wegen Exp)
-   * - Unnötige löschen
-   */
-
   @Input() document?: DocumentModel;
   @Input() position?: PositionModel;
   @Output() submitPosition = new EventEmitter<any>();
 
   accounts: AccountModel[] = [];
-  posts: PostModel[] = [];
   transactions: TransactionModel[] = [];
+  allPosts: PostModel[] = [];
+  posts: PostModel[] = [];
 
   docInf?: InformationModel;
   defAccId?: number;
@@ -89,7 +86,8 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
   constructor(
     private accSrv: AccountService,
     private traSrv: TransactionService,
-    private infSrv: InformationService
+    private infSrv: InformationService,
+    private pstSrv: PostService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -112,19 +110,23 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
+  // Erhalten Daten von BE
   async loadDropdowns(): Promise<void> {
     try {
-      const [accData, traData] = await Promise.all([
+      const [accData, traData, pstData] = await Promise.all([
         firstValueFrom(this.accSrv.findAll()),
         firstValueFrom(this.traSrv.findAll()),
+        firstValueFrom(this.pstSrv.findAll()),
       ]);
       this.accounts = accData;
       this.transactions = traData;
+      this.allPosts = pstData;
     } catch (error) {
       console.error("Fehler beim Laden der Dropdowns: ", error);
     }
   }
 
+  // Eventbearbeitung auf Form
   ngAfterViewInit(): void {
     const modalEl = document.getElementById("positionModal");
 
@@ -136,6 +138,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
     });
   }
 
+  // Laden die Dokumentinformation und Initioalisieren Form-Variablen
   loadDocInfoAndInitForm() {
     if (!this.document) return;
 
@@ -189,6 +192,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
     });
   }
 
+  // Befüllen die Form mit Daten
   patchForm() {
     if (!this.document) return;
 
@@ -218,7 +222,6 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
     console.log("PositionId: ", this.posId);
   }
 
-  // --- Form schließen --- //
   onSubmit() {
     if (this.form.valid) {
       const pos = {
@@ -231,12 +234,12 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
       };
 
       this.submitPosition.emit(pos);
-      //this.resetForm();
     } else {
       this.form.markAllAsTouched();
     }
   }
 
+  // Beleeren Form
   private resetForm() {
     this.form.reset();
 
@@ -252,7 +255,9 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
     });
   }
 
-  // --- Hilfsfunktionen --- //
+  //-------------------------------------------------------//
+  //               Hilfsfunktionen                         //
+  //-------------------------------------------------------//
   private getNextPosId(): string {
     if (!this.document) return "";
     const docId = this.document.id;
@@ -270,13 +275,9 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   private getFiltredPosts(taId: number): PostModel[] {
-    const tra = this.transactions.find((t) => +t.id === +taId);
-    if (!tra || !tra.postgroups) {
-      return [];
-    }
-
-    return tra.postgroups
-      .flatMap((pg) => pg.posts || [])
-      .filter((post) => post.act);
+    const fltPst = this.allPosts.filter(
+      (p) => String(p.postgroup?.transaction?.id) === String(taId)
+    );
+    return fltPst;
   }
 }

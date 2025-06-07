@@ -12,6 +12,7 @@ export interface PostGroupModel {
   rnk?: string;
   act: boolean;
   posts?: PostModel[];
+  transaction: TransactionModel;
 }
 
 export interface PostModel {
@@ -22,7 +23,7 @@ export interface PostModel {
   act: boolean;
   shw: boolean;
   trf: boolean;
-  pstGrp: PostGroupModel;
+  postgroup: PostGroupModel;
 }
 
 export interface AccountGroupModel {
