@@ -1,1 +1,144 @@
-<p>post-balance works!</p>
+<div class="container-fluid">
+    <div class="month-balance-table-container">
+        <h1 class="text-center">Jahres Post-Balance</h1>
+
+        <!-- Select list Years -->
+        <div class="table-header-controls row row-cols-lg-auto g-3 align-items-cente" *ngIf="years">
+            <div class="col-12">
+                <!-- -->
+                <select id="yearSelect" class="form-select mb-3" [(ngModel)]="rptYear"
+                    (ngModelChange)="onSelectChange($event)">
+                    <option *ngFor="let year of years" [value]="year">
+                        {{ year }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Table Month-Balance -->
+        <div class="table-wrapper">
+            <table class="table table-bordered table-striped table-hover fixed-header align-middle table-sm">
+                <thead class="text-center">
+                    <tr>
+                        <th score="col"><span>Post</span></th>
+                        <th score="col"><span>Jan.</span></th>
+                        <th score="col"><span>Feb.</span></th>
+                        <th score="col"><span>Mrz.</span></th>
+                        <th score="col"><span>Apr.</span></th>
+                        <th score="col"><span>Mai.</span></th>
+                        <th score="col"><span>Jun.</span></th>
+                        <th score="col"><span>Jul.</span></th>
+                        <th score="col"><span>Aug.</span></th>
+                        <th score="col"><span>Sep.</span></th>
+                        <th score="col"><span>Okt.</span></th>
+                        <th score="col"><span>Nov.</span></th>
+                        <th score="col"><span>Dez.</span></th>
+                        <th score="col"><span>Jahressumme</span></th>
+                        <th score="col"><span>Mntdrsnt</span></th>
+                    </tr>
+                </thead>
+
+                <tbody *ngIf="balances" class="table-group-divider">
+                    <tr *ngFor="let bal of balances" [ngClass]="{
+                            'row-total': (bal.pst_id % 10000) == 0 &&  bal.pst_id != 0,
+                            'row-group': (bal.pst_id % 100) == 0 && (bal.pst_id % 10000) != 0 && bal.pst_id != 0,
+                            'row-sub': (bal.pst_id % 100) != 0 && bal.pst_id != 0
+                          }">
+                        <th score="row">
+                            <span>{{ bal.pst_id }} {{ bal.pst_dsg }}</span>
+                        </th>
+
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.jan < 0 }">
+                                {{ bal.jan | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.feb < 0 }">
+                                {{ bal.feb | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.mrz < 0 }">
+                                {{ bal.mrz | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.apr < 0 }">
+                                {{ bal.apr | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.mai < 0 }">
+                                {{ bal.mai | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.jun < 0 }">
+                                {{ bal.jun | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.jul < 0 }">
+                                {{ bal.jul | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.aug < 0 }">
+                                {{ bal.aug | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.sep < 0 }">
+                                {{ bal.sep | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.okt < 0 }">
+                                {{ bal.okt | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.nov < 0 }">
+                                {{ bal.nov | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.dez < 0 }">
+                                {{ bal.dez | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.pro_year < 0 }">
+                                {{ bal.pro_year | currency:'EUR' }}
+                            </span>
+                        </th>
+                        <th class="text-end">
+                            <span [ngClass]="{ 'negative': bal.pro_mnt < 0 }">
+                                {{ bal.pro_mnt | currency:'EUR' }}
+                            </span>
+                        </th>
+                    </tr>
+                </tbody>
+
+                <!--
+                <tfoot>
+                    <tr>
+                        <th class="text-light text-end"><span>Bargeld gesamt:</span></th>
+                        <th class="text-light text-end">
+                            <span>{{ cashTotal | currency:'EUR' }}</span>
+                        </th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                        <th><span></span></th>
+                    </tr>
+                </tfoot>
+-->
+            </table>
+
+
+        </div>
+    </div>
+</div>

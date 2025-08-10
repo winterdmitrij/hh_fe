@@ -4,6 +4,10 @@ export interface PeriodModel {
   prd: string;
   act: boolean;
   cls: boolean;
+  year: number;
+  mnt: number;
+  mon: string;
+  doc_dat: Date;
 }
 
 export interface MonthDocumentModel {

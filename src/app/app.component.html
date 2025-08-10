@@ -10,13 +10,8 @@
 
     <!-- Dropdawn-Menu -->
     <ul class="nav nav-tabs">
-      <!-- Documents 
-      <button [routerLink]="['documents']" routerLinkActive="active" class="btn btn-outline-primary me-2" type="button">
-        <i class="bi bi-files me-2"></i>
-        Dokumente
-      </button>
-      -->
-      <!-- ToDo: Am Ende löschen -->
+
+      <!-- Documents -->
       <li class="nav-item dropdown">
         <button class="btn btn-outline-primary dropdown-toggle me-2" [class.active]="isBootonActive('/doc')"
           data-bs-toggle="dropdown" href="#" aria-expanded="false">
@@ -40,40 +35,37 @@
       </li>
 
 
-      <!-- Reports -->
-      <button [routerLink]="['reports']" routerLinkActive="active" class="btn btn-outline-danger me-2" type="button">
-        <i class="bi bi-clipboard2-data me-2"></i>
-        Berichte
-      </button>
-      <!-- ToDo: Am Ende löschen
-          <li class="nav-item dropdown">
-              <button class="btn btn-outline-danger dropdown-toggle me-2" data-bs-toggle="dropdown" href="#"
-                  aria-expanded="false">
-                  <i class="bi bi-clipboard2-data me-2"></i>
-                  Berichte
-              </button>
-              <ul class="dropdown-menu">
-                  <li>
-                      <a class="dropdown-item" href="#">
-                          <i class="bi bi-graph-up-arrow me-1" style="color: green;"></i>
-                          Einkommen
-                      </a>
-                  </li>
-                  <li>
-                      <a class="dropdown-item" href="#">
-                          <i class="bi bi-graph-down-arrow me-1" style="color: red;"></i>
-                          Ausgaben
-                      </a>
-                  </li>
-                  <li>
-                      <a class="dropdown-item" href="#">
-                          <i class="bi bi-file-bar-graph me-1" style="color: blueviolet;"></i>
-                          Kontostände
-                      </a>
-                  </li>
-              </ul>
+      <!-- !Reports -->
+      <li class="nav-item dropdown">
+        <button class="btn btn-outline-danger dropdown-toggle me-2" [class.active]="isBootonActive('/rpt')"
+          data-bs-toggle="dropdown" href="#" aria-expanded="false">
+          <i class="bi bi-clipboard2-data me-2"></i>
+          Berichte
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" [routerLink]="['/rpt/accounts-balances']">
+              <i class="bi bi-graph-up-arrow me-1" style="color: green;"></i>
+              Konten-Balanze
+            </a>
           </li>
-      -->
+          <li>
+            <a class="dropdown-item" [routerLink]="['/rpt/posts-balances']">
+              <i class="bi bi-graph-down-arrow me-1" style="color: red;"></i>
+              Posten-Balanze
+            </a>
+          </li>
+          <!--
+          <li>
+            <a class="dropdown-item" href="#">
+              <i class="bi bi-file-bar-graph me-1" style="color: blueviolet;"></i>
+              Kontostände
+            </a>
+          </li>
+          -->
+        </ul>
+      </li>
+
 
       <!-- Catalogs -->
       <li class="nav-item dropdown">

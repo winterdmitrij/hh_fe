@@ -1,0 +1,29 @@
+.month-balance-table-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.table-header-controls {
+    margin-bottom: 10px;
+    z-index: 1;
+    padding: 10px;
+}
+
+/* Zeilenformat */
+.row-total {
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #0099ff !important;
+}
+
+.row-group {
+    font-size: 0.95rem;
+    background-color: #98c1ff !important;
+}
+
+.row-sub {
+    font-size: 0.9rem;
+    font-style: italic;
+    background-color: #f0f0f0 !important;
+    color: grey;
+}

@@ -32,6 +32,10 @@ export class PeriodService {
     );
   }
 
+  findAllYears(): Observable<number[]> {
+    return this.http.get<number[]>(`${this.apiUrl}/years`);
+  }
+
   // ToDo: findOne!
   findOneById(prd: string): Observable<PeriodModel> {
     return this.http.get<PeriodModel>(`${this.apiUrl}/${prd}`);
