@@ -57,6 +57,7 @@
             <label for="amt" class="form-label">Betrag</label>
             <input id="amt" type="number" class="form-control" formControlName="amt"
                 [ngClass]="{ 'is-invalid': form.get('amt')?.invalid && form.get('amt')?.touched }" />
+            <!-- Detail: Lupe data-bs-toggle="modal" data-bs-target="#updPosition" -->
             <div class="invalid-feedback" *ngIf="form.get('amt')?.errors">
                 Betrag muss ungleich 0 sein.
             </div>

@@ -27,36 +27,34 @@
                         <th scope="col"><span>Post</span></th>
                         <th scope="col"><span>Betrag</span></th>
                         <th scope="col"><span>Kommentar</span></th>
-                        <th scope="col"><span>Actionen</span></th>
+                        <th scope="col"><span>Aktionen</span></th>
                     </tr>
                 </thead>
 
                 <tbody>
                     <tr *ngFor="let position of sortedPositions">
                         <td scope="row" class="text-center">
-                            <span>{{ position.id }}</span>
+                            <a type="button" (click)="openUpdModal(position)" class="btn table-link text-info">
+                                <span>{{ position.id }}</span>
+                            </a>
                         </td>
                         <td><span>{{ position.account?.dsg }}</span></td>
                         <td><span>{{ position.post?.dsg }}</span></td>
                         <td class="text-end">
-                            <span>{{ position.amt | currency:'EUR' }}</span>
+                            <a *ngIf="docTyp === 'Exp'" type="button" (click)="openDtlModal(position)"
+                                class="btn table-link text-warning">
+                                <span>{{ position.amt | currency:'EUR' }}</span>
+                            </a>
+                            <span *ngIf="docTyp !== 'Exp'">{{ position.amt | currency:'EUR' }}</span>
                         </td>
                         <td><span>{{ position.cmt }}</span></td>
 
                         <td class="text-center" *ngIf="!document?.rls">
-                            <!-- Detail: Lupe data-bs-toggle="modal" data-bs-target="#updPosition"-->
-                            <a *ngIf="docTyp === 'Exp'" type="button" (click)="openDtlModal(position)"
-                                class="btn table-link text-warning">
-                                <i class="bi bi-search"></i>
-                            </a>
-                            <!-- Edit: Bleistift data-bs-toggle="modal" data-bs-target="#updPosition"-->
-                            <a type="button" (click)="openUpdModal(position)" class="btn table-link text-info">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <!-- Delete: Mülleimer data-bs-toggle="modal" data-bs-target="#delPosition"-->
                             <a type="button" (click)="openDelModal(position)" class="btn table-link text-danger">
                                 <i class="bi bi-x-square"></i>
+                                <span> löschen</span>
                             </a>
+                        </td>
                     </tr>
 
                 </tbody>
@@ -89,13 +87,10 @@
                 </div>
                 <app-position-detail *ngIf="modalOpen" [position]="dtlPosition"
                     (submitPosition)="handleDetailSave($event)">
-
                 </app-position-detail>
             </div>
         </div>
     </div>
-
-
 
     <!-- Add/Upd Position Modal -->
     <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="positionModal" tabindex="-1"

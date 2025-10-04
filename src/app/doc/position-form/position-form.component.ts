@@ -55,6 +55,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
   canChanged: boolean = false;
   isUpdMode: boolean = false;
   posId?: string;
+  //  docTyp?: string;
 
   form = new FormGroup({
     id: new FormControl("", [
@@ -215,7 +216,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
         acc_id: this.position.account?.id ?? null,
         tra_id: this.selTraId ?? 1,
         pst_id: this.position.post?.id ?? null,
-        amt: this.position.amt ?? null,
+        amt: this.position.amt ?? 0,
         cmt: this.position.cmt ?? "",
       });
     }

@@ -17,7 +17,10 @@
                 <tbody class="text-center">
                     <tr *ngFor="let period of periods">
                         <th score="row">
-                            <span>{{ period.prd }}</span>
+                            <a type="botton" [routerLink]="['/doc/periods/', period.prd, 'documents']"
+                                class="btn table-link text-warning">
+                                <span>{{ period.prd }}</span>
+                            </a>
                         </th>
                         <td>
                             <i *ngIf="!period.act" class="bi bi-square" style="color: red"></i>
@@ -28,13 +31,10 @@
                             <i *ngIf="period.cls" class="bi bi-check-square" style="color: green"></i>
                         </td>
                         <td>
-                            <a type="botton" [routerLink]="['/doc/periods/', period.prd, 'documents']"
-                                class="btn table-link text-warning">
-                                <i class="bi bi-search"></i>
-                            </a>
                             <a type="botton" (click)="onClickEdit(period)" class="btn table-link text-info"
                                 data-bs-toggle="modal" data-bs-target="#editPeriod">
                                 <i class="bi bi-pencil-square"></i>
+                                <span> bearbeiten</span>
                             </a>
                         </td>
                     </tr>
@@ -42,9 +42,6 @@
             </table>
         </div>
     </div>
-
-
-
 
     <!-- Period Edit -->
     <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="editPeriod" tabindex="-1"
