@@ -1,1 +1,82 @@
-<p>account works!</p>
+<div class="container-fluid">
+    <h1 class="text-center">Dokumente</h1>
+
+    <!-- Select list Accountgroups -->
+    <div class="container" *ngIf="accountgroups">
+        <label for="accountgroupSelect">Kontengruppen: </label>
+        <select id="accountgroupSelect" class="form-select mb-3" [(ngModel)]="curGroupId"
+            (ngModelChange)="onSelectChange($event)">
+            <option *ngFor="let group of accountgroups" [value]="group.id">
+                {{ group.dsg }}
+            </option>
+        </select>
+    </div>
+
+    <!-- Table Accounts -->
+    <div class="row" *ngIf="accounts">
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark table-striped table-hover">
+                <thead class="text-center">
+                    <tr>
+                        <th score="col"><span>Id</span></th>
+                        <th score="col"><span>Bezeichnis</span></th>
+                        <th score="col"><span>Beschreibung</span></th>
+                        <th score="col"><span>Rang</span></th>
+                        <th score="col"><span>Aktiv / Speicher / Anzeigen</span></th>
+                        <th score="col"><span>Aktionen</span></th>
+                    </tr>
+                </thead>
+
+                <tbody class="text-center">
+                    <tr *ngFor="let account of accounts">
+                        <th score="row">
+                            <a type="botton" [routerLink]="['/cat/accountgroup/',curGroupId,'account',account.id]"
+                                class="btn table-link text-warning">
+                                <span>{{ account.id }}</span>
+                            </a>
+                        </th>
+                        <td>
+                            <a type="botton" [routerLink]="['/cat/accountgroup/',curGroupId,'account',account.id]"
+                                class="btn table-link text-warning">
+                                <span>{{ account.dsg }}</span>
+                            </a>
+                        </td>
+                        <td>
+                            <span>{{ account.dsc }}</span>
+                        </td>
+                        <td>
+                            <span>{{ account.rnk }}</span>
+                        </td>
+                        <td>
+                            <i *ngIf="!account.act" class="bi bi-square me-2" style="color: red"></i>
+                            <i *ngIf="account.act" class="bi bi-check-square me-2" style="color: green"></i>
+                            <i *ngIf="!account.sav" class="bi bi-square me-2" style="color: red"></i>
+                            <i *ngIf="account.sav" class="bi bi-check-square me-2" style="color: green"></i>
+                            <i *ngIf="!account.shw" class="bi bi-square me-2" style="color: red"></i>
+                            <i *ngIf="account.shw" class="bi bi-check-square me-2" style="color: green"></i>
+                        </td>
+                        <td>
+                            <span>ToDo</span>
+                            <!--
+                            <a type="botton" (click)="onRlsClick(document.doc_id)" class="btn table-link"
+                                data-bs-toggle="modal" data-bs-target="#rlsDocument" [ngClass]="{
+                                    'text-success': !document.doc_rls,
+                                    'text-danger': document.doc_rls
+                                }">
+                                <i class="bi" [ngClass]="{
+                                    'bi-check2-square': !document.doc_rls,
+                                    'bi-x-square': document.doc_rls
+                                }"> </i>
+                                
+                                <span> {{ document.doc_rls ? 'stornieren' : 'freigeben' }}</span>
+                            </a>
+                            -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

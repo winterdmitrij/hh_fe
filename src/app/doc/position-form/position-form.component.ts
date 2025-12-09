@@ -21,7 +21,7 @@ import {
   PostModel,
   TransactionModel,
 } from "../../cat/cat.model";
-import { AccountService } from "../../cat/account/account.service";
+import { AccountService } from "../../cat/services/account.service";
 import { DocumentModel, PositionModel } from "../doc.model";
 import { InformationService } from "../../cat/services/information.service";
 import { TransactionService } from "../../cat/transaction/transaction.service";
@@ -115,7 +115,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
   async loadDropdowns(): Promise<void> {
     try {
       const [accData, traData, pstData] = await Promise.all([
-        firstValueFrom(this.accSrv.findAll()),
+        firstValueFrom(this.accSrv.findAllAccounts()),
         firstValueFrom(this.traSrv.findAll()),
         firstValueFrom(this.pstSrv.findAll()),
       ]);

@@ -7,6 +7,7 @@ import { AccountgroupComponent } from "./accountgroup/accountgroup.component";
 import { AccountComponent } from "./account/account.component";
 import { RouterModule } from "@angular/router";
 import { CatRoutingModule } from "./cat-routing.module";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -16,7 +17,13 @@ import { CatRoutingModule } from "./cat-routing.module";
     AccountgroupComponent,
     AccountComponent,
   ],
-  imports: [CommonModule, CatRoutingModule, RouterModule],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    CatRoutingModule,
+    RouterModule,
+  ],
   exports: [
     TransactionComponent,
     PostgroupComponent,

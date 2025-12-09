@@ -1,1 +1,108 @@
-<p>accountgroup works!</p>
+<div class="container-fluid">
+    <h1 class="text-center">Kontengruppen</h1>
+
+    <!-- Tabelle -->
+    <div class="row" *ngIf="accountgroups">
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark table-striped table-hover">
+                <thead class="text-center">
+                    <tr>
+                        <th score="col"><span>Id</span></th>
+                        <th score="col"><span>Bezeichnung</span></th>
+                        <th score="col"><span>Beschreibung</span></th>
+                        <th score="col"><span>Rang</span></th>
+                        <th score="col"><span>Aktiv/Anzeigen</span></th>
+                        <th score="col"><span>Beschreibung</span></th>
+                        <th score="col"><span>Kontenanzahl</span></th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr *ngFor="let accountgroup of accountgroups">
+                        <th score="row">
+                            <a type="botton" [routerLink]="['/cat/accountgroup/', accountgroup.id, 'accounts']"
+                                class="btn table-link text-warning">
+                                <span>{{ accountgroup.id }}</span>
+                            </a>
+                        </th>
+                        <td score="row">
+                            <a type="botton" [routerLink]="['/cat/accountgroup/', accountgroup.id, 'accounts']"
+                                class="btn table-link text-warning">
+                                <span>{{ accountgroup.dsg }}</span>
+                            </a>
+                        </td>
+                        <td>
+                            <span>{{ accountgroup.dsc }}</span>
+                        </td>
+                        <td>
+                            <span>{{ accountgroup.rnk }}</span>
+                        </td>
+                        <td>
+                            <i *ngIf="!accountgroup.act" class="bi bi-square me-2" style="color: red"></i>
+                            <i *ngIf="accountgroup.act" class="bi bi-check-square me-2" style="color: green"></i>
+                            <i *ngIf="!accountgroup.shw" class="bi bi-square" style="color: red"></i>
+                            <i *ngIf="accountgroup.shw" class="bi bi-check-square" style="color: green"></i>
+                        </td>
+                        <td>
+                            <span>{{ accountgroup.accounts?.length }}</span>
+                        </td>
+                        <td>
+                            <a type="botton" (click)="onClickEdit(accountgroup)" class="btn table-link text-info"
+                                data-bs-toggle="modal" data-bs-target="#editAccountgroup">
+                                <i class="bi bi-pencil-square"></i>
+                                <span> bearbeiten</span>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Accountgroup Edit -->
+    <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="editAccountgroup" tabindex="-1"
+        aria-labelledby="editAccountgroupLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">Kontengruppe: {{ updAccountgroup?.dsg }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Body 
+                <form #updForm="ngForm">
+
+                    <div class="modal-body" *ngIf="updAccountgroup">
+                        <div class="form-check">
+                            <input type="hidden" name="prd" [ngModel]="updPeriod.prd">
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="act" name="act"
+                                [(ngModel)]="updPeriod.act">
+                            <label class="form-check-label" for="act">ist aktiv?</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="cls" name="cls"
+                                [(ngModel)]="updPeriod.cls">
+                            <label class="form-check-label" for="cls">ist geschloßen?</label>
+                        </div>
+                    </div>
+-->
+                <!-- Footer 
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Schließen
+                        </button>
+                        <button (click)="onUpdPrd(updForm.value)" type="button" class="btn btn-primary"
+                            data-bs-dismiss="modal">
+                            Speichern
+                        </button>
+                    </div>
+
+                </form>
+                    -->
+            </div>
+        </div>
+    </div>
+</div>
