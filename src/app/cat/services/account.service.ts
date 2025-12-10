@@ -12,6 +12,7 @@ export class AccountService {
 
   constructor(private http: HttpClient) {}
 
+  // Accountgroups
   findAllGroups(): Observable<AccountGroupModel[]> {
     return this.http.get<AccountGroupModel[]>(`${this.apiUrl}/accountgroups`);
   }
@@ -30,5 +31,20 @@ export class AccountService {
 
   findAllAccounts(): Observable<AccountModel[]> {
     return this.http.get<AccountModel[]>(`${this.apiUrl}/accounts`);
+  }
+
+  // Accounts
+  findOneAccount(id: string): Observable<AccountModel> {
+    return this.http.get<AccountModel>(`${this.apiUrl}/accounts/${id}`);
+  }
+
+  updateAccount(
+    id: number,
+    partial: Partial<AccountModel>
+  ): Observable<AccountModel> {
+    return this.http.patch<AccountModel>(
+      `${this.apiUrl}/accounts/${id}`,
+      partial
+    );
   }
 }

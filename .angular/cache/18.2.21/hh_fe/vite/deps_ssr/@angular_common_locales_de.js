@@ -1,5 +1,5 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
-import "./chunk-NQ4HTGF6.js";
+import "./chunk-LDODSSGN.js";
 
 // node_modules/@angular/common/locales/de.mjs
 var u = void 0;

@@ -20,7 +20,6 @@ export class DocumentService {
     return this.http.get<DocumentModel>(`${this.apiUrl}/documents/${id}`);
   }
 
-  // ToDo: document: DocumentModel -> id: string, partial: Partial<DocumentModel>
   update(
     id: string,
     partial: Partial<DocumentModel>

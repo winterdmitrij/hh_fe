@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { AccountGroupModel, AccountModel } from "../cat.model";
 import { AccountService } from "../services/account.service";
 import { ActivatedRoute, Params, Router } from "@angular/router";
@@ -13,6 +13,9 @@ export class AccountComponent implements OnInit {
   curGroupId?: string;
 
   accounts: AccountModel[] = [];
+  updAccount?: AccountModel;
+  newAccount?: AccountModel;
+  actAccount?: AccountModel;
 
   constructor(
     private accSrv: AccountService,
@@ -54,7 +57,40 @@ export class AccountComponent implements OnInit {
     });
   }
 
-  onSelectChange(newGroupId: string): void {
+  onChangeSelect(newGroupId: string): void {
     this.router.navigate(["/cat/accountgroup", String(newGroupId), "accounts"]);
+  }
+
+  //-- Events ---------------------------------------------
+  // ToDo: Es fehlt noch die Add-, Del- und Upd-Funktionen
+  onClickCreate(): void {
+    //ToDo
+  }
+
+  onClickUpdate(account: AccountModel): void {
+    //ToDo
+  }
+
+  onClickActivate(account: AccountModel): void {
+    this.actAccount = account;
+  }
+
+  //-- Actions ---------------------------------------------
+  createAccount(account: AccountModel): void {
+    //ToDo
+  }
+
+  updateAccount(account: AccountModel): void {
+    this.accSrv.updateAccount(account.id, account).subscribe({
+      next: (res) => this.loadAccounts(this.curGroupId!),
+      error: (err) => alert(err),
+    });
+  }
+
+  activeTogle(account: AccountModel): void {
+    this.accSrv.updateAccount(account.id, { act: !account.act }).subscribe({
+      next: (res) => this.loadAccounts(this.curGroupId!),
+      error: (err) => alert(err),
+    });
   }
 }

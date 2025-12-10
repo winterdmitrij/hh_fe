@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { PeriodModel } from "../doc.model";
 import { PeriodService } from "./period.service";
-import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
   selector: "app-period",
@@ -29,8 +28,8 @@ export class PeriodComponent implements OnInit {
   // Save Change
   onUpdPrd(period: PeriodModel): void {
     this.prdSrv.update(period.prd, period).subscribe({
-      next: (response) => this.load(),
-      error: (error: HttpErrorResponse) => alert(error.message),
+      next: (res) => this.load(),
+      error: (err) => alert(err),
     });
   }
 }
