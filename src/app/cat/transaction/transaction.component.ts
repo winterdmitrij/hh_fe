@@ -1,9 +1,5 @@
 import { Component, OnInit } from "@angular/core";
 import { TransactionModel } from "../cat.model";
-import { TransactionService } from "./transaction.service";
-import { response } from "express";
-import { error, log } from "console";
-import { HttpErrorResponse } from "@angular/common/http";
 import { PostService } from "../services/post.service";
 
 @Component({

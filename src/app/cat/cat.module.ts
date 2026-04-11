@@ -8,6 +8,7 @@ import { AccountComponent } from "./account/account.component";
 import { RouterModule } from "@angular/router";
 import { CatRoutingModule } from "./cat-routing.module";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { PostgroupFormComponent } from './postgroup/postgroup-form/postgroup-form.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
     PostComponent,
     AccountgroupComponent,
     AccountComponent,
+    PostgroupFormComponent,
   ],
   imports: [
     FormsModule,

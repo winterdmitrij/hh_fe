@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { enviroment } from "../../../enviroments/enviroment";
 import { HttpClient } from "@angular/common/http";
 import { map, Observable } from "rxjs";
-import { PostModel, TransactionModel } from "../cat.model";
+import { PostGroupModel, PostModel, TransactionModel } from "../cat.model";
 
 @Injectable({
   providedIn: "root",
@@ -18,7 +18,21 @@ export class PostService {
   }
 
   findOneTransaction(id: string): Observable<TransactionModel> {
-    return this.http.get<TransactionModel>(`${this.apiUrl}/transactions/${id}`);
+    return this.http
+      .get<TransactionModel>(`${this.apiUrl}/transactions/${id}`)
+      .pipe(
+        map((data) => {
+          if (data.postgroups) {
+            data.postgroups = data.postgroups.sort((a, b) => {
+              if (a.rnk == null) return 1;
+              if (b.rnk == null) return -1;
+
+              return a.rnk.localeCompare(b.rnk);
+            });
+          }
+          return data;
+        }),
+      );
   }
 
   findFirstTransaction(): Observable<TransactionModel> {
@@ -28,7 +42,28 @@ export class PostService {
   }
 
   // Postgroups
+  findAllPostGroups(): Observable<PostGroupModel[]> {
+    return this.http.get<PostGroupModel[]>(`${this.apiUrl}/postgroups`);
+  }
 
+  findOnePostGroup(id: string): Observable<PostGroupModel> {
+    return this.http.get<PostGroupModel>(`${this.apiUrl}/postgroups/${id}`);
+  }
+
+  updatePostGroup(
+    id: number,
+    partial: Partial<PostGroupModel>,
+  ): Observable<PostGroupModel> {
+    return this.http.patch<PostGroupModel>(
+      `${this.apiUrl}/postgroups/${id}`,
+      partial,
+    );
+  }
+  /*
+  findFirstPostGroup(taId: string): Observable<PostGroupModel> {
+    return //this.find
+  }
+*/
   // Posts
   findAll(): Observable<PostModel[]> {
     return this.http.get<PostModel[]>(`${this.apiUrl}/posts`);

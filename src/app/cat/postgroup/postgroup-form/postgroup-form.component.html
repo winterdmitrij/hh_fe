@@ -1,0 +1,58 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+        <!-- Id -->
+        <div class="mt-3">
+            <label for="id" class="form-label">Id</label>
+            <input id="id" class="form-control" formControlName="id"
+                [ngClass]="{ 'is-invalid': form.get('id')?.invalid && form.get('id')?.touched }" />
+            <div class="invalid-feedback" *ngIf="form.get('id')?.errors">
+                Id darf nicht leer sein.
+            </div>
+        </div>
+        <!-- Designation -->
+        <div class="mt-3">
+            <label for="dsg" class="form-label">Bezeichnung</label>
+            <input id="dsg" class="form-control" formControlName="dsg"
+                [ngClass]="{ 'is-invalid': form.get('dsg')?.invalid && form.get('dsg')?.touched }" />
+            <div class="invalid-feedback" *ngIf="form.get('dsg')?.errors">
+                Bezeichnung darf nicht leer, kürzer 4 und länger 30 Zeichen sein.
+            </div>
+        </div>
+        <!-- Description -->
+        <div class="mt-3">
+            <label for="dsc" class="form-label">Beschreibung</label>
+            <input id="dsc" class="form-control" formControlName="dsc" />
+        </div>
+        <!-- Rank -->
+        <div class="mt-3">
+            <label for="rnk" class="form-label">Rang</label>
+            <input id="rnk" class="form-control" formControlName="rnk"
+                [ngClass]="{ 'is-invalid': form.get('rnk')?.invalid && form.get('rnk')?.touched }" />
+            <div class="invalid-feedback" *ngIf="form.get('rnk')?.errors">
+                Rang sollte eingegeben werden und darf ein Zeichen lang sein.
+            </div>
+        </div>
+        <!--ToDo: Active Input einstellen-->
+        <div class="mt-3">
+            <div class="form-check">
+                <input class="form-control form-check-input me-3" formControlName="act" type="checkbox" value="act"
+                    id="act">
+                <label class="form-check-label" for="act">
+                    ist aktiv
+                </label>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Footer -->
+    <br>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Schließen
+        </button>
+        <button type="submit" class="btn btn-success" [disabled]="form.invalid">
+            Speichern
+        </button>
+    </div>
+</form>

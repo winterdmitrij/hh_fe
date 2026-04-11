@@ -24,7 +24,6 @@ import {
 import { AccountService } from "../../cat/services/account.service";
 import { DocumentModel, PositionModel } from "../doc.model";
 import { InformationService } from "../../cat/services/information.service";
-import { TransactionService } from "../../cat/transaction/transaction.service";
 import { firstValueFrom } from "rxjs";
 import { PostService } from "../../cat/services/post.service";
 
@@ -86,9 +85,8 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
 
   constructor(
     private accSrv: AccountService,
-    private traSrv: TransactionService,
-    private infSrv: InformationService,
     private pstSrv: PostService,
+    private infSrv: InformationService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -116,7 +114,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
     try {
       const [accData, traData, pstData] = await Promise.all([
         firstValueFrom(this.accSrv.findAllAccounts()),
-        firstValueFrom(this.traSrv.findAll()),
+        firstValueFrom(this.pstSrv.findAllTransactions()),
         firstValueFrom(this.pstSrv.findAll()),
       ]);
       this.accounts = accData;

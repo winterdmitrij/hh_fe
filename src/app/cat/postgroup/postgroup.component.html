@@ -1,56 +1,145 @@
 <div class="container-fluid">
-    <h1 *ngIf="transactions" class="text-center">{{ title }}</h1>
-    <h1 *ngIf="!transactions" class="text-center">{{ title }} '{{ curTransaction?.dsg }}'</h1>
+    <h1 class="text-center">{{ title }}</h1>
 
-    <!-- Ausfallliste -->
-    <div class="container mb-2">
-        <div class="form-floating" *ngIf="transactions">
-            <select class="form-select" id="floatingSelect" aria-label="Floating label select example"
-                (change)="onTransactionChange($event)">
-                <option *ngFor="let tx of transactions" [value]="tx.id">
-                    {{ tx.dsg }}
-                </option>
-            </select>
-            <label for="floatingSelect">Transaction</label>
+    <!-- Header -->
+    <div class="row">
+        <div class="col-4 d-grid gap-2 d-md-block text-center">
+            <button type="button" [routerLink]="['/cat/transactions']" class="btn btn-outline-primary mt-4 me-2">
+                Zu Transaktionen
+            </button>
+            <!--  -->
+            <button type="button" (click)="onClickModalCreate()" class="btn btn-outline-success mt-4">
+                Neue Postgruppe
+            </button>
         </div>
-        <div class="container" *ngIf="!transactions">
-            <a [routerLink]="['/cat/transactions']">Zur Transaktionen</a>
-        </div>
-    </div>
-
-    <!-- Tabelle Postgruppen -->
-    <div class="row" *ngIf="curTransaction">
-        <div class="col-lg-12">
-            <div class="main-box no-header clearfix">
-                <div class="main-box-body clearfix">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-dark table-striped table-hover">
-                            <thead class="text-center">
-                                <tr class="table-primary">
-                                    <th score="col"><span>Id</span></th>
-                                    <th score="col"><span>Bezeichnung</span></th>
-                                    <th score="col"><span>Beschreibung</span></th>
-                                    <th score="col"><span>Rang</span></th>
-                                    <th score="col"><span>Anzahl der Postgruppen</span></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let pstGrp of curTransaction.postgroups">
-                                    <th score="row" class="text-center"><span>{{ pstGrp.id }}</span></th>
-                                    <td><span>{{ pstGrp.dsg }}</span></td>
-                                    <td><span>{{ pstGrp.dsc }}</span></td>
-                                    <td class="text-center"><span>{{ pstGrp.rnk }}</span></td>
-                                    <td class="text-center"><span>{{ pstGrp.posts?.length }}</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="col-8">
+            <div class="container" *ngIf="transactions">
+                <label for="accountgroupSelect">Transactionen: </label>
+                <select id="accountgroupSelect" class="form-select mb-3" [(ngModel)]="curTransactionId"
+                    (ngModelChange)="onChangeSelect($event)">
+                    <option *ngFor="let transaction of transactions" [value]="transaction.id">
+                        {{ transaction.dsg }}
+                    </option>
+                </select>
             </div>
         </div>
     </div>
 
-    <div *ngIf="!curTransaction">
+    <!-- Tabelle Postgruppen -->
+    <div class="row" *ngIf="postGroups">
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark table-striped table-hover">
+                <thead class="text-center">
+                    <tr>
+                        <!--<th score="col"><span>Id</span></th>-->
+                        <th score="col"><span>Rang</span></th>
+                        <th score="col"><span>Bezeichnung</span></th>
+                        <th score="col"><span>Beschreibung</span></th>
+                        <th score="col"><span>Aktiv</span></th>
+                        <th score="col"><span>Posten</span></th>
+                        <th score="col"><span>Aktionen</span></th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr *ngFor="let postGroup of postGroups">
+                        <!--<th score="row"><span>{{ postGroup.id }}</span></th>-->
+                        <td score="row"><span>{{ postGroup.rnk }}</span></td>
+                        <td>
+                            <a type="botton"
+                                [routerLink]="['/cat/transaction/',curTransactionId,'postgroup',postGroup.id,'posts']"
+                                class="btn table-link text-warning">
+                                <span>{{ postGroup.dsg }}</span>
+                            </a>
+                        </td>
+                        <td><span>{{ postGroup.dsc }}</span></td>
+                        <td>
+                            <i *ngIf="!postGroup.act" class="bi bi-square me-2" style="color: red"></i>
+                            <i *ngIf="postGroup.act" class="bi bi-check-square me-2" style="color: green"></i>
+                        </td>
+                        <td><span>{{ postGroup.posts?.length }}</span></td>
+                        <td>
+                            <!-- Update  data-bs-toggle="modal" data-bs-target="#updAccount"-->
+                            <a type="botton" (click)="onClickModalUpdate(postGroup)" class="btn table-link text-info">
+                                <i class="bi bi-pencil-square"></i>
+                                <span> bearbeiten</span>
+                            </a>
+                            <!-- Activate
+                            <a type="botton" class="btn table-link" (click)="onClickModalActivate(postGroup)"
+                                data-bs-toggle="modal" data-bs-target="#updPostGroup"
+                                [ngClass]="{'text-success': !postGroup?.act, 'text-danger': postGroup?.act}">
+                                <i class="bi" [ngClass]="{
+                                    'bi-check2-square': !postGroup.act,
+                                    'bi-x-square': postGroup.act
+                                }"> </i>
+                                <span>{{ postGroup.act ? ' deaktivieren' : ' aktivieren' }}</span>
+                            </a>
+                             -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div *ngIf="!postGroups">
         <p>Fehler</p>
+    </div>
+</div>
+
+<!-- Modal-Dialogs -->
+
+<!-- Add/Upd Postgroup Modal -->
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="postGroupModal" tabindex="-1"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Postgruppe {{ isEditMode ? 'bearbeiten' : 'hinzufügen' }}
+                </h5>
+                <button type="button" (click)="onClickCloseModal('postGroupModal')" class="btn-close"
+                    data-bs-dismiss="modal" aria-label="Schließen">
+                </button>
+                <br>
+            </div>
+            <!-- [document]="document" [position]="updPosition" (submitPosition)="handlePositionSave($event)"-->
+            <app-postgroup-form *ngIf="modalOpen" [postGroup]="updPostGroup">
+            </app-postgroup-form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Activate -->
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="updPostGroup" tabindex="-1"
+    aria-labelledby="actPostGroupLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">Postgruppe {{ updPostGroup?.act ? 'deaktivieren' :
+                    'aktivieren' }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Body -->
+            <div class="modal-body">
+                <p>Muss die Postgruppe {{ updPostGroup?.id }}. {{ updPostGroup?.dsg }} {{ updPostGroup?.act ?
+                    'deaktiviert' :
+                    'aktiviert' }} werden?</p>
+            </div>
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn" (click)="activeTogle(updPostGroup!)" [ngClass]="{
+                    'btn-success': !updPostGroup?.act,
+                    'btn-danger': updPostGroup?.act
+                }" data-bs-dismiss="modal">
+                    {{ updPostGroup?.act ? 'Deaktivieren' : 'Aktivieren' }}
+                </button>
+            </div>
+        </div>
     </div>
 </div>

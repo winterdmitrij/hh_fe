@@ -1,8 +1,8 @@
+declare var bootstrap: any;
 import { Component, OnInit } from "@angular/core";
-import { PostgroupService } from "./postgroup.service";
-import { TransactionModel } from "../cat.model";
-import { ActivatedRoute } from "@angular/router";
-import { TransactionService } from "../transaction/transaction.service";
+import { PostGroupModel, TransactionModel } from "../cat.model";
+import { ActivatedRoute, Params, Router } from "@angular/router";
+import { PostService } from "../services/post.service";
 
 @Component({
   selector: "app-postgroup",
@@ -10,54 +10,113 @@ import { TransactionService } from "../transaction/transaction.service";
   styleUrl: "./postgroup.component.css",
 })
 export class PostgroupComponent implements OnInit {
-  //ToDo: vllt brauche ich das nicht
-  title: string = "";
+  title: string = "Postgruppen";
 
-  transactions?: TransactionModel[];
-  curTransaction?: TransactionModel;
-  curTraId: string = "1";
+  transactions: TransactionModel[] = [];
+  curTransactionId?: string;
+
+  postGroups: PostGroupModel[] = [];
+
+  isEditMode: boolean = false;
+  modalOpen: boolean = false;
+  updPostGroup?: PostGroupModel;
+  delPostGroup?: PostGroupModel;
 
   constructor(
-    private traSrv: TransactionService,
-    //    private pstGrpSrv: PostgroupService,
-    private route: ActivatedRoute
+    private pstSrv: PostService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
-    this.load();
+    this.loadDropdown();
   }
 
-  load() {
-    this.route.paramMap.subscribe((params) => {
-      const id = params.get("id");
+  async loadDropdown(): Promise<void> {
+    this.pstSrv.findAllTransactions().subscribe((data) => {
+      this.transactions = data;
 
-      if (id !== null) {
-        this.curTraId = id;
-        this.loadOneTransaction(this.curTraId);
-        //ToDo: vllt brauche ich das nicht
-        this.title = "Transaktion: ";
-      } else {
-        this.loadAllTransactions();
-        this.loadOneTransaction(this.curTraId);
-        //ToDo: vllt brauche ich das nicht
-        this.title = "Katalog 'Postgruppen'";
+      // Pfadparameter ablesen
+      this.route.params.subscribe((params: Params) => {
+        const taId = params["taid"];
+
+        if (taId) {
+          this.curTransactionId = taId;
+          this.loadPostGroups(taId);
+        } else {
+          this.pstSrv.findFirstTransaction().subscribe((transaction) => {
+            if (transaction) {
+              this.router.navigate([
+                "/cat/transaction",
+                transaction.id,
+                "postgroups",
+              ]);
+            }
+          });
+        }
+      });
+    });
+  }
+
+  loadPostGroups(taId: string): void {
+    this.pstSrv.findOneTransaction(taId).subscribe((data) => {
+      if (data.postgroups) {
+        this.postGroups = data.postgroups;
       }
     });
   }
 
-  loadAllTransactions() {
-    this.traSrv.findAll().subscribe((data) => (this.transactions = data));
+  //----- E V E N T S -----
+  onChangeSelect(newTaId: string): void {
+    this.router.navigate(["/cat/transaction", String(newTaId), "postgroups"]);
   }
 
-  loadOneTransaction(id: string) {
-    this.traSrv.findOne(this.curTraId).subscribe((data) => {
-      this.curTransaction = data;
-    });
+  onClickModalCreate(): void {
+    this.isEditMode = false;
+    this.showModal("postGroupModal");
   }
 
-  onTransactionChange(event: Event) {
-    const selId = (event.target as HTMLSelectElement).value;
-    this.curTraId = selId;
-    this.loadOneTransaction(selId);
+  onClickModalUpdate(postGroup: PostGroupModel): void {
+    this.updPostGroup = postGroup;
+    this.isEditMode = true;
+    this.showModal("postGroupModal");
+  }
+  /*
+  onClickModalActivate(postGroup: PostGroupModel): void {
+    this.updPostGroup = postGroup;
+  }
+*/
+
+  onClickCloseModal(modalId: string): void {
+    this.modalHide(modalId);
+  }
+
+  activeTogle(postGroup: PostGroupModel): void {
+    this.pstSrv
+      .updatePostGroup(postGroup.id, { act: !postGroup.act })
+      .subscribe({
+        next: (res) => this.loadPostGroups(this.curTransactionId!),
+        error: (err) =>
+          alert(err?.error?.message || err.message || "Unbekannter Fehler"),
+      });
+  }
+
+  // ----- M O D A L S -----
+  private showModal(modalId: string): void {
+    const modalEl = document.getElementById(modalId);
+
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      this.modalOpen = true;
+      modal.show();
+    }
+  }
+
+  private modalHide(modalId: string) {
+    const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+    this.updPostGroup = undefined;
+    //this.delPosition = undefined;
+    this.modalOpen = false;
+    modal.hide();
   }
 }
