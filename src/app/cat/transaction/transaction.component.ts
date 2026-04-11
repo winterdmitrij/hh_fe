@@ -4,6 +4,7 @@ import { TransactionService } from "./transaction.service";
 import { response } from "express";
 import { error, log } from "console";
 import { HttpErrorResponse } from "@angular/common/http";
+import { PostService } from "../services/post.service";
 
 @Component({
   selector: "app-transaction",
@@ -11,17 +12,19 @@ import { HttpErrorResponse } from "@angular/common/http";
   styleUrl: "./transaction.component.css",
 })
 export class TransactionComponent implements OnInit {
-  title = "Katalog 'Transaktionen'";
+  title = "Transaktionen";
 
   transactions: TransactionModel[] = [];
 
-  constructor(private traSrv: TransactionService) {}
+  constructor(private pstSrv: PostService) {}
 
   ngOnInit(): void {
     this.load();
   }
 
   load() {
-    this.traSrv.findAll().subscribe((data) => (this.transactions = data));
+    this.pstSrv
+      .findAllTransactions()
+      .subscribe((data) => (this.transactions = data));
   }
 }

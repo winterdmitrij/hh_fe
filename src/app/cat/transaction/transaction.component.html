@@ -3,40 +3,36 @@
 
     <!-- Tabelle Transactions -->
     <div class="row" *ngIf="transactions">
-        <div class="col-lg-12">
-            <div class="main-box no-header clearfix">
-                <div class="main-box-body clearfix">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-dark table-striped table-hover">
-                            <thead class="text-center">
-                                <tr class="table-primary">
-                                    <th score="col"><span>Id</span></th>
-                                    <th score="col"><span>Bezeichnung</span></th>
-                                    <th score="col"><span>Rang</span></th>
-                                    <th score="col"><span>Anzahl der Postgruppen</span></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let tra of transactions">
-                                    <th score="row" class="text-center">
-                                        <span>
-                                            {{ tra.id }}
-                                        </span>
-                                    </th>
-                                    <td>
-                                        <a [routerLink]="['/cat/transaction', tra.id]">
-                                            <span>{{ tra.dsg }}</span>
-                                        </a>
-                                    </td>
-                                    <td class="text-center"><span>{{ tra.rnk }}</span></td>
-                                    <td class="text-center"><span>{{ tra.postgroups?.length }}</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark table-striped table-hover">
+                <thead class="text-center">
+                    <tr>
+                        <th score="col"><span>Id</span></th>
+                        <th score="col"><span>Bezeichnung</span></th>
+                        <th score="col"><span>Rang</span></th>
+                        <th score="col"><span>Postgruppen</span></th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr *ngFor="let transaction of transactions">
+                        <th score="row">
+                            <span>
+                                {{ transaction.id }}
+                            </span>
+                        </th>
+                        <td>
+                            <a type="botton" [routerLink]="['/cat/transaction/', transaction.id, 'postgroups']"
+                                class="btn table-link text-warning">
+                                <span>{{ transaction.dsg }}</span>
+                            </a>
+                        </td>
+                        <td class="text-center"><span>{{ transaction.rnk }}</span></td>
+                        <td class="text-center"><span>{{ transaction.postgroups?.length }}</span></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
+
     </div>
 
     <div *ngIf="!transactions">

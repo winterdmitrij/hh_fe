@@ -19,13 +19,13 @@ export class AccountService {
 
   findOneGroup(id: string): Observable<AccountGroupModel> {
     return this.http.get<AccountGroupModel>(
-      `${this.apiUrl}/accountgroups/${id}`
+      `${this.apiUrl}/accountgroups/${id}`,
     );
   }
 
   findFirstGroup(): Observable<AccountGroupModel> {
     return this.findAllGroups().pipe(
-      map((groups) => groups.sort((a, b) => a.id - b.id)[0])
+      map((groups) => groups.sort((a, b) => a.id - b.id)[0]),
     );
   }
 
@@ -40,11 +40,11 @@ export class AccountService {
 
   updateAccount(
     id: number,
-    partial: Partial<AccountModel>
+    partial: Partial<AccountModel>,
   ): Observable<AccountModel> {
     return this.http.patch<AccountModel>(
       `${this.apiUrl}/accounts/${id}`,
-      partial
+      partial,
     );
   }
 }

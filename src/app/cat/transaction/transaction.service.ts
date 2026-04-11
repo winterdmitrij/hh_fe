@@ -11,7 +11,7 @@ export class TransactionService {
   private apiUrl = enviroment.apiUrl;
 
   constructor(private http: HttpClient) {}
-
+  // ToDo: Löschen
   findAll(): Observable<TransactionModel[]> {
     return this.http.get<TransactionModel[]>(`${this.apiUrl}/transactions`);
   }

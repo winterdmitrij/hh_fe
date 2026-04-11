@@ -26,7 +26,7 @@ import { DocumentModel, PositionModel } from "../doc.model";
 import { InformationService } from "../../cat/services/information.service";
 import { TransactionService } from "../../cat/transaction/transaction.service";
 import { firstValueFrom } from "rxjs";
-import { PostService } from "../../cat/post/post.service";
+import { PostService } from "../../cat/services/post.service";
 
 // Validator für Betrag: darf nich 0 sein
 function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
@@ -88,7 +88,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
     private accSrv: AccountService,
     private traSrv: TransactionService,
     private infSrv: InformationService,
-    private pstSrv: PostService
+    private pstSrv: PostService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -154,7 +154,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
         if (this.position?.post?.id) {
           const postId = this.position.post.id;
           const matchedTra = this.transactions.find((t) =>
-            t.postgroups?.some((pg) => pg.posts?.some((p) => p.id === postId))
+            t.postgroups?.some((pg) => pg.posts?.some((p) => p.id === postId)),
           );
           if (matchedTra) {
             this.selTraId = matchedTra.id;
@@ -246,7 +246,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
 
     // Touch-Status entfernen (sonst bleibt is-invalid sichtbar)
     Object.keys(this.form.controls).forEach((key) =>
-      this.form.get(key)?.markAsUntouched()
+      this.form.get(key)?.markAsUntouched(),
     );
 
     // Setze Defaultwerte für neue Position
@@ -277,7 +277,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
 
   private getFiltredPosts(taId: number): PostModel[] {
     const fltPst = this.allPosts.filter(
-      (p) => String(p.postgroup?.transaction?.id) === String(taId)
+      (p) => String(p.postgroup?.transaction?.id) === String(taId),
     );
     return fltPst;
   }
