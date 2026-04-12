@@ -8,7 +8,6 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { PositionDetailModel, PositionModel } from "../doc.model";
 import { PositionDetailService } from "./position-detail.service";
 import {
   AbstractControl,
@@ -17,9 +16,10 @@ import {
   ValidationErrors,
   Validators,
 } from "@angular/forms";
+import { PositionDetailModel, PositionModel } from "../../doc.model";
 
 function complexAmountValidator(
-  control: AbstractControl
+  control: AbstractControl,
 ): ValidationErrors | null {
   const value = control.value;
   if (!value) return null;
@@ -78,7 +78,7 @@ export class PositionDetailComponent implements OnChanges, AfterViewInit {
       } catch (err) {
         console.log(
           "Fehler beim Laden oder Erstellen des Position-Details: ",
-          err
+          err,
         );
       }
     }

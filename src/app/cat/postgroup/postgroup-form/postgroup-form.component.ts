@@ -64,7 +64,6 @@ export class PostgroupFormComponent implements OnInit, AfterViewInit {
         });
       });
     } else {
-      console.log("Zuänderte Postgruppe: ", this.postGroup);
       this.form.patchValue({
         id: this.postGroup.id,
         dsg: this.postGroup.dsg,
@@ -87,14 +86,13 @@ export class PostgroupFormComponent implements OnInit, AfterViewInit {
         transaction: { id: this.form.value.ta_id },
       };
 
-      console.log("Neue Postgruppe: ", postGroup);
       this.submitPostGroup.emit(postGroup);
     } else {
       this.form.markAllAsTouched();
     }
   }
 
-  // Eventbearbeitung auf Form
+  // ----- E V E N T B E A R B E I T U N G -----
   ngAfterViewInit(): void {
     const modalEl = document.getElementById("postGroupModal");
 

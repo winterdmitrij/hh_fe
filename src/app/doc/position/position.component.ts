@@ -10,7 +10,7 @@ import { PositionService } from "./position.service";
 import { ActivatedRoute } from "@angular/router";
 import { DocumentService } from "../document/document.service";
 import { catchError, Observable, of } from "rxjs";
-import { PositionDetailService } from "../position-detail/position-detail.service";
+import { PositionDetailService } from "./position-detail/position-detail.service";
 
 @Component({
   selector: "app-position",
@@ -38,7 +38,7 @@ export class PositionComponent {
     private docSrv: DocumentService,
     private posSrv: PositionService,
     private posDtlSrv: PositionDetailService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {
     // Pfad-Parameter ablesen und Dokument laden
     this.route.paramMap.subscribe((params) => {
@@ -127,7 +127,7 @@ export class PositionComponent {
           console.error("Fehler beim Löschen der Position:", error);
           alert("Position konnte nicht gelöscht werden.");
           return of(); // Leeres Observable zurückgeben, um die Kette fortzusetzen
-        })
+        }),
       )
       .subscribe(() => {
         console.log("Position erfolgreich gelöscht.");
@@ -164,7 +164,7 @@ export class PositionComponent {
   // Gibt absteigent sortierte Positionen zurück
   get sortedPositions(): PositionModel[] {
     return [...(this.document?.positions || [])].sort((a, b) =>
-      b.id.localeCompare(a.id)
+      b.id.localeCompare(a.id),
     );
   }
 

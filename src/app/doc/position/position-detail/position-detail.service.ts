@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
-import { enviroment } from "../../../enviroments/enviroment";
 import { HttpClient } from "@angular/common/http";
-import { PositionDetailModel } from "../doc.model";
 import { firstValueFrom, Observable } from "rxjs";
+import { enviroment } from "../../../../enviroments/enviroment";
+import { PositionDetailModel } from "../../doc.model";
 
 @Injectable({
   providedIn: "root",
@@ -21,8 +21,8 @@ export class PositionDetailService {
       // 1. Versuche, das Detail zu laden
       return await firstValueFrom(
         this.http.get<PositionDetailModel>(
-          `${this.apiUrl}/position-details/${id}`
-        )
+          `${this.apiUrl}/position-details/${id}`,
+        ),
       );
     } catch (err: any) {
       // 2. Wenn nicht gefunden, erstelle es
@@ -30,8 +30,8 @@ export class PositionDetailService {
         const created = await firstValueFrom(
           this.http.post<PositionDetailModel>(
             `${this.apiUrl}/position-details`,
-            { pos_id: id }
-          )
+            { pos_id: id },
+          ),
         );
         return created;
       }
@@ -42,7 +42,7 @@ export class PositionDetailService {
   update(detail: PositionDetailModel): Observable<PositionDetailModel> {
     return this.http.patch<PositionDetailModel>(
       `${this.apiUrl}/position-details/${detail.pos_id}`,
-      detail
+      detail,
     );
   }
 }

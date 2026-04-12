@@ -20,12 +20,12 @@ import {
   InformationModel,
   PostModel,
   TransactionModel,
-} from "../../cat/cat.model";
-import { AccountService } from "../../cat/services/account.service";
-import { DocumentModel, PositionModel } from "../doc.model";
-import { InformationService } from "../../cat/services/information.service";
+} from "../../../cat/cat.model";
+import { AccountService } from "../../../cat/services/account.service";
+import { DocumentModel, PositionModel } from "../../doc.model";
+import { InformationService } from "../../../cat/services/information.service";
 import { firstValueFrom } from "rxjs";
-import { PostService } from "../../cat/services/post.service";
+import { PostService } from "../../../cat/services/post.service";
 
 // Validator für Betrag: darf nich 0 sein
 function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
