@@ -50,6 +50,13 @@ export class PostService {
     return this.http.get<PostGroupModel>(`${this.apiUrl}/postgroups/${id}`);
   }
 
+  createNewPostGroup(postGroup: PostGroupModel): Observable<PostGroupModel> {
+    return this.http.post<PostGroupModel>(
+      `${this.apiUrl}/postgroups`,
+      postGroup,
+    );
+  }
+
   updatePostGroup(
     id: number,
     partial: Partial<PostGroupModel>,

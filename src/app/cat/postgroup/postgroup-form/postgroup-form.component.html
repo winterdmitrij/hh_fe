@@ -1,13 +1,14 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="modal-body">
-        <!-- Id -->
+        <!-- Id (versteckt) -->
         <div class="mt-3">
-            <label for="id" class="form-label">Id</label>
-            <input id="id" class="form-control" formControlName="id"
-                [ngClass]="{ 'is-invalid': form.get('id')?.invalid && form.get('id')?.touched }" />
-            <div class="invalid-feedback" *ngIf="form.get('id')?.errors">
-                Id darf nicht leer sein.
-            </div>
+            <input type="hidden" id="id" formControlName="id" />
+            <div class="form-text">Id: {{ newPostGroupId || postGroup?.id }}</div>
+        </div>
+        <!-- Transaktion-Id (versteckt) -->
+        <div class="mt-3">
+            <input type="hidden" id="ta_id" formControlName="ta_id" />
+            <div class="form-text">Transaktion-Id: {{ transactionId }}</div>
         </div>
         <!-- Designation -->
         <div class="mt-3">
@@ -51,6 +52,7 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             Schließen
         </button>
+        <!--  -->
         <button type="submit" class="btn btn-success" [disabled]="form.invalid">
             Speichern
         </button>

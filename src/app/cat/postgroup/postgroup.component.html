@@ -105,8 +105,9 @@
                 </button>
                 <br>
             </div>
-            <!-- [document]="document" [position]="updPosition" (submitPosition)="handlePositionSave($event)"-->
-            <app-postgroup-form *ngIf="modalOpen" [postGroup]="updPostGroup">
+            <!--  -->
+            <app-postgroup-form *ngIf="modalOpen" [postGroup]="updPostGroup" [transactionId]="curTransactionId"
+                (submitPostGroup)="handlePostGroupSave($event)">
             </app-postgroup-form>
         </div>
     </div>

@@ -3,6 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { PostGroupModel, TransactionModel } from "../cat.model";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { PostService } from "../services/post.service";
+import { Observable } from "rxjs";
 
 @Component({
   selector: "app-postgroup",
@@ -90,7 +91,7 @@ export class PostgroupComponent implements OnInit {
   onClickCloseModal(modalId: string): void {
     this.modalHide(modalId);
   }
-
+  //ToDO: Löschen
   activeTogle(postGroup: PostGroupModel): void {
     this.pstSrv
       .updatePostGroup(postGroup.id, { act: !postGroup.act })
@@ -99,6 +100,39 @@ export class PostgroupComponent implements OnInit {
         error: (err) =>
           alert(err?.error?.message || err.message || "Unbekannter Fehler"),
       });
+  }
+
+  // ----- M O D A L E V E N T S - B E H A N D L U N G -----
+  // Add or Upd Position
+  handlePostGroupSave(postGroup: PostGroupModel) {
+    if (this.updPostGroup) {
+      this.handleRequest(
+        this.pstSrv.updatePostGroup(postGroup.id, postGroup),
+        "postGroupModal",
+      );
+    } else {
+      this.handleRequest(
+        this.pstSrv.createNewPostGroup(postGroup),
+        "postGroupModal",
+      );
+    }
+    console.log("Die Postgruppe erfolgreich gespeichert.", postGroup);
+  }
+
+  private handleRequest(obs$: Observable<any>, modalId: string) {
+    obs$.subscribe({
+      next: (res) => {
+        console.log("Erfolg: ", res);
+
+        this.modalHide(modalId);
+        if (this.curTransactionId) {
+          this.loadPostGroups(this.curTransactionId);
+        }
+      },
+      error: (err) => {
+        console.error("Fehler: ", err);
+      },
+    });
   }
 
   // ----- M O D A L S -----
