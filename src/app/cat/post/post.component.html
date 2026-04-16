@@ -8,8 +8,8 @@
                 class="btn btn-outline-primary mt-4 me-2">
                 Zu Postgruppen
             </button>
-            <!--  (click)="onClickModalCreate()"-->
-            <button type="button" class="btn btn-outline-success mt-4">
+            <!--  -->
+            <button type="button" (click)="onClickModalCreate()" class="btn btn-outline-success mt-4">
                 Neues Post
             </button>
         </div>
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Tabelle -->
-    <div class="row tbl-fixed" *ngIf="posts">
+    <div class="row" *ngIf="posts">
         <div class="table-responsive">
             <table class="table table-bordered table-dark table-striped table-hover">
                 <thead class="text-center">
@@ -47,6 +47,8 @@
                         <th score="col"><span>Bezeichnung</span></th>
                         <th score="col"><span>Beschreibung</span></th>
                         <th score="col"><span>Aktiv</span></th>
+                        <th score="col"><span>Transfer</span></th>
+                        <th score="col"><span>Cash</span></th>
                         <th score="col"><span>Aktionen</span></th>
                     </tr>
                 </thead>
@@ -62,8 +64,16 @@
                             <i *ngIf="post.act" class="bi bi-check-square me-2" style="color: green"></i>
                         </td>
                         <td>
-                            <!-- Update  (click)="onClickModalUpdate(postGroup)"-->
-                            <a type="botton" class="btn table-link text-info">
+                            <i *ngIf="!post.trf" class="bi bi-square me-2" style="color: red"></i>
+                            <i *ngIf="post.trf" class="bi bi-check-square me-2" style="color: green"></i>
+                        </td>
+                        <td>
+                            <i *ngIf="!post.csh" class="bi bi-square me-2" style="color: red"></i>
+                            <i *ngIf="post.csh" class="bi bi-check-square me-2" style="color: green"></i>
+                        </td>
+                        <td>
+                            <!-- Update  -->
+                            <a type="botton" (click)="onClickModalUpdate(post)" class="btn table-link text-info">
                                 <i class="bi bi-pencil-square"></i>
                                 <span> bearbeiten</span>
                             </a>
@@ -81,5 +91,29 @@
 
     <div *ngIf="!posts">
         <p>Fehler</p>
+    </div>
+</div>
+
+<!-- Modal-Dialogs -->
+<!-- Add/Upd Modal -->
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="postModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Post {{ isEditMode ? 'bearbeiten' : 'hinzufügen' }}
+                </h5>
+                <button type="button" (click)="onClickCloseModal('postModal')" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Schließen">
+                </button>
+                <br>
+            </div>
+            <!-- Form -->
+            <app-post-form *ngIf="isModalOpen" [post]="updPost" [postGroupId]="curPostGroupId"
+                (submitPost)="handlePostSave($event)">
+            </app-post-form>
+        </div>
     </div>
 </div>

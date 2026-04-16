@@ -96,6 +96,10 @@ export class PostService {
   }
 
   // Posts
+  findAllPosts(): Observable<PostModel[]> {
+    return this.http.get<PostModel[]>(`${this.apiUrl}/posts`);
+  }
+
   //ToDo: löschen?, da nicht funktioniert
   findPostsByPostGroup(pgId: string): Observable<PostModel[]> {
     return this.http
@@ -111,7 +115,15 @@ export class PostService {
       );
   }
 
-  findAllPosts(): Observable<PostModel[]> {
-    return this.http.get<PostModel[]>(`${this.apiUrl}/posts`);
+  createNewPost(post: PostModel): Observable<PostModel> {
+    return this.http.post<PostModel>(`${this.apiUrl}/posts`, post);
+  }
+
+  updatePost(id: number, partial: Partial<PostModel>): Observable<PostModel> {
+    return this.http.patch<PostModel>(`${this.apiUrl}/posts/${id}`, partial);
+  }
+
+  deletePost(post: PostModel): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/posts/${post.id}`);
   }
 }

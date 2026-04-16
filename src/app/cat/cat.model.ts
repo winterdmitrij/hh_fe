@@ -21,8 +21,8 @@ export interface PostModel {
   dsc?: string;
   rnk?: string;
   act: boolean;
-  shw: boolean;
   trf: boolean;
+  csh: boolean;
   postgroup: PostGroupModel;
 }
 

@@ -1,3 +1,4 @@
+declare var bootstrap: any;
 import { Component, OnInit } from "@angular/core";
 import { PostGroupModel, PostModel, TransactionModel } from "../cat.model";
 import { PostService } from "../services/post.service";
@@ -19,6 +20,10 @@ export class PostComponent implements OnInit {
   curPostGroupId?: string;
 
   posts: PostModel[] = [];
+
+  isEditMode: boolean = false;
+  isModalOpen: boolean = false;
+  updPost?: PostModel;
 
   constructor(
     private pstSrv: PostService,
@@ -61,7 +66,7 @@ export class PostComponent implements OnInit {
       });
   }
 
-  // ----- C L I C K - E V E N T S -----
+  // ----- C L I C K E V E N T S -----
   onChangeSelectTransactions(taId: string): void {
     this.redirectToFirst(taId);
   }
@@ -70,6 +75,75 @@ export class PostComponent implements OnInit {
     if (this.curTransactionId) {
       this.redirectTo(this.curTransactionId, pgId);
     }
+  }
+
+  onClickModalCreate(): void {
+    this.isEditMode = false;
+    this.showModal("postModal");
+  }
+
+  onClickModalUpdate(post: PostModel): void {
+    this.updPost = post;
+    this.isEditMode = true;
+    this.showModal("postModal");
+  }
+
+  onClickCloseModal(modalId: string): void {
+    this.modalHide(modalId);
+  }
+
+  // ----- M O D A L E V E N T S -----
+  handlePostSave(post: PostModel) {
+    if (this.updPost) {
+      this.handleRequest(this.pstSrv.updatePost(post.id, post), "postModal");
+    } else {
+      this.handleRequest(this.pstSrv.createNewPost(post), "postModal");
+    }
+    console.log("Das Post erfolgreich gespeichert.", post);
+  }
+
+  handlePostGroupDelete(post: PostModel) {
+    // ToDo
+    console.log("Das Post erfolgreich geslöscht.", post);
+    this.modalHide("delPostModal");
+    if (this.curTransactionId && this.curPostGroupId) {
+      this.loadData(this.curTransactionId, this.curPostGroupId);
+    }
+  }
+
+  private handleRequest(obs$: Observable<any>, modalId: string) {
+    obs$.subscribe({
+      next: (res) => {
+        console.log("Erfolg: ", res);
+
+        this.modalHide(modalId);
+        if (this.curTransactionId && this.curPostGroupId) {
+          this.loadData(this.curTransactionId, this.curPostGroupId);
+        }
+      },
+      error: (err) => {
+        console.error("Fehler: ", err);
+      },
+    });
+  }
+
+  // ----- M O D A L S -----
+  private showModal(modalId: string): void {
+    const modalEl = document.getElementById(modalId);
+
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      this.isModalOpen = true;
+      modal.show();
+    }
+  }
+
+  private modalHide(modalId: string) {
+    const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+    this.updPost = undefined;
+    //this.delPost = undefined;
+    this.isModalOpen = false;
+    modal.hide();
   }
 
   // ----- N A V I G A T I O N -----
@@ -104,53 +178,5 @@ export class PostComponent implements OnInit {
       pgId,
       "posts",
     ]);
-  }
-  /*
-  async loadDropDownTransaktions(): Promise<void> {
-    this.pstSrv.findAllTransactions().subscribe((data) => {
-      this.transactions = data;
-
-      // Pfadparameters
-      this.route.params.subscribe((params: Params) => {
-        const taId = params["taid"];
-        const pgId = params["pgid"];
-
-        if (taId) {
-          this.curTransactionId = taId;
-          this.curPostGroupId = pgId;
-
-          this.loadDropDownPostGroups(taId);
-          console.log("PostGruppenen: ", this.postGroups);
-
-          this.loadPosts(pgId);
-
-          console.log("Akt Transaktion: ", this.curTransactionId);
-          console.log("Akt Postgruppe: ", this.curPostGroupId);
-          console.log("Posten: ", this.posts);
-        } else {
-          //ToDo: Finde 1. und weiterleite
-        }
-      });
-    });
-  }
-
-  async loadDropDownPostGroups(taId: string): Promise<void> {
-    this.pstSrv.findOneTransaction(taId).subscribe((data) => {
-      if (data.postgroups) {
-        this.postGroups = data.postgroups;
-      }
-    });
-  }
-
-  loadPosts(pgId: string): void {
-    this.pstSrv.findPostsByPostGroup(pgId).subscribe((data) => {
-      this.posts = data;
-    });
-  }
-*/
-
-  //----- C L I C K - E V E N T S -----
-  onChangeSelect(newTaId: string): void {
-    //this.router.navigate(["/cat/transaction", String(newTaId), "postgroups"]);
   }
 }
