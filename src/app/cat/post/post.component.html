@@ -1,1 +1,85 @@
-<p>post works!</p>
+<div class="container-fluid">
+    <h1 class="text-center">{{ title }}</h1>
+
+    <!-- Header -->
+    <div class="row">
+        <div class="col-4 d-grid gap-2 d-md-block text-center">
+            <button type="button" [routerLink]="['/cat/transaction', curTransactionId, 'postgroups']"
+                class="btn btn-outline-primary mt-4 me-2">
+                Zu Postgruppen
+            </button>
+            <!--  (click)="onClickModalCreate()"-->
+            <button type="button" class="btn btn-outline-success mt-4">
+                Neues Post
+            </button>
+        </div>
+        <div class="col-4">
+            <div class="container" *ngIf="transactions">
+                <label for="accountgroupSelect">Transactionen: </label>
+                <select id="accountgroupSelect" class="form-select mb-3" [(ngModel)]="curTransactionId"
+                    (ngModelChange)="onChangeSelectTransactions($event)">
+                    <option *ngFor="let transaction of transactions" [value]="transaction.id">
+                        {{ transaction.dsg }}
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="container" *ngIf="postGroups">
+                <label for="accountgroupSelect">Transactionen: </label>
+                <select id="accountgroupSelect" class="form-select mb-3" [(ngModel)]="curPostGroupId"
+                    (ngModelChange)="onChangeSelectTransactionPostGroups($event)">
+                    <option *ngFor="let postGroup of postGroups" [value]="postGroup.id">
+                        {{ postGroup.dsg }}
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabelle -->
+    <div class="row tbl-fixed" *ngIf="posts">
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark table-striped table-hover">
+                <thead class="text-center">
+                    <tr>
+                        <th score="col"><span>Rang</span></th>
+                        <th score="col"><span>Bezeichnung</span></th>
+                        <th score="col"><span>Beschreibung</span></th>
+                        <th score="col"><span>Aktiv</span></th>
+                        <th score="col"><span>Aktionen</span></th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr *ngFor="let post of posts">
+                        <td score="row"><span>{{ post.rnk }}</span></td>
+                        <td>
+                            <span>{{ post.dsg }}</span>
+                        </td>
+                        <td><span>{{ post.dsc }}</span></td>
+                        <td>
+                            <i *ngIf="!post.act" class="bi bi-square me-2" style="color: red"></i>
+                            <i *ngIf="post.act" class="bi bi-check-square me-2" style="color: green"></i>
+                        </td>
+                        <td>
+                            <!-- Update  (click)="onClickModalUpdate(postGroup)"-->
+                            <a type="botton" class="btn table-link text-info">
+                                <i class="bi bi-pencil-square"></i>
+                                <span> bearbeiten</span>
+                            </a>
+                            <!-- Delete  (click)="onClickModalDelete(postGroup)" -->
+                            <a type="botton" class="btn table-link text-danger">
+                                <i class="bi bi-x-square"></i>
+                                <span> löschen</span>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div *ngIf="!posts">
+        <p>Fehler</p>
+    </div>
+</div>

@@ -3,7 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { PostGroupModel, TransactionModel } from "../cat.model";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { PostService } from "../services/post.service";
-import { Observable } from "rxjs";
+import { catchError, Observable, of } from "rxjs";
 
 @Component({
   selector: "app-postgroup",
@@ -67,7 +67,7 @@ export class PostgroupComponent implements OnInit {
     });
   }
 
-  //----- E V E N T S -----
+  //----- C L I C K - E V E N T S -----
   onChangeSelect(newTaId: string): void {
     this.router.navigate(["/cat/transaction", String(newTaId), "postgroups"]);
   }
@@ -82,24 +82,14 @@ export class PostgroupComponent implements OnInit {
     this.isEditMode = true;
     this.showModal("postGroupModal");
   }
-  /*
-  onClickModalActivate(postGroup: PostGroupModel): void {
-    this.updPostGroup = postGroup;
+
+  onClickModalDelete(postGroup: PostGroupModel): void {
+    this.delPostGroup = postGroup;
+    this.showModal("delPostGroupModal");
   }
-*/
 
   onClickCloseModal(modalId: string): void {
     this.modalHide(modalId);
-  }
-  //ToDO: Löschen
-  activeTogle(postGroup: PostGroupModel): void {
-    this.pstSrv
-      .updatePostGroup(postGroup.id, { act: !postGroup.act })
-      .subscribe({
-        next: (res) => this.loadPostGroups(this.curTransactionId!),
-        error: (err) =>
-          alert(err?.error?.message || err.message || "Unbekannter Fehler"),
-      });
   }
 
   // ----- M O D A L E V E N T S - B E H A N D L U N G -----
@@ -116,7 +106,32 @@ export class PostgroupComponent implements OnInit {
         "postGroupModal",
       );
     }
-    console.log("Die Postgruppe erfolgreich gespeichert.", postGroup);
+    //console.log("Die Postgruppe erfolgreich gespeichert.", postGroup);
+  }
+
+  handlePostGroupDelete(postGroup: PostGroupModel) {
+    // Wenn die Postgruppe mind. einen Post hat, darf die nicht gelöscht werden
+    if (postGroup.posts?.length) {
+      console.log("Darf NICHT gelöscht werden");
+    } else {
+      this.pstSrv
+        .deletePostGroup(postGroup)
+        .pipe(
+          catchError((error) => {
+            console.error("Fehler beim Löschen der Postgruppe:", error);
+            alert("Postgruppe konnte nicht gelöscht werden.");
+            return of();
+          }),
+        )
+        .subscribe(() => {
+          console.log("Postgruppe wurde erfolgreich gelöscht.");
+        });
+    }
+
+    this.modalHide("delPostGroupModal");
+    if (this.curTransactionId) {
+      this.loadPostGroups(this.curTransactionId);
+    }
   }
 
   private handleRequest(obs$: Observable<any>, modalId: string) {
@@ -149,7 +164,7 @@ export class PostgroupComponent implements OnInit {
   private modalHide(modalId: string) {
     const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
     this.updPostGroup = undefined;
-    //this.delPosition = undefined;
+    this.delPostGroup = undefined;
     this.modalOpen = false;
     modal.hide();
   }

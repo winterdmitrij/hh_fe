@@ -47,7 +47,31 @@ export class PostService {
   }
 
   findOnePostGroup(id: string): Observable<PostGroupModel> {
-    return this.http.get<PostGroupModel>(`${this.apiUrl}/postgroups/${id}`);
+    return this.http
+      .get<PostGroupModel>(`${this.apiUrl}/postgroups/${id}`)
+      .pipe(
+        map((data) => {
+          if (data.posts) {
+            data.posts = data.posts.sort((a, b) => {
+              if (a.rnk == null) return 1;
+              if (b.rnk == null) return -1;
+
+              return a.rnk.localeCompare(b.rnk);
+            });
+          }
+          return data;
+        }),
+      );
+  }
+
+  findFirstPostGroup(taId: string): Observable<PostGroupModel | undefined> {
+    return this.findOneTransaction(taId).pipe(
+      map((data) => {
+        const postGroups = data.postgroups ?? [];
+
+        return [...postGroups][0];
+      }),
+    );
   }
 
   createNewPostGroup(postGroup: PostGroupModel): Observable<PostGroupModel> {
@@ -66,13 +90,28 @@ export class PostService {
       partial,
     );
   }
-  /*
-  findFirstPostGroup(taId: string): Observable<PostGroupModel> {
-    return //this.find
+
+  deletePostGroup(postGroup: PostGroupModel): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/postgroups/${postGroup.id}`);
   }
-*/
+
   // Posts
-  findAll(): Observable<PostModel[]> {
+  //ToDo: löschen?, da nicht funktioniert
+  findPostsByPostGroup(pgId: string): Observable<PostModel[]> {
+    return this.http
+      .get<PostModel[]>(`${this.apiUrl}/postgroups/${pgId}/posts`)
+      .pipe(
+        map((posts) =>
+          posts.sort((a, b) => {
+            if (a.rnk == null) return 1;
+            if (b.rnk == null) return -1;
+            return a.rnk.localeCompare(b.rnk);
+          }),
+        ),
+      );
+  }
+
+  findAllPosts(): Observable<PostModel[]> {
     return this.http.get<PostModel[]>(`${this.apiUrl}/posts`);
   }
 }

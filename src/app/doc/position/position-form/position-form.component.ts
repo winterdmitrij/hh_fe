@@ -115,7 +115,7 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
       const [accData, traData, pstData] = await Promise.all([
         firstValueFrom(this.accSrv.findAllAccounts()),
         firstValueFrom(this.pstSrv.findAllTransactions()),
-        firstValueFrom(this.pstSrv.findAll()),
+        firstValueFrom(this.pstSrv.findAllPosts()),
       ]);
       this.accounts = accData;
       this.transactions = traData;
