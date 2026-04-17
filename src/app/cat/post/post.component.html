@@ -8,7 +8,6 @@
                 class="btn btn-outline-primary mt-4 me-2">
                 Zu Postgruppen
             </button>
-            <!--  -->
             <button type="button" (click)="onClickModalCreate()" class="btn btn-outline-success mt-4">
                 Neues Post
             </button>
@@ -72,13 +71,14 @@
                             <i *ngIf="post.csh" class="bi bi-check-square me-2" style="color: green"></i>
                         </td>
                         <td>
-                            <!-- Update  -->
+                            <!-- Update -->
                             <a type="botton" (click)="onClickModalUpdate(post)" class="btn table-link text-info">
                                 <i class="bi bi-pencil-square"></i>
                                 <span> bearbeiten</span>
                             </a>
-                            <!-- Delete  (click)="onClickModalDelete(postGroup)" -->
-                            <a type="botton" class="btn table-link text-danger">
+                            <!-- Delete -->
+                            <a *ngIf="!post.act && !post.trf && !post.csh" type="botton"
+                                (click)="onClickModalDelete(post)" class="btn table-link text-danger">
                                 <i class="bi bi-x-square"></i>
                                 <span> löschen</span>
                             </a>
@@ -99,8 +99,7 @@
 <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="postModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
-
-            <!-- Modal Header -->
+            <!-- Header -->
             <div class="modal-header">
                 <h5 class="modal-title">
                     Post {{ isEditMode ? 'bearbeiten' : 'hinzufügen' }}
@@ -114,6 +113,32 @@
             <app-post-form *ngIf="isModalOpen" [post]="updPost" [postGroupId]="curPostGroupId"
                 (submitPost)="handlePostSave($event)">
             </app-post-form>
+        </div>
+    </div>
+</div>
+
+<!-- Del Modal -->
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="delPostModal" tabindex="-1"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">Post löschen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p>Soll das Post '{{ delPost?.id }}. {{ delPost?.dsg }}' wirklich gelöscht werden?</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    (click)="onClickCloseModal('delPostModal')">Schließen</button>
+                <button type="button" (click)="handlePostGroupDelete(delPost!)" class="btn btn-danger">
+                    Löschen
+                </button>
+            </div>
         </div>
     </div>
 </div>

@@ -3,7 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { PostGroupModel, TransactionModel } from "../cat.model";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { PostService } from "../services/post.service";
-import { catchError, Observable, of } from "rxjs";
+import { catchError, Observable, of, switchMap, tap } from "rxjs";
 
 @Component({
   selector: "app-postgroup",
@@ -19,7 +19,7 @@ export class PostgroupComponent implements OnInit {
   postGroups: PostGroupModel[] = [];
 
   isEditMode: boolean = false;
-  modalOpen: boolean = false;
+  isModalOpen: boolean = false;
   updPostGroup?: PostGroupModel;
   delPostGroup?: PostGroupModel;
 
@@ -30,41 +30,33 @@ export class PostgroupComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadDropdown();
-  }
+    this.route.params.subscribe((params: Params) => {
+      const taId = params["taid"];
 
-  async loadDropdown(): Promise<void> {
-    this.pstSrv.findAllTransactions().subscribe((data) => {
-      this.transactions = data;
-
-      // Pfadparameter ablesen
-      this.route.params.subscribe((params: Params) => {
-        const taId = params["taid"];
-
-        if (taId) {
-          this.curTransactionId = taId;
-          this.loadPostGroups(taId);
-        } else {
-          this.pstSrv.findFirstTransaction().subscribe((transaction) => {
-            if (transaction) {
-              this.router.navigate([
-                "/cat/transaction",
-                transaction.id,
-                "postgroups",
-              ]);
-            }
-          });
-        }
-      });
-    });
-  }
-
-  loadPostGroups(taId: string): void {
-    this.pstSrv.findOneTransaction(taId).subscribe((data) => {
-      if (data.postgroups) {
-        this.postGroups = data.postgroups;
+      if (taId) {
+        this.loadData(taId);
+      } else {
+        this.redirectToFirst();
       }
     });
+  }
+
+  private loadData(taId: string): void {
+    this.curTransactionId = taId;
+
+    this.pstSrv
+      .findAllTransactions()
+      .pipe(
+        tap((transactions) => {
+          this.transactions = transactions;
+        }),
+        switchMap(() => this.pstSrv.findOneTransaction(taId)),
+      )
+      .subscribe((transaction) => {
+        if (transaction.postgroups) {
+          this.postGroups = transaction.postgroups;
+        }
+      });
   }
 
   //----- C L I C K - E V E N T S -----
@@ -129,9 +121,6 @@ export class PostgroupComponent implements OnInit {
     }
 
     this.modalHide("delPostGroupModal");
-    if (this.curTransactionId) {
-      this.loadPostGroups(this.curTransactionId);
-    }
   }
 
   private handleRequest(obs$: Observable<any>, modalId: string) {
@@ -140,9 +129,6 @@ export class PostgroupComponent implements OnInit {
         console.log("Erfolg: ", res);
 
         this.modalHide(modalId);
-        if (this.curTransactionId) {
-          this.loadPostGroups(this.curTransactionId);
-        }
       },
       error: (err) => {
         console.error("Fehler: ", err);
@@ -156,7 +142,7 @@ export class PostgroupComponent implements OnInit {
 
     if (modalEl) {
       const modal = new bootstrap.Modal(modalEl);
-      this.modalOpen = true;
+      this.isModalOpen = true;
       modal.show();
     }
   }
@@ -165,7 +151,30 @@ export class PostgroupComponent implements OnInit {
     const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
     this.updPostGroup = undefined;
     this.delPostGroup = undefined;
-    this.modalOpen = false;
+    this.isModalOpen = false;
     modal.hide();
+    if (this.curTransactionId) {
+      this.loadData(this.curTransactionId);
+    } else {
+      this.redirectToFirst();
+    }
+  }
+
+  // ----- N A V I G A T I O N -----
+  private redirectToFirst(): void {
+    this.pstSrv
+      .findFirstTransaction()
+      .pipe(
+        tap((transaction) => {
+          if (!transaction) return;
+
+          this.redirectTo(String(transaction.id));
+        }),
+      )
+      .subscribe();
+  }
+
+  private redirectTo(taId: string): void {
+    this.router.navigate(["/cat", "transaction", taId, "postgroups"]);
   }
 }

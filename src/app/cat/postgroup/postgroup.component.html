@@ -7,7 +7,6 @@
             <button type="button" [routerLink]="['/cat/transactions']" class="btn btn-outline-primary mt-4 me-2">
                 Zu Transaktionen
             </button>
-            <!--  -->
             <button type="button" (click)="onClickModalCreate()" class="btn btn-outline-success mt-4">
                 Neue Postgruppe
             </button>
@@ -25,7 +24,7 @@
         </div>
     </div>
 
-    <!-- Tabelle Postgruppen -->
+    <!-- Tabelle -->
     <div class="row" *ngIf="postGroups">
         <div class="table-responsive">
             <table class="table table-bordered table-dark table-striped table-hover">
@@ -58,12 +57,12 @@
                         </td>
                         <td><span>{{ postGroup.posts?.length }}</span></td>
                         <td>
-                            <!-- Update  data-bs-toggle="modal" data-bs-target="#updAccount"-->
+                            <!-- Update -->
                             <a type="botton" (click)="onClickModalUpdate(postGroup)" class="btn table-link text-info">
                                 <i class="bi bi-pencil-square"></i>
                                 <span> bearbeiten</span>
                             </a>
-                            <!-- Delete   -->
+                            <!-- Delete -->
                             <a *ngIf="!postGroup.posts?.length" type="botton" (click)="onClickModalDelete(postGroup)"
                                 class="btn table-link text-danger">
                                 <i class="bi bi-x-square"></i>
@@ -74,7 +73,6 @@
                 </tbody>
             </table>
         </div>
-
     </div>
 
     <div *ngIf="!postGroups">
@@ -83,13 +81,11 @@
 </div>
 
 <!-- Modal-Dialogs -->
-
 <!-- Add/Upd Modal -->
 <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="postGroupModal" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
-
             <!-- Modal Header -->
             <div class="modal-header">
                 <h5 class="modal-title">
@@ -101,7 +97,7 @@
                 <br>
             </div>
             <!--  -->
-            <app-postgroup-form *ngIf="modalOpen" [postGroup]="updPostGroup" [transactionId]="curTransactionId"
+            <app-postgroup-form *ngIf="isModalOpen" [postGroup]="updPostGroup" [transactionId]="curTransactionId"
                 (submitPostGroup)="handlePostGroupSave($event)">
             </app-postgroup-form>
         </div>
@@ -110,17 +106,17 @@
 
 <!-- Del Modal -->
 <div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="delPostGroupModal" tabindex="-1"
-    aria-labelledby="delPostGroupModalLabel" aria-hidden="true">
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
             <!-- Header -->
             <div class="modal-header">
-                <h5 class="modal-title">Position löschen</h5>
+                <h5 class="modal-title">Postgruppe löschen</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
-                <p>Muss die Position '{{ delPostGroup?.id }}. {{ delPostGroup?.dsg }}' wirklich gelöscht werden?</p>
+                <p>Soll die Postgruppe '{{ delPostGroup?.id }}. {{ delPostGroup?.dsg }}' wirklich gelöscht werden?</p>
             </div>
 
             <div class="modal-footer">

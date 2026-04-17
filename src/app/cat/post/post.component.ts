@@ -3,7 +3,15 @@ import { Component, OnInit } from "@angular/core";
 import { PostGroupModel, PostModel, TransactionModel } from "../cat.model";
 import { PostService } from "../services/post.service";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { EMPTY, forkJoin, Observable, switchMap, tap } from "rxjs";
+import {
+  catchError,
+  EMPTY,
+  forkJoin,
+  Observable,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
 
 @Component({
   selector: "app-post",
@@ -24,6 +32,7 @@ export class PostComponent implements OnInit {
   isEditMode: boolean = false;
   isModalOpen: boolean = false;
   updPost?: PostModel;
+  delPost?: PostModel;
 
   constructor(
     private pstSrv: PostService,
@@ -88,6 +97,11 @@ export class PostComponent implements OnInit {
     this.showModal("postModal");
   }
 
+  onClickModalDelete(post: PostModel): void {
+    this.delPost = post;
+    this.showModal("delPostModal");
+  }
+
   onClickCloseModal(modalId: string): void {
     this.modalHide(modalId);
   }
@@ -99,16 +113,29 @@ export class PostComponent implements OnInit {
     } else {
       this.handleRequest(this.pstSrv.createNewPost(post), "postModal");
     }
-    console.log("Das Post erfolgreich gespeichert.", post);
+    //console.log("Das Post erfolgreich gespeichert.", post);
   }
 
   handlePostGroupDelete(post: PostModel) {
-    // ToDo
-    console.log("Das Post erfolgreich geslöscht.", post);
-    this.modalHide("delPostModal");
-    if (this.curTransactionId && this.curPostGroupId) {
-      this.loadData(this.curTransactionId, this.curPostGroupId);
+    // Wenn unaktiv, kein transfer und kein Cash ist, darf gelöscht werden
+    if (post.act || post.trf || post.csh) {
+      console.log("Darf NICHT gelöscht werden");
+    } else {
+      this.pstSrv
+        .deletePost(post)
+        .pipe(
+          catchError((error) => {
+            console.error("Fehler beim Löschen des Posts:", error);
+            alert("Post konnte nicht gelöscht werden.");
+            return of();
+          }),
+        )
+        .subscribe(() => {
+          console.log("Post wurde erfolgreich gelöscht.");
+        });
     }
+
+    this.modalHide("delPostModal");
   }
 
   private handleRequest(obs$: Observable<any>, modalId: string) {
@@ -117,9 +144,6 @@ export class PostComponent implements OnInit {
         console.log("Erfolg: ", res);
 
         this.modalHide(modalId);
-        if (this.curTransactionId && this.curPostGroupId) {
-          this.loadData(this.curTransactionId, this.curPostGroupId);
-        }
       },
       error: (err) => {
         console.error("Fehler: ", err);
@@ -138,12 +162,17 @@ export class PostComponent implements OnInit {
     }
   }
 
-  private modalHide(modalId: string) {
+  private modalHide(modalId: string): void {
     const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
     this.updPost = undefined;
-    //this.delPost = undefined;
+    this.delPost = undefined;
     this.isModalOpen = false;
     modal.hide();
+    if (this.curTransactionId && this.curPostGroupId) {
+      this.loadData(this.curTransactionId, this.curPostGroupId);
+    } else {
+      this.redirectToFirst();
+    }
   }
 
   // ----- N A V I G A T I O N -----
