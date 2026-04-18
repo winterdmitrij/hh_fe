@@ -96,23 +96,11 @@ export class PostService {
   }
 
   // Posts
+  //ToDo: löschen?
+  // - findOnePostGroup ist besser
+  // - In position-form wird benutzt
   findAllPosts(): Observable<PostModel[]> {
     return this.http.get<PostModel[]>(`${this.apiUrl}/posts`);
-  }
-
-  //ToDo: löschen?, da nicht funktioniert
-  findPostsByPostGroup(pgId: string): Observable<PostModel[]> {
-    return this.http
-      .get<PostModel[]>(`${this.apiUrl}/postgroups/${pgId}/posts`)
-      .pipe(
-        map((posts) =>
-          posts.sort((a, b) => {
-            if (a.rnk == null) return 1;
-            if (b.rnk == null) return -1;
-            return a.rnk.localeCompare(b.rnk);
-          }),
-        ),
-      );
   }
 
   createNewPost(post: PostModel): Observable<PostModel> {

@@ -15,10 +15,10 @@ export class TransactionComponent implements OnInit {
   constructor(private pstSrv: PostService) {}
 
   ngOnInit(): void {
-    this.load();
+    this.loadData();
   }
 
-  load() {
+  loadData() {
     this.pstSrv
       .findAllTransactions()
       .subscribe((data) => (this.transactions = data));

@@ -1,6 +1,6 @@
 .table-responsive {
     max-height: 800px;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 .table thead th {
