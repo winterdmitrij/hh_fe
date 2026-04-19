@@ -49,14 +49,15 @@
                         <td><span>{{ accountGroup.accounts?.length }}</span></td>
                         <td>
                             <!-- Update -->
-                            <a type="botton" (click)="onClickModalUpdate(accountGroup)" class="btn table-link text-info"
-                                data-bs-toggle="modal" data-bs-target="#editAccountgroup">
+                            <a type="botton" (click)="onClickModalUpdate(accountGroup)"
+                                class="btn table-link text-info">
                                 <i class="bi bi-pencil-square"></i>
                                 <span> bearbeiten</span>
                             </a>
                             <!-- Delete -->
-                            <a *ngIf="!accountGroup.act && !accountGroup.shw" (click)="onClickModalDelete(accountGroup)"
-                                class="btn table-link text-danger">
+                            <a type="botton"
+                                *ngIf="!accountGroup.act && !accountGroup.shw && !accountGroup.accounts?.length"
+                                (click)="onClickModalDelete(accountGroup)" class="btn table-link text-danger">
                                 <i class="bi bi-x-square"></i>
                                 <span> löschen</span>
                             </a>
@@ -81,11 +82,15 @@
                     Kontengruppe {{ isEditMode ? 'bearbeiten' : 'anlegen' }}
                 </h5>
                 <button type="button" (click)="onClickCloseModal('accountGroupModal')" class="btn-close"
-                    data-bs-dismiss="modal" aria-label="Schließen"></button>
+                    data-bs-dismiss="modal" aria-label="Schließen">
+                </button>
                 <br>
             </div>
             <!-- Body -->
             <!-- ToDo -->
+            <app-accountgroup-form *ngIf="isModalOpen" [accountGroup]="updAccountGroup"
+                (submitAccountGroup)="handleAccountGroupSave($event)">
+            </app-accountgroup-form>
         </div>
     </div>
 </div>
@@ -109,12 +114,11 @@
             </div>
             <!-- Footer -->
             <div class="modal-footer">
-                <button type="button" (click)="onClickCloseModal('delPostGroupModal')" class="btn btn-secondary"
+                <button type="button" (click)="onClickCloseModal('delAccountGroupModal')" class="btn btn-secondary"
                     data-bs-dismiss="modal">
                     Schließen
                 </button>
-                <!-- (click)="handlePostGroupDelete(delAccountGroup!)" -->
-                <button type="button" class="btn btn-danger">
+                <button type="button" (click)="handleAccountGroupDelete(delAccountGroup!)" class="btn btn-danger">
                     Löschen
                 </button>
             </div>

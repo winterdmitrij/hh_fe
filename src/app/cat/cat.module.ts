@@ -10,6 +10,7 @@ import { CatRoutingModule } from "./cat-routing.module";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { PostgroupFormComponent } from './postgroup/postgroup-form/postgroup-form.component';
 import { PostFormComponent } from './post/post-form/post-form.component';
+import { AccountgroupFormComponent } from './accountgroup/accountgroup-form/accountgroup-form.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { PostFormComponent } from './post/post-form/post-form.component';
     AccountComponent,
     PostgroupFormComponent,
     PostFormComponent,
+    AccountgroupFormComponent,
   ],
   imports: [
     FormsModule,

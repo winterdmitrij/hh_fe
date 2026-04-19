@@ -103,7 +103,7 @@ export class PostComponent implements OnInit {
   }
 
   onClickCloseModal(modalId: string): void {
-    this.modalHide(modalId);
+    this.hideModal(modalId);
   }
 
   // ----- M O D A L E V E N T S -----
@@ -135,7 +135,7 @@ export class PostComponent implements OnInit {
         });
     }
 
-    this.modalHide("delPostModal");
+    this.hideModal("delPostModal");
   }
 
   private handleRequest(obs$: Observable<any>, modalId: string) {
@@ -143,7 +143,7 @@ export class PostComponent implements OnInit {
       next: (res) => {
         console.log("Erfolg: ", res);
 
-        this.modalHide(modalId);
+        this.hideModal(modalId);
       },
       error: (err) => {
         console.error("Fehler: ", err);
@@ -162,7 +162,7 @@ export class PostComponent implements OnInit {
     }
   }
 
-  private modalHide(modalId: string): void {
+  private hideModal(modalId: string): void {
     const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
     this.updPost = undefined;
     this.delPost = undefined;

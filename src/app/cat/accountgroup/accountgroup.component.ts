@@ -2,6 +2,7 @@ declare var bootstrap: any;
 import { Component, OnInit } from "@angular/core";
 import { AccountGroupModel } from "../cat.model";
 import { AccountService } from "../services/account.service";
+import { catchError, Observable, of } from "rxjs";
 
 @Component({
   selector: "app-accountgroup",
@@ -26,7 +27,7 @@ export class AccountgroupComponent implements OnInit {
 
   loadData(): void {
     this.accSrv
-      .findAllGroups()
+      .findAllAccountGroups()
       .subscribe((data) => (this.accountGroups = data));
   }
 
@@ -53,8 +54,53 @@ export class AccountgroupComponent implements OnInit {
 
   // ----- M O D A L E V E N T S - B E H A N D L U N G -----
   // Add or Upd Position
-  onUpdAccountgroup(accountgroup: AccountGroupModel): void {
-    //ToDo:
+  handleAccountGroupSave(accountGroup: AccountGroupModel): void {
+    if (this.updAccountGroup) {
+      this.handleRequest(
+        this.accSrv.updateAccountGroup(accountGroup.id, accountGroup),
+        "accountGroupModal",
+      );
+    } else {
+      this.handleRequest(
+        this.accSrv.createNewAccountGroup(accountGroup),
+        "accountGroupModal",
+      );
+    }
+  }
+
+  handleAccountGroupDelete(accountGroup: AccountGroupModel): void {
+    console.log("Löschende Kontengruppe: ", accountGroup);
+    if (accountGroup.accounts?.length || accountGroup.act || accountGroup.shw) {
+      console.log("Darf NICHT gelöscht werden");
+    } else {
+      this.accSrv
+        .deleteAccountGroup(accountGroup)
+        .pipe(
+          catchError((error) => {
+            console.log("Fehler beim Löschen der Kontengruppe: ", error);
+            alert("Kontengruppe konte nicht gelöscht werden.");
+            return of();
+          }),
+        )
+        .subscribe(() =>
+          console.log("Kontengruppe wurde erfolgreich gelöscht."),
+        );
+    }
+
+    this.hideModal("delAccountGroupModal");
+  }
+
+  private handleRequest(obs$: Observable<any>, modalId: string): void {
+    obs$.subscribe({
+      next: (res) => {
+        console.log("Erfolg: ", res);
+
+        this.hideModal(modalId);
+      },
+      error: (err) => {
+        console.error("Fehler: ", err);
+      },
+    });
   }
 
   // ----- M O D A L S -----
@@ -69,9 +115,10 @@ export class AccountgroupComponent implements OnInit {
   }
 
   private hideModal(modalId: string): void {
-    const modal = bootstrap.Modal(document.getElementById(modalId));
+    const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
     this.updAccountGroup = undefined;
     this.delAccountGroup = undefined;
+    this.isModalOpen = false;
     modal.hide();
     this.loadData();
   }

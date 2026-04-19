@@ -13,11 +13,11 @@ export class AccountService {
   constructor(private http: HttpClient) {}
 
   // Accountgroups
-  findAllGroups(): Observable<AccountGroupModel[]> {
+  findAllAccountGroups(): Observable<AccountGroupModel[]> {
     return this.http.get<AccountGroupModel[]>(`${this.apiUrl}/accountgroups`);
   }
 
-  findOneGroup(id: string): Observable<AccountGroupModel> {
+  findOneAccountGroup(id: string): Observable<AccountGroupModel> {
     return this.http
       .get<AccountGroupModel>(`${this.apiUrl}/accountgroups/${id}`)
       .pipe(
@@ -36,8 +36,8 @@ export class AccountService {
   }
 
   // Die erste ist die, wessen Rang kleiner ist
-  findFirstGroup(): Observable<AccountGroupModel> {
-    return this.findAllGroups().pipe(
+  findFirstAccountGroup(): Observable<AccountGroupModel> {
+    return this.findAllAccountGroups().pipe(
       map((data) => {
         if (data) {
           data = data.sort((a, b) => {

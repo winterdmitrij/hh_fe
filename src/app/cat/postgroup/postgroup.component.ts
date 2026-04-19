@@ -81,7 +81,7 @@ export class PostgroupComponent implements OnInit {
   }
 
   onClickCloseModal(modalId: string): void {
-    this.modalHide(modalId);
+    this.hideModal(modalId);
   }
 
   // ----- M O D A L E V E N T S - B E H A N D L U N G -----
@@ -101,7 +101,7 @@ export class PostgroupComponent implements OnInit {
     //console.log("Die Postgruppe erfolgreich gespeichert.", postGroup);
   }
 
-  handlePostGroupDelete(postGroup: PostGroupModel) {
+  handlePostGroupDelete(postGroup: PostGroupModel): void {
     // Wenn die Postgruppe mind. einen Post hat, darf die nicht gelöscht werden
     if (postGroup.posts?.length) {
       console.log("Darf NICHT gelöscht werden");
@@ -115,20 +115,18 @@ export class PostgroupComponent implements OnInit {
             return of();
           }),
         )
-        .subscribe(() => {
-          console.log("Postgruppe wurde erfolgreich gelöscht.");
-        });
+        .subscribe(() => console.log("Postgruppe wurde erfolgreich gelöscht."));
     }
 
-    this.modalHide("delPostGroupModal");
+    this.hideModal("delPostGroupModal");
   }
 
-  private handleRequest(obs$: Observable<any>, modalId: string) {
+  private handleRequest(obs$: Observable<any>, modalId: string): void {
     obs$.subscribe({
       next: (res) => {
         console.log("Erfolg: ", res);
 
-        this.modalHide(modalId);
+        this.hideModal(modalId);
       },
       error: (err) => {
         console.error("Fehler: ", err);
@@ -147,7 +145,7 @@ export class PostgroupComponent implements OnInit {
     }
   }
 
-  private modalHide(modalId: string) {
+  private hideModal(modalId: string) {
     const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
     this.updPostGroup = undefined;
     this.delPostGroup = undefined;

@@ -20,7 +20,7 @@ export class AccountComponent implements OnInit {
   constructor(
     private accSrv: AccountService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -28,7 +28,7 @@ export class AccountComponent implements OnInit {
   }
 
   async loadDropdown(): Promise<void> {
-    this.accSrv.findAllGroups().subscribe((data) => {
+    this.accSrv.findAllAccountGroups().subscribe((data) => {
       this.accountgroups = data;
 
       // Pfadparameter ablesen
@@ -39,7 +39,7 @@ export class AccountComponent implements OnInit {
           this.curGroupId = agId;
           this.loadAccounts(agId);
         } else {
-          this.accSrv.findFirstGroup().subscribe((group) => {
+          this.accSrv.findFirstAccountGroup().subscribe((group) => {
             if (group) {
               this.router.navigate(["/cat/accountgroup", group.id, "accounts"]);
             }
@@ -50,7 +50,7 @@ export class AccountComponent implements OnInit {
   }
 
   loadAccounts(groupId: string): void {
-    this.accSrv.findOneGroup(groupId).subscribe((data) => {
+    this.accSrv.findOneAccountGroup(groupId).subscribe((data) => {
       if (data.accounts) {
         this.accounts = data.accounts;
       }
