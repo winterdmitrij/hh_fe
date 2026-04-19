@@ -11,6 +11,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { PostgroupFormComponent } from './postgroup/postgroup-form/postgroup-form.component';
 import { PostFormComponent } from './post/post-form/post-form.component';
 import { AccountgroupFormComponent } from './accountgroup/accountgroup-form/accountgroup-form.component';
+import { AccountFormComponent } from './account/account-form/account-form.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { AccountgroupFormComponent } from './accountgroup/accountgroup-form/acco
     PostgroupFormComponent,
     PostFormComponent,
     AccountgroupFormComponent,
+    AccountFormComponent,
   ],
   imports: [
     FormsModule,

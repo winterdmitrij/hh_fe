@@ -35,7 +35,7 @@ export class AccountService {
       );
   }
 
-  // Die erste ist die, wessen Rang kleiner ist
+  // Die erste ist die, deren Rang kleiner ist
   findFirstAccountGroup(): Observable<AccountGroupModel> {
     return this.findAllAccountGroups().pipe(
       map((data) => {
