@@ -97,9 +97,35 @@
                     data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
             <!-- Body -->
-            <app-account-form>
-
+            <app-account-form [account]="updAccount" [accountGroupId]="curAccountGroupId"
+                (submitAccount)="handleAccountSave($event)">
             </app-account-form>
+        </div>
+    </div>
+</div>
+
+<!-- Del Modal -->
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="delAccountModal" tabindex="-1"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">Konto löschen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p>Soll das Konto '{{ delAccount?.id }}. {{ delAccount?.dsg }}' wirklich gelöscht werden?</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    (click)="onClickCloseModal('delAccountModal')">Schließen</button>
+                <button type="button" (click)="handleAccountDelete(delAccount!)" class="btn btn-danger">
+                    Löschen
+                </button>
+            </div>
         </div>
     </div>
 </div>

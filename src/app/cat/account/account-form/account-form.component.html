@@ -1,1 +1,76 @@
-<p>account-form works!</p>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+        <!-- Id (versteckt) -->
+        <div class="mt-3">
+            <input type="hidden" id="id" formControlName="id" />
+            <div class="form-text">Id: {{ newAccountId || account?.id }}</div>
+        </div>
+        <!-- Transaktion-Id (versteckt) -->
+        <div class="mt-3">
+            <input type="hidden" id="ag_id" formControlName="ag_id" />
+            <div class="form-text">Kontengruppe-Id: {{ accountGroupId }}</div>
+        </div>
+        <!-- Designation -->
+        <div class="mt-3">
+            <label for="dsg" class="form-label">Bezeichnung</label>
+            <input id="dsg" class="form-control" formControlName="dsg"
+                [ngClass]="{ 'is-invalid': form.get('dsg')?.invalid && form.get('dsg')?.touched }" />
+            <div class="invalid-feedback" *ngIf="form.get('dsg')?.errors">
+                Bezeichnung darf nicht leer, kürzer 4 und länger 30 Zeichen sein.
+            </div>
+        </div>
+        <!-- Description -->
+        <div class="mt-3">
+            <label for="dsc" class="form-label">Beschreibung</label>
+            <input id="dsc" class="form-control" formControlName="dsc" />
+        </div>
+        <!-- Rank -->
+        <div class="mt-3">
+            <label for="rnk" class="form-label">Rang</label>
+            <input id="rnk" class="form-control" formControlName="rnk"
+                [ngClass]="{ 'is-invalid': form.get('rnk')?.invalid && form.get('rnk')?.touched }" />
+            <div class="invalid-feedback" *ngIf="form.get('rnk')?.errors">
+                Rang sollte eingegeben werden und darf ein Zeichen lang sein.
+            </div>
+        </div>
+        <div class="mt-3">
+            <div class="form-check">
+                <input class="form-control form-check-input me-3" formControlName="act" type="checkbox" value="act"
+                    id="act">
+                <label class="form-check-label" for="act">
+                    ist aktiv
+                </label>
+            </div>
+        </div>
+        <div class="mt-3">
+            <div class="form-check">
+                <input class="form-control form-check-input me-3" formControlName="sav" type="checkbox" value="trf"
+                    id="sav">
+                <label class="form-check-label" for="sav">
+                    ist speicher
+                </label>
+            </div>
+        </div>
+        <div class="mt-3">
+            <div class="form-check">
+                <input class="form-control form-check-input me-3" formControlName="shw" type="checkbox" value="csh"
+                    id="shw">
+                <label class="form-check-label" for="shw">
+                    ist sichtbar
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <br>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Schließen
+        </button>
+        <!--  -->
+        <button type="submit" class="btn btn-success" [disabled]="form.invalid">
+            Speichern
+        </button>
+    </div>
+</form>

@@ -3,7 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { AccountGroupModel, AccountModel } from "../cat.model";
 import { AccountService } from "../services/account.service";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { Observable, switchMap, tap } from "rxjs";
+import { catchError, EMPTY, Observable, switchMap, tap } from "rxjs";
 
 @Component({
   selector: "app-account",
@@ -11,7 +11,7 @@ import { Observable, switchMap, tap } from "rxjs";
   styleUrl: "./account.component.css",
 })
 export class AccountComponent implements OnInit {
-  title: string = "Konten;";
+  title: string = "Konten";
 
   accountGroups: AccountGroupModel[] = [];
   curAccountGroupId?: string;
@@ -70,7 +70,7 @@ export class AccountComponent implements OnInit {
   }
 
   onClickModalUpdate(account: AccountModel): void {
-    this.updAccount = account;
+    this.updAccount = { ...account }; //! wichtig
     this.isEditMode = true;
     this.showModal("accountModal");
   }
@@ -85,11 +85,47 @@ export class AccountComponent implements OnInit {
   }
 
   // ------ M O D A L E V E N T S -----
-  handleAccountSave(account: AccountModel): void {}
+  handleAccountSave(account: AccountModel): void {
+    const modalId = "accountModal";
 
-  handleAccountDelete(account: AccountModel): void {}
+    if (this.updAccount) {
+      this.handleRequest(
+        this.accSrv.updateAccount(account.id, account),
+        modalId,
+      );
+    } else {
+      this.handleRequest(this.accSrv.createNewAccount(account), modalId);
+    }
+  }
 
-  private handleRequest(obs$: Observable<any>, modalId: string): void {}
+  handleAccountDelete(account: AccountModel): void {
+    const modalId = "delAccountModal";
+
+    // nicht erlaubt → sofort abbrechen
+    if (account.act || account.sav || account.shw) {
+      console.log("Darf NICHT gelöscht werden");
+      return;
+    }
+
+    this.handleRequest(this.accSrv.deleteAccount(account), modalId);
+  }
+
+  private handleRequest(obs$: Observable<any>, modalId: string): void {
+    obs$
+      .pipe(
+        catchError((err) => {
+          console.error("Fehler: ", err);
+          //alert(err || "Fehler bei der Anfrage");
+          return EMPTY; //! wichtig: stoppt next()
+        }),
+      )
+      .subscribe((res) => {
+        console.log("Erfolg: ", res);
+        //alert("Operation erfolgreich");
+
+        this.hideModal(modalId);
+      });
+  }
 
   // ----- M O D A L S -----
   private showModal(modalId: string): void {

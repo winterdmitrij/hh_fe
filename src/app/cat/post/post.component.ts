@@ -116,7 +116,7 @@ export class PostComponent implements OnInit {
     //console.log("Das Post erfolgreich gespeichert.", post);
   }
 
-  handlePostGroupDelete(post: PostModel) {
+  handlePostDelete(post: PostModel) {
     // Wenn unaktiv, kein transfer und kein Cash ist, darf gelöscht werden
     if (post.act || post.trf || post.csh) {
       console.log("Darf NICHT gelöscht werden");

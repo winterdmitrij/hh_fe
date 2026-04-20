@@ -44,6 +44,7 @@ export interface AccountModel {
   act: boolean;
   shw: boolean;
   sav: boolean;
+  accountgroup: AccountGroupModel;
 }
 
 export interface InformationModel {
