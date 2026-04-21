@@ -13,13 +13,19 @@ import {
   tap,
 } from "rxjs";
 
+export enum ModalId {
+  ADD_UPD = "postModal",
+  DELETE = "delPostModal",
+}
+
 @Component({
   selector: "app-post",
   templateUrl: "./post.component.html",
   styleUrl: "./post.component.css",
 })
 export class PostComponent implements OnInit {
-  title: string = "Positionen";
+  title: string = "Posten";
+  modalId = ModalId; //! für HTML
 
   transactions: TransactionModel[] = [];
   curTransactionId?: string;
@@ -68,9 +74,9 @@ export class PostComponent implements OnInit {
         }),
         switchMap(() => this.pstSrv.findOnePostGroup(pgId)),
       )
-      .subscribe((pg) => {
-        if (pg.posts) {
-          this.posts = pg.posts;
+      .subscribe((postgroup) => {
+        if (postgroup.posts) {
+          this.posts = postgroup.posts;
         }
       });
   }
@@ -80,7 +86,7 @@ export class PostComponent implements OnInit {
     this.redirectToFirst(taId);
   }
 
-  onChangeSelectTransactionPostGroups(pgId: string): void {
+  onChangeSelectPostGroups(pgId: string): void {
     if (this.curTransactionId) {
       this.redirectTo(this.curTransactionId, pgId);
     }
@@ -88,18 +94,18 @@ export class PostComponent implements OnInit {
 
   onClickModalCreate(): void {
     this.isEditMode = false;
-    this.showModal("postModal");
+    this.showModal(this.modalId.ADD_UPD);
   }
 
   onClickModalUpdate(post: PostModel): void {
-    this.updPost = post;
+    this.updPost = { ...post }; //! wichtig
     this.isEditMode = true;
-    this.showModal("postModal");
+    this.showModal(this.modalId.ADD_UPD);
   }
 
   onClickModalDelete(post: PostModel): void {
     this.delPost = post;
-    this.showModal("delPostModal");
+    this.showModal(this.modalId.DELETE);
   }
 
   onClickCloseModal(modalId: string): void {
@@ -109,46 +115,40 @@ export class PostComponent implements OnInit {
   // ----- M O D A L E V E N T S -----
   handlePostSave(post: PostModel) {
     if (this.updPost) {
-      this.handleRequest(this.pstSrv.updatePost(post.id, post), "postModal");
+      this.handleRequest(
+        this.pstSrv.updatePost(post.id, post),
+        this.modalId.ADD_UPD,
+      );
     } else {
-      this.handleRequest(this.pstSrv.createNewPost(post), "postModal");
+      this.handleRequest(this.pstSrv.createNewPost(post), this.modalId.ADD_UPD);
     }
-    //console.log("Das Post erfolgreich gespeichert.", post);
   }
 
   handlePostDelete(post: PostModel) {
-    // Wenn unaktiv, kein transfer und kein Cash ist, darf gelöscht werden
+    //! Wenn nicht erlaubt, sofort abbrechen
     if (post.act || post.trf || post.csh) {
       console.log("Darf NICHT gelöscht werden");
-    } else {
-      this.pstSrv
-        .deletePost(post)
-        .pipe(
-          catchError((error) => {
-            console.error("Fehler beim Löschen des Posts:", error);
-            alert("Post konnte nicht gelöscht werden.");
-            return of();
-          }),
-        )
-        .subscribe(() => {
-          console.log("Post wurde erfolgreich gelöscht.");
-        });
+      return;
     }
 
-    this.hideModal("delPostModal");
+    this.handleRequest(this.pstSrv.deletePost(post), this.modalId.DELETE);
   }
 
   private handleRequest(obs$: Observable<any>, modalId: string) {
-    obs$.subscribe({
-      next: (res) => {
+    obs$
+      .pipe(
+        catchError((err) => {
+          console.error("Fehler: ", err);
+          //alert(err || "Fehler bei der Anfrage");
+          return EMPTY; //! wichtig: stoppt next()
+        }),
+      )
+      .subscribe((res) => {
         console.log("Erfolg: ", res);
+        //alert("Operation erfolgreich");
 
         this.hideModal(modalId);
-      },
-      error: (err) => {
-        console.error("Fehler: ", err);
-      },
-    });
+      });
   }
 
   // ----- M O D A L S -----
@@ -166,8 +166,10 @@ export class PostComponent implements OnInit {
     const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
     this.updPost = undefined;
     this.delPost = undefined;
+    this.isEditMode = false;
     this.isModalOpen = false;
     modal.hide();
+
     if (this.curTransactionId && this.curPostGroupId) {
       this.loadData(this.curTransactionId, this.curPostGroupId);
     } else {
@@ -183,14 +185,14 @@ export class PostComponent implements OnInit {
 
     transaction$
       .pipe(
-        switchMap((tr) => {
-          if (!tr) return EMPTY;
+        switchMap((transaction) => {
+          if (!transaction) return EMPTY;
 
-          return this.pstSrv.findFirstPostGroup(String(tr.id)).pipe(
-            tap((pg) => {
-              if (!pg) return;
+          return this.pstSrv.findFirstPostGroup(String(transaction.id)).pipe(
+            tap((postgroup) => {
+              if (!postgroup) return;
 
-              this.redirectTo(String(tr.id), String(pg.id));
+              this.redirectTo(String(transaction.id), String(postgroup.id));
             }),
           );
         }),

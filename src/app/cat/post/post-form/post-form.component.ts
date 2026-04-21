@@ -3,8 +3,10 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
 } from "@angular/core";
 import { PostModel } from "../../cat.model";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
@@ -16,7 +18,7 @@ import { map, Observable } from "rxjs";
   templateUrl: "./post-form.component.html",
   styleUrl: "./post-form.component.css",
 })
-export class PostFormComponent implements OnInit, AfterViewInit {
+export class PostFormComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() post?: PostModel;
   @Input() postGroupId?: string;
   @Output() submitPost = new EventEmitter<any>();
@@ -56,6 +58,16 @@ export class PostFormComponent implements OnInit, AfterViewInit {
     this.patchForm();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["post"]) {
+      if (this.post) {
+        this.patchForm();
+      } else {
+        this.resetForm();
+      }
+    }
+  }
+
   patchForm() {
     if (!this.post) {
       this.getNewPostId().subscribe((id) => {
@@ -72,11 +84,11 @@ export class PostFormComponent implements OnInit, AfterViewInit {
       this.form.patchValue({
         id: this.post.id,
         dsg: this.post.dsg,
-        dsc: this.post.dsc ?? "",
+        dsc: this.post.dsc,
         rnk: this.post.rnk,
-        act: this.post.act ?? true,
-        trf: this.post.trf ?? false,
-        csh: this.post.csh ?? true,
+        act: this.post.act,
+        trf: this.post.trf,
+        csh: this.post.csh,
         pg_id: Number(this.postGroupId),
       });
     }

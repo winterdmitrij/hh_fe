@@ -2,7 +2,7 @@ declare var bootstrap: any;
 import { Component, OnInit } from "@angular/core";
 import { AccountGroupModel } from "../cat.model";
 import { AccountService } from "../services/account.service";
-import { catchError, Observable, of } from "rxjs";
+import { catchError, EMPTY, Observable, of } from "rxjs";
 
 @Component({
   selector: "app-accountgroup",
@@ -25,7 +25,7 @@ export class AccountgroupComponent implements OnInit {
     this.loadData();
   }
 
-  loadData(): void {
+  private loadData(): void {
     this.accSrv
       .findAllAccountGroups()
       .subscribe((data) => (this.accountGroups = data));
@@ -38,7 +38,7 @@ export class AccountgroupComponent implements OnInit {
   }
 
   onClickModalUpdate(accountGroup: AccountGroupModel): void {
-    this.updAccountGroup = accountGroup;
+    this.updAccountGroup = { ...accountGroup }; //! wichtig
     this.isEditMode = true;
     this.showModal("accountGroupModal");
   }
@@ -55,21 +55,23 @@ export class AccountgroupComponent implements OnInit {
   // ----- M O D A L E V E N T S - B E H A N D L U N G -----
   // Add or Upd Position
   handleAccountGroupSave(accountGroup: AccountGroupModel): void {
+    const modalId = "accountGroupModal";
+
     if (this.updAccountGroup) {
       this.handleRequest(
         this.accSrv.updateAccountGroup(accountGroup.id, accountGroup),
-        "accountGroupModal",
+        modalId,
       );
     } else {
       this.handleRequest(
         this.accSrv.createNewAccountGroup(accountGroup),
-        "accountGroupModal",
+        modalId,
       );
     }
   }
 
   handleAccountGroupDelete(accountGroup: AccountGroupModel): void {
-    console.log("Löschende Kontengruppe: ", accountGroup);
+    // Wenn unaktiv, kein transfer und kein Cash ist, darf gelöscht werden
     if (accountGroup.accounts?.length || accountGroup.act || accountGroup.shw) {
       console.log("Darf NICHT gelöscht werden");
     } else {
@@ -77,17 +79,28 @@ export class AccountgroupComponent implements OnInit {
         .deleteAccountGroup(accountGroup)
         .pipe(
           catchError((error) => {
-            console.log("Fehler beim Löschen der Kontengruppe: ", error);
-            alert("Kontengruppe konte nicht gelöscht werden.");
+            console.error("Fehler beim Löschen des Posts:", error);
+            alert("Post konnte nicht gelöscht werden.");
             return of();
           }),
         )
-        .subscribe(() =>
-          console.log("Kontengruppe wurde erfolgreich gelöscht."),
-        );
+        .subscribe(() => {
+          console.log("Post wurde erfolgreich gelöscht.");
+        });
     }
 
     this.hideModal("delAccountGroupModal");
+    /*
+    const modalId = "delAccountGroupModal";
+
+    //! wenn nicht erlaubt, sofort abbrechen
+    if (accountGroup.accounts?.length || accountGroup.act || accountGroup.shw) {
+      console.log("Darf NICHT gelöscht werden");
+      return;
+    }
+
+    this.handleRequest(this.accSrv.deleteAccountGroup(accountGroup), modalId);
+*/
   }
 
   private handleRequest(obs$: Observable<any>, modalId: string): void {
@@ -101,6 +114,22 @@ export class AccountgroupComponent implements OnInit {
         console.error("Fehler: ", err);
       },
     });
+    /*
+    obs$
+      .pipe(
+        catchError((err) => {
+          console.error("Fehler: ", err);
+          //alert(err || "Fehler bei der Anfrage");
+          return EMPTY; //! wichtig: stoppt next()
+        }),
+      )
+      .subscribe((res) => {
+        console.log("Erfolg: ", res);
+        //alert("Operation erfolgreich");
+
+        this.hideModal(modalId);
+      });
+*/
   }
 
   // ----- M O D A L S -----

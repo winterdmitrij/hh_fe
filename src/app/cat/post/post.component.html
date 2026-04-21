@@ -14,8 +14,8 @@
         </div>
         <div class="col-4">
             <div class="container" *ngIf="transactions">
-                <label for="accountgroupSelect">Transactionen: </label>
-                <select id="accountgroupSelect" class="form-select mb-3" [(ngModel)]="curTransactionId"
+                <label for="transactionSelect">Transactionen: </label>
+                <select id="transactionSelect" class="form-select mb-3" [(ngModel)]="curTransactionId"
                     (ngModelChange)="onChangeSelectTransactions($event)">
                     <option *ngFor="let transaction of transactions" [value]="transaction.id">
                         {{ transaction.dsg }}
@@ -25,9 +25,9 @@
         </div>
         <div class="col-4">
             <div class="container" *ngIf="postGroups">
-                <label for="accountgroupSelect">Transactionen: </label>
-                <select id="accountgroupSelect" class="form-select mb-3" [(ngModel)]="curPostGroupId"
-                    (ngModelChange)="onChangeSelectTransactionPostGroups($event)">
+                <label for="postgroupSelect">Transactionen: </label>
+                <select id="postgroupSelect" class="form-select mb-3" [(ngModel)]="curPostGroupId"
+                    (ngModelChange)="onChangeSelectPostGroups($event)">
                     <option *ngFor="let postGroup of postGroups" [value]="postGroup.id">
                         {{ postGroup.dsg }}
                     </option>
@@ -54,9 +54,7 @@
                 <tbody class="text-center">
                     <tr *ngFor="let post of posts">
                         <td score="row"><span>{{ post.rnk }}</span></td>
-                        <td>
-                            <span>{{ post.dsg }}</span>
-                        </td>
+                        <td><span>{{ post.dsg }}</span></td>
                         <td><span>{{ post.dsc }}</span></td>
                         <td>
                             <i *ngIf="!post.act" class="bi bi-square me-2" style="color: red"></i>
@@ -96,7 +94,8 @@
 
 <!-- Modal-Dialogs -->
 <!-- Add/Upd Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="postModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" [id]="modalId.ADD_UPD" tabindex="-1"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
             <!-- Header -->
@@ -104,8 +103,8 @@
                 <h5 class="modal-title">
                     Post {{ isEditMode ? 'bearbeiten' : 'hinzufügen' }}
                 </h5>
-                <button type="button" (click)="onClickCloseModal('postModal')" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Schließen">
+                <button type="button" (click)="onClickCloseModal(modalId.ADD_UPD)" class="btn-close"
+                    data-bs-dismiss="modal" aria-label="Schließen">
                 </button>
                 <br>
             </div>
@@ -118,7 +117,7 @@
 </div>
 
 <!-- Del Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="delPostModal" tabindex="-1"
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" [id]="modalId.DELETE" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
@@ -134,7 +133,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                    (click)="onClickCloseModal('delPostModal')">Schließen</button>
+                    (click)="onClickCloseModal(modalId.DELETE)">Schließen</button>
                 <button type="button" (click)="handlePostDelete(delPost!)" class="btn btn-danger">
                     Löschen
                 </button>

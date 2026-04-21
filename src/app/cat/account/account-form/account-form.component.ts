@@ -134,7 +134,6 @@ export class AccountFormComponent implements OnInit, AfterViewInit, OnChanges {
   private resetForm() {
     this.form.reset();
     this.account = undefined;
-    //    this.accountGroupId = undefined;
     this.newAccountId = undefined;
 
     // Touch-Status entfernen (sonst bleibt is-invalid sichtbar)
