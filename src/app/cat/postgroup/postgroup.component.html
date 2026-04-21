@@ -13,9 +13,9 @@
         </div>
         <div class="col-8">
             <div class="container" *ngIf="transactions">
-                <label for="accountgroupSelect">Transactionen: </label>
-                <select id="accountgroupSelect" class="form-select mb-3" [(ngModel)]="curTransactionId"
-                    (ngModelChange)="onChangeSelect($event)">
+                <label for="transactionSelect">Transactionen: </label>
+                <select id="transactionSelect" class="form-select mb-3" [(ngModel)]="curTransactionId"
+                    (ngModelChange)="onChangeSelectTransaction($event)">
                     <option *ngFor="let transaction of transactions" [value]="transaction.id">
                         {{ transaction.dsg }}
                     </option>
@@ -41,7 +41,6 @@
                 </thead>
                 <tbody class="text-center">
                     <tr *ngFor="let postGroup of postGroups">
-                        <!--<th score="row"><span>{{ postGroup.id }}</span></th>-->
                         <td score="row"><span>{{ postGroup.rnk }}</span></td>
                         <td>
                             <a type="botton"
@@ -63,8 +62,8 @@
                                 <span> bearbeiten</span>
                             </a>
                             <!-- Delete -->
-                            <a *ngIf="!postGroup.posts?.length" type="botton" (click)="onClickModalDelete(postGroup)"
-                                class="btn table-link text-danger">
+                            <a *ngIf="!postGroup.act && !postGroup.posts?.length" type="botton"
+                                (click)="onClickModalDelete(postGroup)" class="btn table-link text-danger">
                                 <i class="bi bi-x-square"></i>
                                 <span> löschen</span>
                             </a>
@@ -82,7 +81,7 @@
 
 <!-- Modal-Dialogs -->
 <!-- Add/Upd Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="postGroupModal" tabindex="-1"
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" [id]="modalId.ADD_UPD" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
@@ -91,7 +90,7 @@
                 <h5 class="modal-title">
                     Postgruppe {{ isEditMode ? 'bearbeiten' : 'hinzufügen' }}
                 </h5>
-                <button type="button" (click)="onClickCloseModal('postGroupModal')" class="btn-close"
+                <button type="button" (click)="onClickCloseModal(modalId.ADD_UPD)" class="btn-close"
                     data-bs-dismiss="modal" aria-label="Schließen">
                 </button>
                 <br>
@@ -105,14 +104,14 @@
 </div>
 
 <!-- Del Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="delPostGroupModal" tabindex="-1"
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" [id]="modalId.DELETE" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
             <!-- Header -->
             <div class="modal-header">
                 <h5 class="modal-title">Postgruppe löschen</h5>
-                <button type="button" (click)="onClickCloseModal('postGroupModal')" class="btn-close"
+                <button type="button" (click)="onClickCloseModal(modalId.DELETE)" class="btn-close"
                     data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <!-- Body -->
@@ -122,7 +121,7 @@
             <!-- Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                    (click)="onClickCloseModal('delPostGroupModal')">Schließen</button>
+                    (click)="onClickCloseModal(modalId.DELETE)">Schließen</button>
                 <button type="button" (click)="handlePostGroupDelete(delPostGroup!)" class="btn btn-danger">
                     Löschen
                 </button>

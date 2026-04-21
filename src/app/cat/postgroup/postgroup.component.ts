@@ -3,7 +3,12 @@ import { Component, OnInit } from "@angular/core";
 import { PostGroupModel, TransactionModel } from "../cat.model";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { PostService } from "../services/post.service";
-import { catchError, Observable, of, switchMap, tap } from "rxjs";
+import { catchError, EMPTY, Observable, of, switchMap, tap } from "rxjs";
+
+export enum ModalId {
+  ADD_UPD = "postGroupModal",
+  DELETE = "delPostGroupModal",
+}
 
 @Component({
   selector: "app-postgroup",
@@ -12,6 +17,7 @@ import { catchError, Observable, of, switchMap, tap } from "rxjs";
 })
 export class PostgroupComponent implements OnInit {
   title: string = "Postgruppen";
+  modalId = ModalId; //! für HTML
 
   transactions: TransactionModel[] = [];
   curTransactionId?: string;
@@ -60,24 +66,24 @@ export class PostgroupComponent implements OnInit {
   }
 
   //----- C L I C K - E V E N T S -----
-  onChangeSelect(newTaId: string): void {
-    this.router.navigate(["/cat/transaction", String(newTaId), "postgroups"]);
+  onChangeSelectTransaction(taId: string): void {
+    this.redirectTo(taId);
   }
 
   onClickModalCreate(): void {
     this.isEditMode = false;
-    this.showModal("postGroupModal");
+    this.showModal(this.modalId.ADD_UPD);
   }
 
   onClickModalUpdate(postGroup: PostGroupModel): void {
-    this.updPostGroup = postGroup;
+    this.updPostGroup = { ...postGroup }; //! wichtig
     this.isEditMode = true;
-    this.showModal("postGroupModal");
+    this.showModal(this.modalId.ADD_UPD);
   }
 
   onClickModalDelete(postGroup: PostGroupModel): void {
     this.delPostGroup = postGroup;
-    this.showModal("delPostGroupModal");
+    this.showModal(this.modalId.DELETE);
   }
 
   onClickCloseModal(modalId: string): void {
@@ -90,48 +96,44 @@ export class PostgroupComponent implements OnInit {
     if (this.updPostGroup) {
       this.handleRequest(
         this.pstSrv.updatePostGroup(postGroup.id, postGroup),
-        "postGroupModal",
+        this.modalId.ADD_UPD,
       );
     } else {
       this.handleRequest(
         this.pstSrv.createNewPostGroup(postGroup),
-        "postGroupModal",
+        this.modalId.ADD_UPD,
       );
     }
-    //console.log("Die Postgruppe erfolgreich gespeichert.", postGroup);
   }
 
   handlePostGroupDelete(postGroup: PostGroupModel): void {
-    // Wenn die Postgruppe mind. einen Post hat, darf die nicht gelöscht werden
-    if (postGroup.posts?.length) {
+    //! Wenn nicht erlaubt, sofort abbrechen
+    if (postGroup.act && postGroup.posts?.length) {
       console.log("Darf NICHT gelöscht werden");
-    } else {
-      this.pstSrv
-        .deletePostGroup(postGroup)
-        .pipe(
-          catchError((error) => {
-            console.error("Fehler beim Löschen der Postgruppe:", error);
-            alert("Postgruppe konnte nicht gelöscht werden.");
-            return of();
-          }),
-        )
-        .subscribe(() => console.log("Postgruppe wurde erfolgreich gelöscht."));
+      return;
     }
 
-    this.hideModal("delPostGroupModal");
+    this.handleRequest(
+      this.pstSrv.deletePostGroup(postGroup),
+      this.modalId.DELETE,
+    );
   }
 
   private handleRequest(obs$: Observable<any>, modalId: string): void {
-    obs$.subscribe({
-      next: (res) => {
+    obs$
+      .pipe(
+        catchError((err) => {
+          console.error("Fehler: ", err);
+          //alert(err || "Fehler bei der Anfrage");
+          return EMPTY; //! wichtig: stoppt next()
+        }),
+      )
+      .subscribe((res) => {
         console.log("Erfolg: ", res);
+        //alert("Operation erfolgreich");
 
         this.hideModal(modalId);
-      },
-      error: (err) => {
-        console.error("Fehler: ", err);
-      },
-    });
+      });
   }
 
   // ----- M O D A L S -----
@@ -149,8 +151,10 @@ export class PostgroupComponent implements OnInit {
     const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
     this.updPostGroup = undefined;
     this.delPostGroup = undefined;
+    this.isEditMode = false;
     this.isModalOpen = false;
     modal.hide();
+
     if (this.curTransactionId) {
       this.loadData(this.curTransactionId);
     } else {
