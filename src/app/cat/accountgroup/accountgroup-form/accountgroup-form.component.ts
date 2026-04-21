@@ -1,11 +1,12 @@
 import {
-  AfterViewChecked,
   AfterViewInit,
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
 } from "@angular/core";
 import { AccountGroupModel } from "../../cat.model";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
@@ -17,7 +18,9 @@ import { map, Observable } from "rxjs";
   templateUrl: "./accountgroup-form.component.html",
   styleUrl: "./accountgroup-form.component.css",
 })
-export class AccountgroupFormComponent implements OnInit, AfterViewInit {
+export class AccountgroupFormComponent
+  implements OnInit, AfterViewInit, OnChanges
+{
   @Input() accountGroup?: AccountGroupModel;
   @Output() submitAccountGroup = new EventEmitter<any>();
 
@@ -50,22 +53,32 @@ export class AccountgroupFormComponent implements OnInit, AfterViewInit {
     this.patchForm();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["accountGroup"]) {
+      if (this.accountGroup) {
+        this.patchForm();
+      } else {
+        this.resetForm();
+      }
+    }
+  }
+
   patchForm(): void {
     if (this.accountGroup) {
       this.form.patchValue({
         id: this.accountGroup.id,
         dsg: this.accountGroup.dsg,
-        dsc: this.accountGroup.dsc ?? "",
-        rnk: this.accountGroup.rnk ?? "",
-        act: this.accountGroup.act ?? true,
-        shw: this.accountGroup.shw ?? true,
+        dsc: this.accountGroup.dsc,
+        rnk: this.accountGroup.rnk,
+        act: this.accountGroup.act,
+        shw: this.accountGroup.shw,
       });
     } else {
       id: this.getNewAccountGroupId().subscribe((id) => {
         this.newAccountGroupId = id;
 
         this.form.patchValue({
-          id: id,
+          id: this.newAccountGroupId,
         });
       });
     }
@@ -81,6 +94,7 @@ export class AccountgroupFormComponent implements OnInit, AfterViewInit {
         act: this.form.value.act,
         shw: this.form.value.shw,
       };
+
       this.submitAccountGroup.emit(accountGroup);
     } else {
       this.form.markAllAsTouched();
@@ -121,6 +135,7 @@ export class AccountgroupFormComponent implements OnInit, AfterViewInit {
       map((groups) => {
         const usedIds = groups.map((group) => Number(group.id));
 
+        //! Wird gesucht sogar in Lücken
         let newId = 1;
         while (usedIds.includes(newId)) {
           newId++;

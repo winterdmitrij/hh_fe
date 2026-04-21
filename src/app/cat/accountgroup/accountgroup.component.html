@@ -12,12 +12,10 @@
 
     <!-- Tabelle -->
     <div class="row" *ngIf="accountGroups">
-
         <div class="table-responsive">
             <table class="table table-bordered table-dark table-striped table-hover">
                 <thead class="text-center">
                     <tr>
-                        <!--<th score="col"><span>Id</span></th>-->
                         <th score="col"><span>Rang</span></th>
                         <th score="col"><span>Bezeichnung</span></th>
                         <th score="col"><span>Beschreibung</span></th>
@@ -27,9 +25,9 @@
                         <th score="col"><span>Aktionen</span></th>
                     </tr>
                 </thead>
+
                 <tbody class="text-center">
                     <tr *ngFor="let accountGroup of accountGroups">
-                        <!--<th><span>{{ accountGroup.id }}</span></th>-->
                         <td score="row"><span>{{ accountGroup.rnk }}</span></td>
                         <td>
                             <a type="botton" [routerLink]="['/cat/accountgroup/', accountGroup.id, 'accounts']"
@@ -67,12 +65,16 @@
             </table>
         </div>
     </div>
+
+    <div *ngIf="!accountGroups">
+        <p>Fehler</p>
+    </div>
 </div>
 
 
 <!-- Modal-Dialogs -->
 <!-- Add/Upd Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="accountGroupModal" tabindex="-1"
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" [id]="modalId.ADD_UPD" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
@@ -81,13 +83,12 @@
                 <h5 class="modal-title">
                     Kontengruppe {{ isEditMode ? 'bearbeiten' : 'anlegen' }}
                 </h5>
-                <button type="button" (click)="onClickCloseModal('accountGroupModal')" class="btn-close"
+                <button type="button" (click)="onClickCloseModal(modalId.ADD_UPD)" class="btn-close"
                     data-bs-dismiss="modal" aria-label="Schließen">
                 </button>
                 <br>
             </div>
             <!-- Body -->
-            <!-- ToDo -->
             <app-accountgroup-form *ngIf="isModalOpen" [accountGroup]="updAccountGroup"
                 (submitAccountGroup)="handleAccountGroupSave($event)">
             </app-accountgroup-form>
@@ -96,14 +97,14 @@
 </div>
 
 <!-- Del Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="delAccountGroupModal" tabindex="-1"
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" [id]="modalId.DELETE" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
             <!-- Header -->
             <div class="modal-header">
                 <h5 class="modal-title">Kontengruppe löschen</h5>
-                <button type="button" (click)="onClickCloseModal('accountGroupModal')" class="btn-close"
+                <button type="button" (click)="onClickCloseModal(modalId.DELETE)" class="btn-close"
                     data-bs-dismiss="modal" aria-label="Schließen"></button>
                 <br>
             </div>
@@ -114,7 +115,7 @@
             </div>
             <!-- Footer -->
             <div class="modal-footer">
-                <button type="button" (click)="onClickCloseModal('delAccountGroupModal')" class="btn btn-secondary"
+                <button type="button" (click)="onClickCloseModal(modalId.DELETE)" class="btn btn-secondary"
                     data-bs-dismiss="modal">
                     Schließen
                 </button>
