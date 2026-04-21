@@ -3,7 +3,12 @@ import { Component, OnInit } from "@angular/core";
 import { AccountGroupModel, AccountModel } from "../cat.model";
 import { AccountService } from "../services/account.service";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { catchError, EMPTY, Observable, switchMap, tap } from "rxjs";
+import { catchError, EMPTY, Observable, of, switchMap, tap } from "rxjs";
+
+export enum ModalId {
+  ADD_UPD = "accountModal",
+  DELETE = "delAccountModal",
+}
 
 @Component({
   selector: "app-account",
@@ -12,6 +17,7 @@ import { catchError, EMPTY, Observable, switchMap, tap } from "rxjs";
 })
 export class AccountComponent implements OnInit {
   title: string = "Konten";
+  modalId = ModalId; //! für HTML
 
   accountGroups: AccountGroupModel[] = [];
   curAccountGroupId?: string;
@@ -19,7 +25,7 @@ export class AccountComponent implements OnInit {
   accounts: AccountModel[] = [];
 
   isEditMode: boolean = false;
-  isModalOppen: boolean = false;
+  isModalOpen: boolean = false;
   updAccount?: AccountModel;
   delAccount?: AccountModel;
 
@@ -66,18 +72,18 @@ export class AccountComponent implements OnInit {
 
   onClickModalCreate(): void {
     this.isEditMode = false;
-    this.showModal("accountModal");
+    this.showModal(this.modalId.ADD_UPD);
   }
 
   onClickModalUpdate(account: AccountModel): void {
     this.updAccount = { ...account }; //! wichtig
     this.isEditMode = true;
-    this.showModal("accountModal");
+    this.showModal(this.modalId.ADD_UPD);
   }
 
   onClickModalDelete(account: AccountModel): void {
     this.delAccount = account;
-    this.showModal("delAccountModal");
+    this.showModal(this.modalId.DELETE);
   }
 
   onClickCloseModal(modalId: string): void {
@@ -86,28 +92,27 @@ export class AccountComponent implements OnInit {
 
   // ------ M O D A L E V E N T S -----
   handleAccountSave(account: AccountModel): void {
-    const modalId = "accountModal";
-
     if (this.updAccount) {
       this.handleRequest(
         this.accSrv.updateAccount(account.id, account),
-        modalId,
+        this.modalId.ADD_UPD,
       );
     } else {
-      this.handleRequest(this.accSrv.createNewAccount(account), modalId);
+      this.handleRequest(
+        this.accSrv.createNewAccount(account),
+        this.modalId.ADD_UPD,
+      );
     }
   }
 
   handleAccountDelete(account: AccountModel): void {
-    const modalId = "delAccountModal";
-
-    // nicht erlaubt → sofort abbrechen
+    //! nicht erlaubt → sofort abbrechen
     if (account.act || account.sav || account.shw) {
       console.log("Darf NICHT gelöscht werden");
       return;
     }
 
-    this.handleRequest(this.accSrv.deleteAccount(account), modalId);
+    this.handleRequest(this.accSrv.deleteAccount(account), this.modalId.DELETE);
   }
 
   private handleRequest(obs$: Observable<any>, modalId: string): void {
@@ -133,7 +138,7 @@ export class AccountComponent implements OnInit {
 
     if (modalEl) {
       const modal = new bootstrap.Modal(modalEl);
-      this.isModalOppen = true;
+      this.isModalOpen = true;
       modal.show();
     }
   }
@@ -143,7 +148,7 @@ export class AccountComponent implements OnInit {
     this.updAccount = undefined;
     this.delAccount = undefined;
     this.isEditMode = false;
-    this.isModalOppen = false;
+    this.isModalOpen = false;
     modal.hide();
 
     if (this.curAccountGroupId) {

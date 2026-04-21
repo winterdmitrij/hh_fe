@@ -84,7 +84,7 @@
 
 <!-- Modal-Dialogs -->
 <!-- Add/Upd Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="accountModal" tabindex="-1"
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" [id]="modalId.ADD_UPD" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
@@ -93,11 +93,11 @@
                 <h5 class="modal-title">
                     Konto {{ isEditMode ? 'bearbeiten' : 'anlegen' }}
                 </h5>
-                <button type="button" (click)="onClickCloseModal('accountModal')" class="btn-close"
+                <button type="button" (click)="onClickCloseModal(modalId.ADD_UPD)" class="btn-close"
                     data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
             <!-- Body -->
-            <app-account-form [account]="updAccount" [accountGroupId]="curAccountGroupId"
+            <app-account-form *ngIf="isModalOpen" [account]="updAccount" [accountGroupId]="curAccountGroupId"
                 (submitAccount)="handleAccountSave($event)">
             </app-account-form>
         </div>
@@ -105,7 +105,7 @@
 </div>
 
 <!-- Del Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="delAccountModal" tabindex="-1"
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" [id]="modalId.DELETE" tabindex="-1"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
@@ -121,7 +121,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                    (click)="onClickCloseModal('delAccountModal')">Schließen</button>
+                    (click)="onClickCloseModal(modalId.DELETE)">Schließen</button>
                 <button type="button" (click)="handleAccountDelete(delAccount!)" class="btn btn-danger">
                     Löschen
                 </button>
