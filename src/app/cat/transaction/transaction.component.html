@@ -1,33 +1,29 @@
 <div class="container-fluid">
     <h1 class="text-center">{{ title }}</h1>
 
-    <!-- Tabelle Transactions -->
+    <!-- Header -->
+
+    <!-- Body -->
     <div class="row" *ngIf="transactions">
         <div class="table-responsive">
             <table class="table table-bordered table-dark table-striped table-hover">
                 <thead class="text-center">
                     <tr>
-                        <th score="col"><span>Id</span></th>
-                        <th score="col"><span>Bezeichnung</span></th>
                         <th score="col"><span>Rang</span></th>
+                        <th score="col"><span>Bezeichnung</span></th>
                         <th score="col"><span>Postgruppen</span></th>
                     </tr>
                 </thead>
                 <tbody class="text-center">
                     <tr *ngFor="let transaction of transactions">
-                        <th score="row">
-                            <span>
-                                {{ transaction.id }}
-                            </span>
-                        </th>
+                        <td scope="row"><span>{{ transaction.rnk }}</span></td>
                         <td>
                             <a type="botton" [routerLink]="['/cat/transaction/', transaction.id, 'postgroups']"
                                 class="btn table-link text-warning">
                                 <span>{{ transaction.dsg }}</span>
                             </a>
                         </td>
-                        <td class="text-center"><span>{{ transaction.rnk }}</span></td>
-                        <td class="text-center"><span>{{ transaction.postgroups?.length }}</span></td>
+                        <td><span>{{ transaction.postgroups?.length }}</span></td>
                     </tr>
                 </tbody>
             </table>

@@ -18,7 +18,7 @@ export class TransactionComponent implements OnInit {
     this.loadData();
   }
 
-  loadData() {
+  private loadData() {
     this.pstSrv
       .findAllTransactions()
       .subscribe((data) => (this.transactions = data));
