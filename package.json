@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "start:prod": "ng serve --proxy-config proxy.prod.conf.json",
     "serve:ssr:hh_fe": "node dist/hh_fe/server/server.mjs"
   },
   "private": true,

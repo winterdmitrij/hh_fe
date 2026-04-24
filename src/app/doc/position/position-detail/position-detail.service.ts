@@ -8,7 +8,7 @@ import { PositionDetailModel } from "../../doc.model";
   providedIn: "root",
 })
 export class PositionDetailService {
-  private apiUrl = enviroment.apiUrl;
+  private apiUrl = "/api"; //enviroment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

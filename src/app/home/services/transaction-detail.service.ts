@@ -8,14 +8,14 @@ import { TransactionDetailModel } from "../home.model";
   providedIn: "root",
 })
 export class TransactionDetailService {
-  private apiUrl = enviroment.apiUrl + "/transactions-details";
+  private apiUrl = "/api"; //enviroment.apiUrl + "/transactions-details";
 
   constructor(private http: HttpClient) {}
 
   findAllBy(
     prd: string,
     acc_id: number,
-    ta_dsg: string
+    ta_dsg: string,
   ): Observable<TransactionDetailModel[]> {
     const params = new HttpParams()
       .set("prd", prd)

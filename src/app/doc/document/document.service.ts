@@ -8,7 +8,7 @@ import { enviroment } from "../../../enviroments/enviroment";
   providedIn: "root",
 })
 export class DocumentService {
-  private apiUrl = enviroment.apiUrl;
+  private apiUrl = "/api"; //enviroment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -22,11 +22,11 @@ export class DocumentService {
 
   update(
     id: string,
-    partial: Partial<DocumentModel>
+    partial: Partial<DocumentModel>,
   ): Observable<DocumentModel> {
     return this.http.patch<DocumentModel>(
       `${this.apiUrl}/documents/${id}`,
-      partial
+      partial,
     );
   }
   /**

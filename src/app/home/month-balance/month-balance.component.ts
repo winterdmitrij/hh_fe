@@ -1,6 +1,6 @@
 declare var bootstrap: any;
 import { Component, OnInit } from "@angular/core";
-import { PeriodService } from "../../doc/period/period.service";
+import { PeriodService } from "../../doc/services/period.service";
 import { PeriodModel } from "../../doc/doc.model";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { MonthBalanceService } from "../services/month-balance.service";
@@ -35,7 +35,7 @@ export class MonthBalanceComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private prdSrv: PeriodService,
-    private mntBalSrv: MonthBalanceService
+    private mntBalSrv: MonthBalanceService,
   ) {}
 
   ngOnInit() {

@@ -8,12 +8,12 @@ import { enviroment } from "../../../enviroments/enviroment";
   providedIn: "root",
 })
 export class PeriodService {
-  private apiUrl = enviroment.apiUrl + "/periods";
+  private apiUrl = "/api"; //enviroment.apiUrl + "/periods";
 
   constructor(private http: HttpClient) {}
 
   findAll(): Observable<PeriodModel[]> {
-    return this.http.get<PeriodModel[]>(this.apiUrl);
+    return this.http.get<PeriodModel[]>(`${this.apiUrl}/periods`);
   }
 
   /**
@@ -27,8 +27,8 @@ export class PeriodService {
         (periods) =>
           periods
             .filter((p) => p.act)
-            .sort((a, b) => b.prd.localeCompare(a.prd))[0]
-      )
+            .sort((a, b) => b.prd.localeCompare(a.prd))[0],
+      ),
     );
   }
 
@@ -41,8 +41,10 @@ export class PeriodService {
     return this.http.get<PeriodModel>(`${this.apiUrl}/${prd}`);
   }
 
-  // ToDo: update(period)!
-  update(prd: string, period: PeriodModel): Observable<PeriodModel> {
-    return this.http.patch<PeriodModel>(`${this.apiUrl}/${prd}`, period);
+  updatePeriod(prd: string, period: PeriodModel): Observable<PeriodModel> {
+    return this.http.patch<PeriodModel>(
+      `${this.apiUrl}/periods/${prd}`,
+      period,
+    );
   }
 }

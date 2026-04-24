@@ -8,7 +8,7 @@ import { AccountBalanceModel } from "../rpt.model";
   providedIn: "root",
 })
 export class AccountBalanceService {
-  private apiUrl = enviroment.apiUrl + "/accounts-balances/";
+  private apiUrl = "/api"; //enviroment.apiUrl + "/accounts-balances/";
 
   constructor(private http: HttpClient) {}
 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { PeriodService } from "../period/period.service";
+import { PeriodService } from "../services/period.service";
 import { DocumentModel, MonthDocumentModel, PeriodModel } from "../doc.model";
 import { DocumentService } from "./document.service";
 import { ActivatedRoute, Params, Router } from "@angular/router";
@@ -22,7 +22,7 @@ export class DocumentComponent implements OnInit {
     private mntDocSrv: MonthDocumentService,
     private docSrv: DocumentService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {

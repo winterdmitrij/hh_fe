@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { PostBalanceService } from "../services/post-balance.service";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { PeriodService } from "../../doc/period/period.service";
+import { PeriodService } from "../../doc/services/period.service";
 import { PostBalanceModel } from "../rpt.model";
 
 @Component({
@@ -23,7 +23,7 @@ export class PostBalanceComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private prdSrv: PeriodService,
-    private pstBalSrv: PostBalanceService
+    private pstBalSrv: PostBalanceService,
   ) {}
 
   ngOnInit() {

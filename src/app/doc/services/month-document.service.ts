@@ -8,7 +8,7 @@ import { Observable } from "rxjs";
   providedIn: "root",
 })
 export class MonthDocumentService {
-  private apiUrl = enviroment.apiUrl + "/month-documents/";
+  private apiUrl = "/api"; //enviroment.apiUrl + "/month-documents/";
 
   constructor(private http: HttpClient) {}
 

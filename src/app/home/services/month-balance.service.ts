@@ -8,7 +8,7 @@ import { MonthBalanceModel } from "../home.model";
   providedIn: "root",
 })
 export class MonthBalanceService {
-  private apiUrl = enviroment.apiUrl + "/month-balances/";
+  private apiUrl = "/api"; //enviroment.apiUrl + "/month-balances/";
 
   constructor(private http: HttpClient) {}
 

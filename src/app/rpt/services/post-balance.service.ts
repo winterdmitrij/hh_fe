@@ -8,7 +8,7 @@ import { PostBalanceModel } from "../rpt.model";
   providedIn: "root",
 })
 export class PostBalanceService {
-  private apiUrl = enviroment.apiUrl + "/posts-balances/";
+  private apiUrl = "/api"; //enviroment.apiUrl + "/posts-balances/";
 
   constructor(private http: HttpClient) {}
 

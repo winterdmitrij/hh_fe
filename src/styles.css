@@ -32,3 +32,20 @@
 .negative {
     color: #ff000096;
 }
+
+/*Enviroment*/
+.env-banner {
+    text-align: center;
+    padding: 8px;
+    font-weight: bold;
+}
+
+.dev {
+    background: orange;
+    color: black;
+}
+
+.prod {
+    background: red;
+    color: white;
+}

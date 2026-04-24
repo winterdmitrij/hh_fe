@@ -8,7 +8,7 @@ import { AccountGroupModel, AccountModel } from "../cat.model";
   providedIn: "root",
 })
 export class AccountService {
-  private apiUrl = enviroment.apiUrl;
+  private apiUrl = "/api"; //enviroment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

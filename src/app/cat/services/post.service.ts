@@ -8,7 +8,7 @@ import { PostGroupModel, PostModel, TransactionModel } from "../cat.model";
   providedIn: "root",
 })
 export class PostService {
-  private apiUrl = enviroment.apiUrl;
+  private apiUrl = "/api"; //enviroment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

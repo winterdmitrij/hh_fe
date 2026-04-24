@@ -8,7 +8,7 @@ import { InformationModel } from "../cat.model";
   providedIn: "root",
 })
 export class InformationService {
-  private apiUrl = enviroment.apiUrl;
+  private apiUrl = "/api"; //enviroment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -18,7 +18,7 @@ export class InformationService {
 
   findOne(typ: string): Observable<InformationModel> {
     return this.http.get<InformationModel>(
-      `${this.apiUrl}/informations/${typ}`
+      `${this.apiUrl}/informations/${typ}`,
     );
   }
 }

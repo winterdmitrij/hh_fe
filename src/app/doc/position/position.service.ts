@@ -8,7 +8,7 @@ import { PositionModel } from "../doc.model";
   providedIn: "root",
 })
 export class PositionService {
-  private apiUrl = enviroment.apiUrl;
+  private apiUrl = "/api"; //enviroment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -19,7 +19,7 @@ export class PositionService {
   update(position: PositionModel): Observable<PositionModel> {
     return this.http.patch<PositionModel>(
       `${this.apiUrl}/positions/${position.id}`,
-      position
+      position,
     );
   }
 
