@@ -12,23 +12,24 @@ export class PeriodService {
 
   constructor(private http: HttpClient) {}
 
-  findAll(): Observable<PeriodModel[]> {
+  findAllPeriods(): Observable<PeriodModel[]> {
     return this.http.get<PeriodModel[]>(`${this.apiUrl}/periods`);
   }
 
-  /**
-   * Gibt die aktuelle Periode zurück,
-   * die normalerweise active aber nicht geschloßen ist
-   * (=== größte active Periode, um Fehler zu vermeiden)
-   */
-  findCurPrd(): Observable<PeriodModel> {
-    return this.findAll().pipe(
-      map(
-        (periods) =>
-          periods
-            .filter((p) => p.act)
-            .sort((a, b) => b.prd.localeCompare(a.prd))[0],
-      ),
+  /*
+  findOnePeriod(prd: string): Observable<PeriodModel> {
+    return this.http.get<PeriodModel>(`${this.apiUrl}/periods/${prd}`);
+  }
+*/
+  findCurrentPeriod(): Observable<PeriodModel | null> {
+    return this.findAllPeriods().pipe(
+      map((periods) => {
+        const active = periods.filter((p) => p.act);
+
+        if (!active.length) return null;
+
+        return active.sort((a, b) => b.prd.localeCompare(a.prd))[0];
+      }),
     );
   }
 
@@ -36,11 +37,7 @@ export class PeriodService {
     return this.http.get<number[]>(`${this.apiUrl}/years`);
   }
 
-  // ToDo: findOne!
-  findOneById(prd: string): Observable<PeriodModel> {
-    return this.http.get<PeriodModel>(`${this.apiUrl}/${prd}`);
-  }
-
+  // ToDo: Probieren mit partial: Partial<PeriodModel>,
   updatePeriod(prd: string, period: PeriodModel): Observable<PeriodModel> {
     return this.http.patch<PeriodModel>(
       `${this.apiUrl}/periods/${prd}`,

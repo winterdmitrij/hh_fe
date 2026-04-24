@@ -42,7 +42,7 @@ export class PostBalanceComponent implements OnInit {
           this.rptYear = year;
           this.loadReport(year);
         } else {
-          this.prdSrv.findCurPrd().subscribe((period) => {
+          this.prdSrv.findCurrentPeriod().subscribe((period) => {
             if (period) {
               this.router.navigate([
                 "/rpt/posts-balances",

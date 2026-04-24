@@ -8,7 +8,7 @@ import {
 } from "../doc.model";
 import { PositionService } from "./position.service";
 import { ActivatedRoute } from "@angular/router";
-import { DocumentService } from "../document/document.service";
+import { DocumentService } from "../services/document.service";
 import { catchError, Observable, of } from "rxjs";
 import { PositionDetailService } from "./position-detail/position-detail.service";
 
@@ -53,7 +53,7 @@ export class PositionComponent {
   }
 
   private loadDocument(id: string): void {
-    this.docSrv.findOne(id).subscribe((data) => (this.document = data));
+    this.docSrv.findOneDocument(id).subscribe((data) => (this.document = data));
   }
 
   private refreshData(): void {

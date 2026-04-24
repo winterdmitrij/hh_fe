@@ -43,7 +43,7 @@ export class MonthBalanceComponent implements OnInit {
   }
 
   loadPeriods() {
-    this.prdSrv.findAll().subscribe((prdLst) => {
+    this.prdSrv.findAllPeriods().subscribe((prdLst) => {
       this.periods = prdLst;
 
       // Pfad-Parameter ablesen und Dokument laden oder verlinken
@@ -54,7 +54,7 @@ export class MonthBalanceComponent implements OnInit {
           this.curPrd = prd;
           this.loadMonthBalance(prd);
         } else {
-          this.prdSrv.findCurPrd().subscribe((period) => {
+          this.prdSrv.findCurrentPeriod().subscribe((period) => {
             if (period) {
               this.router.navigate(["/home", period.prd]);
             }

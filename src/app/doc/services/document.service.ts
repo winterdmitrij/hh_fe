@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { DocumentModel } from "../doc.model";
+import { DocumentModel, MonthDocumentModel } from "../doc.model";
 import { enviroment } from "../../../enviroments/enviroment";
 
 @Injectable({
@@ -12,15 +12,21 @@ export class DocumentService {
 
   constructor(private http: HttpClient) {}
 
-  findAll(): Observable<DocumentModel[]> {
+  findAllDocuments(): Observable<DocumentModel[]> {
     return this.http.get<DocumentModel[]>(`${this.apiUrl}/documents`);
   }
 
-  findOne(id: string): Observable<DocumentModel> {
+  findAllDocumentsBy(prd: string): Observable<MonthDocumentModel[]> {
+    return this.http.get<MonthDocumentModel[]>(
+      `${this.apiUrl}/month-documents/${prd}`,
+    );
+  }
+
+  findOneDocument(id: string): Observable<DocumentModel> {
     return this.http.get<DocumentModel>(`${this.apiUrl}/documents/${id}`);
   }
 
-  update(
+  updateDocument(
     id: string,
     partial: Partial<DocumentModel>,
   ): Observable<DocumentModel> {

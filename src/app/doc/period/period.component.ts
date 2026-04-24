@@ -2,7 +2,7 @@ declare var bootstrap: any;
 import { Component, OnInit } from "@angular/core";
 import { PeriodModel } from "../doc.model";
 import { PeriodService } from "../services/period.service";
-import { tap } from "rxjs";
+import { catchError, EMPTY, tap } from "rxjs";
 
 @Component({
   selector: "app-period",
@@ -25,7 +25,7 @@ export class PeriodComponent implements OnInit {
 
   private loadData(): void {
     this.prdSrv
-      .findAll()
+      .findAllPeriods()
       .pipe(tap((data) => (this.periods = data)))
       .subscribe();
   }
@@ -42,10 +42,20 @@ export class PeriodComponent implements OnInit {
 
   // ----- M O D A L E V E N T S - B E H A N D L U N G -----
   handlePeriodSave(period: PeriodModel): void {
-    this.prdSrv.updatePeriod(period.prd, period).subscribe({
-      next: (res) => this.loadData(),
-      error: (err) => alert(err),
-    });
+    this.prdSrv
+      .updatePeriod(period.prd, period)
+      .pipe(
+        catchError((err) => {
+          console.error("Fehler: ", err);
+
+          return EMPTY; //! wichtig: stoppt next()
+        }),
+      )
+      .subscribe((res) => {
+        console.log("Erfolg: ", res);
+
+        this.hideModal("updPeriodModal");
+      });
   }
 
   // ----- M O D A L S -----

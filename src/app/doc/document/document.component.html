@@ -1,20 +1,28 @@
 <div class="container-fluid">
     <h1 class="text-center">Dokumente</h1>
 
-    <!-- Select list Periods -->
-    <div class="container" *ngIf="periods">
-        <label for="periodSelect">Periode: </label>
-        <select id="periodSelect" class="form-select mb-3" [(ngModel)]="curPrd"
-            (ngModelChange)="onSelectChange($event)">
-            <option *ngFor="let period of periods" [value]="period.prd">
-                {{ period.prd }}
-            </option>
-        </select>
+    <!-- Header -->
+    <div class="row">
+        <div class="col-4 d-grid gap-2 d-md-block text-center">
+            <button type="button" [routerLink]="['/doc/periods']" class="btn btn-outline-primary mt-4 me-2">
+                Zu Perioden
+            </button>
+        </div>
+        <div class="col-4">
+            <div class="container" *ngIf="periods">
+                <label for="periodSelect">Periode: </label>
+                <select id="periodSelect" class="form-select mb-3" [(ngModel)]="curPeriod"
+                    (ngModelChange)="onChangeSelectPeriod($event)">
+                    <option *ngFor="let period of periods" [value]="period.prd">
+                        {{ period.prd }}
+                    </option>
+                </select>
+            </div>
+        </div>
     </div>
 
-    <!-- Table Documents -->
+    <!-- Body -->
     <div class="row" *ngIf="documents">
-
         <div class="table-responsive">
             <table class="table table-bordered table-dark table-striped table-hover">
                 <thead class="text-center">
@@ -22,23 +30,20 @@
                         <th score="col"><span>Id</span></th>
                         <th score="col"><span>Datum</span></th>
                         <th score="col"><span>Betrag</span></th>
-                        <th score="col"><span>Ist freigegeben?</span></th>
-                        <th score="col"><span>Anzahl d. Positionen</span></th>
+                        <th score="col"><span>Freigabe</span></th>
+                        <th score="col"><span>Positionen</span></th>
                         <th score="col"><span>Aktionen</span></th>
                     </tr>
                 </thead>
-
                 <tbody class="text-center">
                     <tr *ngFor="let document of documents">
                         <th score="row">
-                            <a type="botton" [routerLink]="['/doc/periods/',curPrd,'documents',document.doc_id]"
+                            <a type="botton" [routerLink]="['/doc/periods/',curPeriod,'documents',document.doc_id]"
                                 class="btn table-link text-warning">
                                 <span>{{ document.doc_id }}</span>
                             </a>
                         </th>
-                        <th>
-                            <span>{{ document.doc_dat | date }}</span>
-                        </th>
+                        <th><span>{{ document.doc_dat | date }}</span></th>
                         <th class="text-end">
                             <span>{{ document.doc_amt | currency:'EUR' }}</span>
                         </th>
@@ -46,13 +51,11 @@
                             <i *ngIf="!document.doc_rls" class="bi bi-square" style="color: red"></i>
                             <i *ngIf="document.doc_rls" class="bi bi-check-square" style="color: green"></i>
                         </th>
-                        <th>
-                            <span>{{ document.cnt_pos }}</span>
-                        </th>
+                        <th><span>{{ document.cnt_pos }}</span></th>
                         <th>
                             <!-- Dokument freigeben/stornieren -->
-                            <a type="botton" (click)="onRlsClick(document.doc_id)" class="btn table-link"
-                                data-bs-toggle="modal" data-bs-target="#rlsDocument" [ngClass]="{
+                            <a type="botton" (click)="onClickModalRelease(document.doc_id)" class="btn table-link"
+                                [ngClass]="{
                                     'text-success': !document.doc_rls,
                                     'text-danger': document.doc_rls
                                 }">
@@ -67,19 +70,25 @@
                 </tbody>
             </table>
         </div>
+    </div>
 
+    <div *ngIf="!documents">
+        <p>Keine Dokumenten noch!</p>
     </div>
 </div>
 
-<!-- Del Position Modal -->
-<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="rlsDocument" tabindex="-1"
-    aria-labelledby="rlsDocumentLabel" aria-hidden="true">
+<!-- Rls Modal -->
+<div class="modal fade" data-bs-theme="dark" data-bs-backdrop="static" id="rlsDocumentModal" tabindex="-1"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
             <!-- Header -->
             <div class="modal-header">
-                <h5 class="modal-title">Dokument {{ rlsDocument?.rls ? 'stornieren' : 'freigeben' }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">
+                    Dokument {{ rlsDocument?.rls ? 'stornieren' : 'freigeben' }}
+                </h5>
+                <button type="button" (click)="onClickCloseModal('rlsDocumentModal')" class="btn-close"
+                    data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <!-- Body -->
             <div class="modal-body">
@@ -88,11 +97,12 @@
             </div>
             <!-- Footer -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" (click)="onDocumentRelease(rlsDocument!)" class="btn" [ngClass]="{
+                <button type="button" (click)="onClickCloseModal('rlsDocumentModal')" class="btn btn-secondary"
+                    data-bs-dismiss="modal">Cancel</button>
+                <button type="button" (click)="handleDocumentRelease(rlsDocument!)" class="btn" [ngClass]="{
                     'btn-success': !rlsDocument?.rls,
                     'btn-danger': rlsDocument?.rls
-                }" data-bs-dismiss="modal">{{ rlsDocument?.rls ? 'Stornieren'
+                }">{{ rlsDocument?.rls ? 'Stornieren'
                     : 'Freigeben' }}</button>
             </div>
         </div>
