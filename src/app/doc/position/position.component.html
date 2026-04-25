@@ -1,5 +1,5 @@
 <div class="container-fluid">
-    <h1 class="text-center">{{ title }} '{{ document?.id }}'</h1>
+    <h1 class="text-center">{{ title }} '{{ document ? document.id : "" }}'</h1>
 
     <!-- Header -->
     <div *ngIf="document" class="row">
@@ -106,7 +106,7 @@
                     data-bs-dismiss="modal" aria-label="Schließen">
                 </button>
             </div>
-            <app-position-detail *ngIf="isModalOpen" [position]="dtlPosition"
+            <app-position-detail *ngIf="isModalOpen" [position]="dtlPosition!"
                 (submitPosition)="handlePositionDetailSave($event)">
             </app-position-detail>
         </div>

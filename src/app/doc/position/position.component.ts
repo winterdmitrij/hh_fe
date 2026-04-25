@@ -1,6 +1,5 @@
 declare var bootstrap: any;
 import { Component, OnInit } from "@angular/core";
-//import { Modal } from "bootstrap";
 import {
   DocumentModel,
   PositionDetailModel,
@@ -10,7 +9,7 @@ import { PositionService } from "../services/position.service";
 import { ActivatedRoute, Params } from "@angular/router";
 import { DocumentService } from "../services/document.service";
 import { catchError, EMPTY, Observable, of, tap } from "rxjs";
-import { PositionDetailService } from "./position-detail/position-detail.service";
+import { PositionDetailService } from "../services/position-detail.service";
 
 export enum ModalId {
   ADD_UPD = "positionModal",
@@ -85,7 +84,7 @@ export class PositionComponent implements OnInit {
 
   onClickModalDetail(position: PositionModel): void {
     this.dtlPosition = position;
-    this.showModal("");
+    this.showModal(this.modalId.DETAIL);
   }
 
   onClickModalDelete(position: PositionModel): void {
@@ -112,11 +111,25 @@ export class PositionComponent implements OnInit {
     }
   }
 
-  handlePositionDetailSave(positionDetail: PositionDetailModel) {
-    this.handleRequest(
-      this.posDtlSrv.update(positionDetail),
-      this.modalId.DETAIL,
-    );
+  handlePositionDetailSave(event: {
+    positionDetail: PositionDetailModel;
+    mode: "create" | "update";
+  }) {
+    console.log("PositionDetail: ", event.positionDetail);
+    if (event.mode === "update") {
+      this.handleRequest(
+        this.posDtlSrv.updatePositionDetail(
+          event.positionDetail.pos_id,
+          event.positionDetail,
+        ),
+        this.modalId.DETAIL,
+      );
+    } else {
+      this.handleRequest(
+        this.posDtlSrv.createNewPositionDetail(event.positionDetail),
+        this.modalId.DETAIL,
+      );
+    }
   }
 
   handlePositionDelete(position: PositionModel) {
