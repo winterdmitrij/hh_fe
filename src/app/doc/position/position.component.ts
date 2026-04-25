@@ -1,35 +1,38 @@
 declare var bootstrap: any;
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 //import { Modal } from "bootstrap";
 import {
   DocumentModel,
   PositionDetailModel,
   PositionModel,
 } from "../doc.model";
-import { PositionService } from "./position.service";
-import { ActivatedRoute } from "@angular/router";
+import { PositionService } from "../services/position.service";
+import { ActivatedRoute, Params } from "@angular/router";
 import { DocumentService } from "../services/document.service";
-import { catchError, Observable, of } from "rxjs";
+import { catchError, EMPTY, Observable, of, tap } from "rxjs";
 import { PositionDetailService } from "./position-detail/position-detail.service";
+
+export enum ModalId {
+  ADD_UPD = "positionModal",
+  DETAIL = "positionDetailModal",
+  DELETE = "delPositionModal",
+}
 
 @Component({
   selector: "app-position",
   templateUrl: "./position.component.html",
   styleUrl: "./position.component.css",
 })
-export class PositionComponent {
-  /**
-   * Hier werden alle Positionen des Dokuments angezeigt.
-   */
+export class PositionComponent implements OnInit {
+  title: string = "Dokument Nr.";
+  modalId = ModalId;
 
-  // Dokument und Id (werden von Parameter abgelesen)
   document!: DocumentModel;
-  docId?: string;
-  docTyp?: string;
+  positions: PositionModel[] = [];
 
-  // Variablen für Modalformen: Update und Delete
   isEditMode: boolean = false;
-  modalOpen: boolean = false;
+  isModalOpen: boolean = false;
+  isExpendDocument: boolean = false;
   updPosition?: PositionModel;
   delPosition?: PositionModel;
   dtlPosition?: PositionModel;
@@ -39,140 +42,127 @@ export class PositionComponent {
     private posSrv: PositionService,
     private posDtlSrv: PositionDetailService,
     private route: ActivatedRoute,
-  ) {
-    // Pfad-Parameter ablesen und Dokument laden
-    this.route.paramMap.subscribe((params) => {
-      const id = params.get("id");
+  ) {}
 
-      if (id) {
-        this.docId = id;
-        this.docTyp = id.substring(5, 8);
-        this.loadDocument(id);
+  ngOnInit(): void {
+    this.route.params.subscribe((params: Params) => {
+      const docId = params["docid"];
+
+      if (docId) {
+        this.loadData(docId);
       }
     });
   }
 
-  private loadDocument(id: string): void {
-    this.docSrv.findOneDocument(id).subscribe((data) => (this.document = data));
+  private loadData(docId: string): void {
+    this.isExpendDocument = docId.substring(5, 8) === "Exp";
+
+    this.docSrv
+      .findOneDocument(docId)
+      .pipe(
+        tap((document) => {
+          this.document = document;
+
+          if (document.positions) {
+            this.positions = document.positions;
+          }
+        }),
+      )
+      .subscribe();
   }
 
-  private refreshData(): void {
-    if (this.docId) this.loadDocument(this.docId);
+  //----- C L I C K - E V E N T S -----
+  onClickModalCreate(): void {
+    this.isEditMode = false;
+    this.showModal(this.modalId.ADD_UPD);
   }
 
-  // Modal-Schaltflächen sind gedrückt
-  openAddModal() {
-    this.updPosition = undefined;
-    this.modalOpen = true;
-    this.showModal("positionModal");
+  onClickModalUpdate(position: PositionModel): void {
+    this.updPosition = { ...position }; //! wichtig
+    this.isEditMode = true;
+    this.showModal(this.modalId.ADD_UPD);
   }
 
-  openDtlModal(pos: PositionModel) {
-    this.dtlPosition = undefined;
-    setTimeout(() => {
-      //console.log("Position-Detail geöffnen!", pos.id);
-      this.dtlPosition = pos;
-      this.modalOpen = true;
-      this.showModal("detailModal");
-    });
+  onClickModalDetail(position: PositionModel): void {
+    this.dtlPosition = position;
+    this.showModal("");
   }
 
-  openUpdModal(pos: PositionModel) {
-    this.updPosition = pos;
-    this.modalOpen = true;
-    this.showModal("positionModal");
+  onClickModalDelete(position: PositionModel): void {
+    this.delPosition = position;
+    this.showModal(this.modalId.DELETE);
   }
 
-  openDelModal(pos: PositionModel) {
-    this.delPosition = pos;
-    this.showModal("delPosition");
+  onClickCloseModal(modalId: string): void {
+    this.hideModal(modalId);
   }
 
+  // ----- M O D A L E V E N T S - B E H A N D L U N G -----
+  handlePositionSave(position: PositionModel) {
+    if (this.updPosition) {
+      this.handleRequest(
+        this.posSrv.updatePosition(position.id, position),
+        this.modalId.ADD_UPD,
+      );
+    } else {
+      this.handleRequest(
+        this.posSrv.createPosition(position),
+        this.modalId.ADD_UPD,
+      );
+    }
+  }
+
+  handlePositionDetailSave(positionDetail: PositionDetailModel) {
+    this.handleRequest(
+      this.posDtlSrv.update(positionDetail),
+      this.modalId.DETAIL,
+    );
+  }
+
+  handlePositionDelete(position: PositionModel) {
+    this.handleRequest(
+      this.posSrv.deletePosition(position),
+      this.modalId.DELETE,
+    );
+  }
+
+  private handleRequest(obs$: Observable<any>, modalId: string) {
+    obs$
+      .pipe(
+        catchError((err) => {
+          console.error("Fehler: ", err);
+          return EMPTY; //! wichtig: stoppt next()
+        }),
+      )
+      .subscribe((res) => {
+        console.log("Erfolg: ", res);
+
+        this.hideModal(modalId);
+      });
+  }
+
+  // ----- M O D A L S -----
   private showModal(modalId: string) {
     const modalEl = document.getElementById(modalId);
 
     if (modalEl) {
       const modal = new bootstrap.Modal(modalEl);
+      this.isModalOpen = true;
       modal.show();
     }
   }
 
-  onModalClosed(modalId: string) {
-    this.modalHide(modalId);
-  }
-
-  // --- Events-Behandlung ---
-  // Add or Upd Position
-  handlePositionSave(pos: PositionModel) {
-    if (this.updPosition) {
-      this.handleRequest(this.posSrv.update(pos), "positionModal");
-    } else {
-      this.handleRequest(this.posSrv.create(pos), "positionModal");
-    }
-    console.log("Position erfolgreich gespeichert.", pos);
-  }
-
-  // Upd Position-Detail
-  handleDetailSave(dtl: PositionDetailModel) {
-    this.handleRequest(this.posDtlSrv.update(dtl), "detailModal");
-    console.log("Position-Detail erfolgreich gespeichert.", dtl);
-  }
-
-  // Delete a Position
-  handlePositionDelete(pos: PositionModel) {
-    this.posSrv
-      .delete(pos)
-      .pipe(
-        catchError((error) => {
-          console.error("Fehler beim Löschen der Position:", error);
-          alert("Position konnte nicht gelöscht werden.");
-          return of(); // Leeres Observable zurückgeben, um die Kette fortzusetzen
-        }),
-      )
-      .subscribe(() => {
-        console.log("Position erfolgreich gelöscht.");
-
-        this.modalHide("delPosition");
-        this.refreshData();
-      });
-  }
-
-  private handleRequest(obs$: Observable<any>, modalId: string) {
-    obs$.subscribe({
-      next: (res) => {
-        console.log("Erfolg: ", res);
-
-        this.modalHide(modalId);
-        this.refreshData();
-      },
-      error: (err) => {
-        console.error("Fehler: ", err);
-      },
-    });
-  }
-
-  // Schließt Modal Dialog
-  private modalHide(modalId: string) {
+  private hideModal(modalId: string) {
     const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
     this.updPosition = undefined;
     this.delPosition = undefined;
-    this.modalOpen = false;
+    this.dtlPosition = undefined;
+    this.isEditMode = false;
+    this.isModalOpen = false;
     modal.hide();
-  }
 
-  // --- Für Template ---
-  // Gibt absteigent sortierte Positionen zurück
-  get sortedPositions(): PositionModel[] {
-    return [...(this.document?.positions || [])].sort((a, b) =>
-      b.id.localeCompare(a.id),
-    );
-  }
-
-  // Gibt TRUE, wenn Positionen vorhanden sind.
-  get hasPositions(): boolean {
-    return (
-      Array.isArray(this.document?.positions) &&
-      this.document.positions.length > 0
-    );
+    if (this.document) {
+      this.loadData(this.document.id);
+    }
   }
 }

@@ -12,18 +12,28 @@ export class PositionService {
 
   constructor(private http: HttpClient) {}
 
-  create(position: PositionModel): Observable<PositionModel> {
+  createPosition(position: PositionModel): Observable<PositionModel> {
     return this.http.post<PositionModel>(`${this.apiUrl}/positions`, position);
   }
-
-  update(position: PositionModel): Observable<PositionModel> {
+  /*
+  updatePosition(position: PositionModel): Observable<PositionModel> {
     return this.http.patch<PositionModel>(
       `${this.apiUrl}/positions/${position.id}`,
       position,
     );
   }
+*/
+  updatePosition(
+    id: string,
+    partial: Partial<PositionModel>,
+  ): Observable<PositionModel> {
+    return this.http.patch<PositionModel>(
+      `${this.apiUrl}/positions/${id}`,
+      partial,
+    );
+  }
 
-  delete(position: PositionModel): Observable<void> {
+  deletePosition(position: PositionModel): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/positions/${position.id}`);
   }
 }

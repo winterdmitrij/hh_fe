@@ -8,6 +8,8 @@ import { Observable } from "rxjs";
   providedIn: "root",
 })
 export class MonthDocumentService {
+  // ToDo: Die Datei soll gelöscht werden. Die Funktion ist im DocumentService
+  /*
   private apiUrl = "/api"; //enviroment.apiUrl + "/month-documents/";
 
   constructor(private http: HttpClient) {}
@@ -15,4 +17,5 @@ export class MonthDocumentService {
   findAllBy(prd: string): Observable<MonthDocumentModel[]> {
     return this.http.get<MonthDocumentModel[]>(`${this.apiUrl}${prd}`);
   }
+    */
 }

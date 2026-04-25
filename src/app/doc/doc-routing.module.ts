@@ -8,7 +8,7 @@ const routes: Routes = [
   { path: "periods", component: PeriodComponent },
   { path: "documents", component: DocumentComponent },
   { path: "periods/:prd/documents", component: DocumentComponent },
-  { path: "periods/:prd/documents/:id", component: PositionComponent },
+  { path: "periods/:prd/documents/:docid", component: PositionComponent },
 ];
 
 @NgModule({

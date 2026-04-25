@@ -93,8 +93,8 @@
                 <button type="button" (click)="onClickCloseModal(modalId.ADD_UPD)" class="btn-close"
                     data-bs-dismiss="modal" aria-label="Schließen">
                 </button>
-                <br>
             </div>
+            <br>
             <!--  -->
             <app-postgroup-form *ngIf="isModalOpen" [postGroup]="updPostGroup" [transactionId]="curTransactionId"
                 (submitPostGroup)="handlePostGroupSave($event)">
@@ -120,8 +120,10 @@
             </div>
             <!-- Footer -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                    (click)="onClickCloseModal(modalId.DELETE)">Schließen</button>
+                <button type="button" (click)="onClickCloseModal(modalId.DELETE)" class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+                    Schließen
+                </button>
                 <button type="button" (click)="handlePostGroupDelete(delPostGroup!)" class="btn btn-danger">
                     Löschen
                 </button>

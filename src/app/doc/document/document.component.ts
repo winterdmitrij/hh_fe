@@ -4,7 +4,6 @@ import { PeriodService } from "../services/period.service";
 import { DocumentModel, MonthDocumentModel, PeriodModel } from "../doc.model";
 import { DocumentService } from "../services/document.service";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { MonthDocumentService } from "../services/month-document.service";
 import { catchError, EMPTY, switchMap, tap } from "rxjs";
 
 @Component({
@@ -23,7 +22,6 @@ export class DocumentComponent implements OnInit {
 
   constructor(
     private prdSrv: PeriodService,
-    private mntDocSrv: MonthDocumentService,
     private docSrv: DocumentService,
     private route: ActivatedRoute,
     private router: Router,

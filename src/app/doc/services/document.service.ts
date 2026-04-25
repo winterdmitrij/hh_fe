@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import { DocumentModel, MonthDocumentModel } from "../doc.model";
 import { enviroment } from "../../../enviroments/enviroment";
 
@@ -23,7 +23,16 @@ export class DocumentService {
   }
 
   findOneDocument(id: string): Observable<DocumentModel> {
-    return this.http.get<DocumentModel>(`${this.apiUrl}/documents/${id}`);
+    return this.http.get<DocumentModel>(`${this.apiUrl}/documents/${id}`).pipe(
+      map((data) => {
+        if (data.positions) {
+          data.positions = data.positions.sort((a, b) => {
+            return b.id.localeCompare(a.id);
+          });
+        }
+        return data;
+      }),
+    );
   }
 
   updateDocument(

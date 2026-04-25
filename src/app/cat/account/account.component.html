@@ -96,6 +96,7 @@
                 <button type="button" (click)="onClickCloseModal(modalId.ADD_UPD)" class="btn-close"
                     data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
+            <br>
             <!-- Body -->
             <app-account-form *ngIf="isModalOpen" [account]="updAccount" [accountGroupId]="curAccountGroupId"
                 (submitAccount)="handleAccountSave($event)">
@@ -113,7 +114,8 @@
             <div class="modal-header">
                 <h5 class="modal-title">Konto löschen</h5>
                 <button type="button" (click)="onClickCloseModal(modalId.DELETE)" class="btn-close"
-                    data-bs-dismiss="modal" aria-label="Close"></button>
+                    data-bs-dismiss="modal" aria-label="Close">
+                </button>
             </div>
 
             <div class="modal-body">
@@ -122,7 +124,9 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                    (click)="onClickCloseModal(modalId.DELETE)">Schließen</button>
+                    (click)="onClickCloseModal(modalId.DELETE)">
+                    Schließen
+                </button>
                 <button type="button" (click)="handleAccountDelete(delAccount!)" class="btn btn-danger">
                     Löschen
                 </button>

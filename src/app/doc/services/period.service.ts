@@ -16,25 +16,25 @@ export class PeriodService {
     return this.http.get<PeriodModel[]>(`${this.apiUrl}/periods`);
   }
 
-  /*
-  findOnePeriod(prd: string): Observable<PeriodModel> {
-    return this.http.get<PeriodModel>(`${this.apiUrl}/periods/${prd}`);
-  }
-*/
   findCurrentPeriod(): Observable<PeriodModel | null> {
     return this.findAllPeriods().pipe(
-      map((periods) => {
-        const active = periods.filter((p) => p.act);
-
-        if (!active.length) return null;
-
-        return active.sort((a, b) => b.prd.localeCompare(a.prd))[0];
-      }),
+      map(
+        (periods) =>
+          periods
+            .filter((p) => p.act)
+            .sort((a, b) => b.prd.localeCompare(a.prd))
+            .at(0) ?? null,
+      ),
     );
   }
 
   findAllYears(): Observable<number[]> {
     return this.http.get<number[]>(`${this.apiUrl}/years`);
+  }
+
+  // ToDo: testen
+  findCurrentYear(): Observable<number | null> {
+    return this.findAllYears().pipe(map((years) => years.at(0) ?? null));
   }
 
   // ToDo: Probieren mit partial: Partial<PeriodModel>,
