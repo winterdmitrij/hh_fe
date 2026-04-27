@@ -1,51 +1,108 @@
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  OnChanges,
-  SimpleChanges,
-  OnInit,
-} from "@angular/core";
+import { Component, Input, Output, EventEmitter, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { forkJoin, tap } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  filter,
+  map,
+  shareReplay,
+  switchMap,
+  withLatestFrom,
+} from "rxjs";
 
 import { AccountService } from "../../../cat/services/account.service";
-import { DocumentModel, PositionModel } from "../../doc.model";
-import { InformationService } from "../../../cat/services/information.service";
 import { PostService } from "../../../cat/services/post.service";
+import { InformationService } from "../../../cat/services/information.service";
+
 import {
   AccountModel,
   InformationModel,
   PostModel,
   TransactionModel,
 } from "../../../cat/cat.model";
+import { DocumentModel, PositionModel } from "../../doc.model";
 
 @Component({
   selector: "app-position-form",
   templateUrl: "./position-form.component.html",
-  styleUrl: "./position-form.component.css",
 })
-export class PositionFormComponent implements OnInit, OnChanges {
-  @Input() document!: DocumentModel;
-  @Input() position?: PositionModel;
+export class PositionFormComponent implements OnInit {
+  // ---------------- INPUT → STREAM ----------------
+  private document$ = new BehaviorSubject<DocumentModel | null>(null);
+  private position$ = new BehaviorSubject<PositionModel | null>(null);
+
+  @Input() set document(value: DocumentModel) {
+    this.document$.next(value);
+  }
+
+  @Input() set position(value: PositionModel | undefined) {
+    this.position$.next(value ?? null);
+  }
 
   @Output() submitPosition = new EventEmitter<any>();
 
-  transactions: TransactionModel[] = [];
-  selTransactionId?: number;
+  // ---------------- DATA STREAMS ----------------
+  transactions$ = this.pstSrv.findAllTransactions();
+  accounts$ = this.accSrv.findAllAccounts();
+  posts$ = this.pstSrv.findAllPosts();
 
-  allPosts: PostModel[] = [];
-  posts: PostModel[] = [];
+  documentInfo$ = this.document$.pipe(
+    filter((doc): doc is DocumentModel => !!doc),
+    switchMap((doc) => {
+      const docType = doc.id.substring(5, 8);
+      return this.infSrv.findOne(docType);
+    }),
+  );
 
-  accounts: AccountModel[] = [];
-  selAccountId?: number;
+  // ---------------- VIEW MODEL ----------------
+  vm$ = combineLatest([
+    this.document$,
+    this.position$,
+    this.transactions$,
+    this.accounts$,
+    this.posts$,
+    this.documentInfo$,
+  ]).pipe(
+    map(([document, position, transactions, accounts, posts, info]) => {
+      if (!document) return null;
 
-  documentInfo?: InformationModel;
+      // 🔥 Transaction bestimmen
+      let traId: number | undefined;
 
-  positionId: string = "";
-  canChanged: boolean = true;
+      if (position?.post?.id) {
+        const found = transactions.find((t) =>
+          t.postgroups?.some((pg) =>
+            pg.posts?.some((p) => p.id === position.post?.id),
+          ),
+        );
+        traId = found?.id;
+      }
 
+      traId = traId ?? info.transaction?.id ?? transactions[0]?.id ?? 1;
+
+      // 🔥 Posts filtern
+      const filteredPosts = posts.filter(
+        (p) => p.postgroup?.transaction?.id === traId,
+      );
+
+      // 🔥 Position ID
+      const positionId = position?.id ?? this.getNewPositionId(document);
+
+      return {
+        document,
+        position,
+        transactions,
+        accounts,
+        posts: filteredPosts,
+        info,
+        traId,
+        positionId,
+      };
+    }),
+    shareReplay(1),
+  );
+
+  // ---------------- FORM ----------------
   form = new FormGroup({
     id: new FormControl("", Validators.required),
     doc_id: new FormControl("", Validators.required),
@@ -56,6 +113,8 @@ export class PositionFormComponent implements OnInit, OnChanges {
     cmt: new FormControl(""),
   });
 
+  posts: PostModel[] = [];
+
   constructor(
     private accSrv: AccountService,
     private pstSrv: PostService,
@@ -64,128 +123,41 @@ export class PositionFormComponent implements OnInit, OnChanges {
 
   // ---------------- INIT ----------------
   ngOnInit(): void {
-    this.form.get("tra_id")!.valueChanges.subscribe((taId) => {
-      if (!taId) return;
+    // 🔥 Form automatisch befüllen
+    this.vm$.subscribe((vm) => {
+      if (!vm) return;
 
-      this.selTransactionId = taId;
-      this.updatePosts(taId);
+      this.posts = vm.posts;
 
-      this.form.get("pst_id")?.setValue(null);
-    });
-  }
+      this.form.patchValue({
+        id: vm.positionId,
+        doc_id: vm.document.id,
+        acc_id: vm.position?.account?.id ?? vm.info.account.id,
+        tra_id: vm.traId,
+        pst_id: vm.position?.post?.id ?? null,
+        amt: vm.position?.amt ?? null,
+        cmt: vm.position?.cmt ?? "",
+      });
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes["position"]) {
-      this.loadData();
-    }
-  }
-
-  // ---------------- DATA LOAD ----------------
-  private loadData() {
-    const docType = this.document.id.substring(5, 8);
-
-    forkJoin({
-      transactions: this.pstSrv.findAllTransactions(),
-      accounts: this.accSrv.findAllAccounts(),
-      posts: this.pstSrv.findAllPosts(),
-      info: this.infSrv.findOne(docType),
-    })
-      .pipe(
-        tap(({ transactions, accounts, posts, info }) => {
-          this.documentInfo = info;
-          this.accounts = accounts;
-          this.transactions = transactions;
-          this.allPosts = posts;
-
-          //this.selAccountId = info.account.id;
-
-          // 🔥 EINMAL bestimmen
-          this.selTransactionId = this.resolveTransactionId();
-
-          // enable / disable
-          this.canChanged = !info.transaction?.id;
-          if (this.canChanged) {
-            this.form.get("tra_id")?.enable();
-          } else {
-            this.form.get("tra_id")?.disable();
-          }
-
-          // 🔥 Posts setzen
-          this.updatePosts(this.selTransactionId);
-
-          // 🔥 Form befüllen
-          this.patchForm();
-        }),
-      )
-      .subscribe();
-  }
-
-  // ---------------- FORM ----------------
-  patchForm() {
-    if (!this.document) return;
-
-    this.positionId = this.position
-      ? this.position.id
-      : this.getNewPositionId();
-
-    const traId = this.selTransactionId!;
-    console.log("patchForm Tra-ID: ", traId);
-
-    this.form.patchValue({
-      id: this.positionId,
-      doc_id: this.document.id,
-      acc_id:
-        this.position?.account?.id ?? this.documentInfo?.account.id ?? null,
-      tra_id: traId,
-      amt: this.position?.amt ?? null,
-      cmt: this.position?.cmt ?? "",
+      // enable / disable
+      if (vm.info.transaction?.id) {
+        this.form.get("tra_id")?.disable();
+      } else {
+        this.form.get("tra_id")?.enable();
+      }
     });
 
-    // 🔥 WICHTIG: zuerst Posts aktualisieren
-    this.updatePosts(traId);
+    // 🔥 Transaction Wechsel
+    this.form
+      .get("tra_id")!
+      .valueChanges.pipe(withLatestFrom(this.posts$))
+      .subscribe(([taId, posts]) => {
+        if (!taId) return;
 
-    // 🔥 dann Post setzen
-    this.form.patchValue({
-      pst_id: this.position?.post?.id ?? null,
-    });
-  }
+        this.posts = posts.filter((p) => p.postgroup?.transaction?.id === taId);
 
-  private resetForm() {
-    this.form.reset({
-      id: null,
-      doc_id: null,
-      acc_id: null,
-      tra_id: null,
-      pst_id: null,
-      amt: null,
-      cmt: "",
-    });
-
-    this.selTransactionId = undefined;
-    this.selAccountId = undefined;
-    this.posts = [];
-    this.positionId = "";
-    this.position = undefined;
-
-    Object.keys(this.form.controls).forEach((key) =>
-      this.form.get(key)?.markAsUntouched(),
-    );
-  }
-
-  // ---------------- MODAL ----------------
-  ngAfterViewInit(): void {
-    const modalEl = document.getElementById("positionModal");
-
-    if (!modalEl) return;
-
-    modalEl.addEventListener("hidden.bs.modal", () => {
-      this.resetForm();
-    });
-
-    modalEl.addEventListener("shown.bs.modal", () => {
-      //this.patchForm();
-      this.loadData();
-    });
+        this.form.get("pst_id")?.setValue(null);
+      });
   }
 
   // ---------------- SUBMIT ----------------
@@ -208,45 +180,12 @@ export class PositionFormComponent implements OnInit, OnChanges {
   }
 
   // ---------------- HELPERS ----------------
-  private resolveTransactionId(): number {
-    // 🔥 1. über Position → Post → Transaction suchen
-    if (this.position?.post?.id) {
-      const postId = this.position.post.id;
-
-      const found = this.transactions.find((t) =>
-        t.postgroups?.some((pg) => pg.posts?.some((p) => p.id === postId)),
-      );
-
-      if (found) {
-        return found.id;
-      }
-    }
-
-    // 🔥 2. fallback: Document Default
-    if (this.documentInfo?.transaction?.id) {
-      return this.documentInfo.transaction.id;
-    }
-
-    // 🔥 3. fallback: erste Transaction
-    return this.transactions[0]?.id ?? 1;
-  }
-
-  private updatePosts(taId: number): void {
-    this.posts = this.allPosts.filter(
-      (post) => post.postgroup?.transaction?.id === taId,
-    );
-  }
-
-  private getNewPositionId(): string {
-    if (!this.document) return "";
-
-    const docId = this.document.id;
-
+  private getNewPositionId(document: DocumentModel): string {
     const nums =
-      this.document.positions?.map((p) => Number(p.id.split(".")[1])) ?? [];
+      document.positions?.map((p) => Number(p.id.split(".")[1])) ?? [];
 
     const next = Math.max(0, ...nums) + 1;
 
-    return `${docId}.${String(next).padStart(2, "0")}`;
+    return `${document.id}.${String(next).padStart(2, "0")}`;
   }
 }
