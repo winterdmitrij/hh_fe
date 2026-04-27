@@ -64,36 +64,20 @@ export class PositionFormComponent implements OnInit, OnChanges {
 
   // ---------------- INIT ----------------
   ngOnInit(): void {
-    //    this.loadData();
-
-    // 🔥 FIX: Reaktion auf Transaction-Wechsel
     this.form.get("tra_id")!.valueChanges.subscribe((taId) => {
-      this.posts = this.allPosts.filter(
-        (post) => post.postgroup?.transaction?.id === taId,
-      );
+      if (!taId) return;
 
-      //this.selTransactionId = Number(taId);
-      //this.filterPosts();
+      this.selTransactionId = taId;
+      this.updatePosts(taId);
 
-      // optional reset post selection
       this.form.get("pst_id")?.setValue(null);
     });
-    console.log("ngOnInit TransactionId: ", this.selTransactionId);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["position"]) {
       this.loadData();
-      /*
-      if (this.position) {
-        
-      } else {
-        this.resetForm();
-      }
-        */
     }
-
-    console.log("ngOnChanges TransactionId: ", this.selTransactionId);
   }
 
   // ---------------- DATA LOAD ----------------
@@ -109,58 +93,27 @@ export class PositionFormComponent implements OnInit, OnChanges {
       .pipe(
         tap(({ transactions, accounts, posts, info }) => {
           this.documentInfo = info;
-
-          // Accounts
           this.accounts = accounts;
-          this.selAccountId = info.account.id;
-
-          // Transactions
           this.transactions = transactions;
-
-          // Posts
           this.allPosts = posts;
 
-          // 🔥 Bestimme Transaction
-          if (this.position?.post?.id) {
-            const postId = this.position.post.id;
+          //this.selAccountId = info.account.id;
 
-            const matchedTransaction = this.transactions.find((t) =>
-              t.postgroups?.some((pg) =>
-                pg.posts?.some((p) => p.id === postId),
-              ),
-            );
+          // 🔥 EINMAL bestimmen
+          this.selTransactionId = this.resolveTransactionId();
 
-            if (matchedTransaction) {
-              this.selTransactionId = matchedTransaction.id;
-            }
-          }
-
-          if (!this.selTransactionId && info.transaction?.id) {
-            this.selTransactionId = info.transaction.id;
-          }
-
-          if (!this.selTransactionId) {
-            this.selTransactionId = this.transactions[0].id;
-          }
-          console.log("loadData TransactionId: ", this.selTransactionId);
-
-          // Form setzen
-          this.form.get("tra_id")?.setValue(this.selTransactionId);
-
-          // Enable / Disable
-          this.canChanged = !this.documentInfo?.transaction?.id;
+          // enable / disable
+          this.canChanged = !info.transaction?.id;
           if (this.canChanged) {
             this.form.get("tra_id")?.enable();
           } else {
             this.form.get("tra_id")?.disable();
           }
 
-          // 🔥 FIX: richtige Quelle
-          this.allPosts = posts;
+          // 🔥 Posts setzen
+          this.updatePosts(this.selTransactionId);
 
-          // 🔥 FIX: initial filter
-          this.filterPosts();
-
+          // 🔥 Form befüllen
           this.patchForm();
         }),
       )
@@ -171,61 +124,36 @@ export class PositionFormComponent implements OnInit, OnChanges {
   patchForm() {
     if (!this.document) return;
 
-    if (this.position) {
-      this.positionId = this.position.id;
+    this.positionId = this.position
+      ? this.position.id
+      : this.getNewPositionId();
 
-      this.selTransactionId =
-        this.position.post?.postgroup?.transaction?.id ??
-        this.documentInfo?.transaction?.id ??
-        this.selTransactionId ??
-        1;
+    const traId = this.selTransactionId!;
+    console.log("patchForm Tra-ID: ", traId);
 
-      console.log("updPatch TransactionId: ", this.selTransactionId);
+    this.form.patchValue({
+      id: this.positionId,
+      doc_id: this.document.id,
+      acc_id:
+        this.position?.account?.id ?? this.documentInfo?.account.id ?? null,
+      tra_id: traId,
+      amt: this.position?.amt ?? null,
+      cmt: this.position?.cmt ?? "",
+    });
 
-      this.form.patchValue({
-        id: this.position.id,
-        doc_id: this.document.id,
-        acc_id: this.position.account?.id ?? null,
-        tra_id: this.selTransactionId,
-        amt: this.position.amt ?? null,
-        cmt: this.position.cmt ?? "",
-      });
+    // 🔥 WICHTIG: zuerst Posts aktualisieren
+    this.updatePosts(traId);
 
-      // 🔥 zuerst Posts laden
-      this.updatePosts(this.selTransactionId);
-
-      // 🔥 dann Post setzen
-      this.form.patchValue({
-        pst_id: this.position?.post?.id ?? null,
-      });
-    } else {
-      this.resetForm();
-      this.positionId = this.getNewPositionId();
-
-      this.selTransactionId =
-        this.documentInfo?.transaction?.id ?? this.transactions[0].id;
-
-      console.log("insPatch TransactionId: ", this.selTransactionId);
-
-      this.form.patchValue({
-        id: this.positionId,
-        doc_id: this.document.id,
-        acc_id: this.documentInfo?.account.id ?? null,
-        tra_id: this.selTransactionId,
-      });
-
-      // 🔥 zuerst Posts laden
-      this.updatePosts(this.selTransactionId);
-
-      // 🔥 dann Post setzen
-      this.form.patchValue({
-        pst_id: null,
-      });
-    }
+    // 🔥 dann Post setzen
+    this.form.patchValue({
+      pst_id: this.position?.post?.id ?? null,
+    });
   }
 
   private resetForm() {
     this.form.reset({
+      id: null,
+      doc_id: null,
       acc_id: null,
       tra_id: null,
       pst_id: null,
@@ -237,6 +165,7 @@ export class PositionFormComponent implements OnInit, OnChanges {
     this.selAccountId = undefined;
     this.posts = [];
     this.positionId = "";
+    this.position = undefined;
 
     Object.keys(this.form.controls).forEach((key) =>
       this.form.get(key)?.markAsUntouched(),
@@ -254,10 +183,9 @@ export class PositionFormComponent implements OnInit, OnChanges {
     });
 
     modalEl.addEventListener("shown.bs.modal", () => {
-      this.patchForm();
+      //this.patchForm();
+      this.loadData();
     });
-
-    console.log("ngAfterViewInit TransactionId: ", this.selTransactionId);
   }
 
   // ---------------- SUBMIT ----------------
@@ -280,10 +208,27 @@ export class PositionFormComponent implements OnInit, OnChanges {
   }
 
   // ---------------- HELPERS ----------------
-  private filterPosts(): void {
-    this.posts = this.allPosts.filter(
-      (post) => post.postgroup?.transaction?.id === this.selTransactionId,
-    );
+  private resolveTransactionId(): number {
+    // 🔥 1. über Position → Post → Transaction suchen
+    if (this.position?.post?.id) {
+      const postId = this.position.post.id;
+
+      const found = this.transactions.find((t) =>
+        t.postgroups?.some((pg) => pg.posts?.some((p) => p.id === postId)),
+      );
+
+      if (found) {
+        return found.id;
+      }
+    }
+
+    // 🔥 2. fallback: Document Default
+    if (this.documentInfo?.transaction?.id) {
+      return this.documentInfo.transaction.id;
+    }
+
+    // 🔥 3. fallback: erste Transaction
+    return this.transactions[0]?.id ?? 1;
   }
 
   private updatePosts(taId: number): void {
