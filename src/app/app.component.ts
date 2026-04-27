@@ -9,14 +9,13 @@ import { enviroment } from "../enviroments/enviroment";
 })
 export class AppComponent {
   title = "hh_fe";
-  //  private apiUrl = enviroment.apiUrl;
 
   envName = enviroment.envName;
+  isProdEnv: boolean = enviroment.envName === "prod";
 
   constructor(private router: Router) {}
 
   isBootonActive(urlBeg: string): boolean {
-    //  console.log("URL: ", this.apiUrl);
     return this.router.url.startsWith(urlBeg);
   }
 }

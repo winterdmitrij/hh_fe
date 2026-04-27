@@ -29,6 +29,7 @@ import { PositionDetailComponent } from "./position/position-detail/position-det
     PositionComponent,
     PositionDetailComponent,
     PeriodComponent,
+    PositionFormComponent,
   ],
 })
 export class DocModule {}

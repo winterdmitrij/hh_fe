@@ -31,6 +31,7 @@ export class PositionComponent implements OnInit {
 
   isEditMode: boolean = false;
   isModalOpen: boolean = false;
+  //  isModalOpen: boolean = false;
   isExpendDocument: boolean = false;
   updPosition?: PositionModel;
   delPosition?: PositionModel;

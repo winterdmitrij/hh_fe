@@ -1,85 +1,58 @@
 import {
-  AfterViewInit,
   Component,
-  EventEmitter,
   Input,
-  OnChanges,
-  OnInit,
   Output,
+  EventEmitter,
+  OnChanges,
   SimpleChanges,
+  OnInit,
 } from "@angular/core";
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ValidationErrors,
-  Validators,
-} from "@angular/forms";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { forkJoin, tap } from "rxjs";
+
+import { AccountService } from "../../../cat/services/account.service";
+import { DocumentModel, PositionModel } from "../../doc.model";
+import { InformationService } from "../../../cat/services/information.service";
+import { PostService } from "../../../cat/services/post.service";
 import {
   AccountModel,
   InformationModel,
   PostModel,
   TransactionModel,
 } from "../../../cat/cat.model";
-import { AccountService } from "../../../cat/services/account.service";
-import { DocumentModel, PositionModel } from "../../doc.model";
-import { InformationService } from "../../../cat/services/information.service";
-import { firstValueFrom } from "rxjs";
-import { PostService } from "../../../cat/services/post.service";
-
-// Validator für Betrag: darf nich 0 sein
-function nonZeroValidator(control: AbstractControl): ValidationErrors | null {
-  return control.value !== 0 ? null : { nonZero: true };
-}
 
 @Component({
   selector: "app-position-form",
   templateUrl: "./position-form.component.html",
   styleUrl: "./position-form.component.css",
 })
-export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
-  @Input() document?: DocumentModel;
+export class PositionFormComponent implements OnInit, OnChanges {
+  @Input() document!: DocumentModel;
   @Input() position?: PositionModel;
+
   @Output() submitPosition = new EventEmitter<any>();
 
-  accounts: AccountModel[] = [];
   transactions: TransactionModel[] = [];
+  selTransactionId?: number;
+
   allPosts: PostModel[] = [];
   posts: PostModel[] = [];
 
-  docInf?: InformationModel;
-  defAccId?: number;
-  selTraId?: number;
+  accounts: AccountModel[] = [];
+  selAccountId?: number;
 
-  canChanged: boolean = false;
-  isUpdMode: boolean = false;
-  posId?: string;
-  //  docTyp?: string;
+  documentInfo?: InformationModel;
+
+  positionId: string = "";
+  canChanged: boolean = true;
 
   form = new FormGroup({
-    id: new FormControl("", [
-      Validators.required,
-      Validators.minLength(11),
-      Validators.maxLength(11),
-    ]),
-    doc_id: new FormControl("", [
-      Validators.required,
-      Validators.minLength(8),
-      Validators.maxLength(8),
-    ]),
-    acc_id: new FormControl<number | null>(null, [
-      Validators.required,
-      Validators.min(100),
-    ]),
-    tra_id: new FormControl<number>(1, Validators.required),
-    pst_id: new FormControl<number | null>(null, [
-      Validators.required,
-      Validators.min(10000),
-    ]),
-    amt: new FormControl<number | null>(null, [
-      Validators.required,
-      //nonZeroValidator,
-    ]),
+    id: new FormControl("", Validators.required),
+    doc_id: new FormControl("", Validators.required),
+    acc_id: new FormControl<number | null>(null, Validators.required),
+    tra_id: new FormControl<number | null>(null, Validators.required),
+    pst_id: new FormControl<number | null>(null, Validators.required),
+    amt: new FormControl<number | null>(null, Validators.required),
     cmt: new FormControl(""),
   });
 
@@ -89,194 +62,246 @@ export class PositionFormComponent implements OnInit, OnChanges, AfterViewInit {
     private infSrv: InformationService,
   ) {}
 
-  async ngOnInit(): Promise<void> {
-    await this.loadDropdowns();
-    this.loadDocInfoAndInitForm();
+  // ---------------- INIT ----------------
+  ngOnInit(): void {
+    //    this.loadData();
 
-    this.form.get("tra_id")?.valueChanges.subscribe((tra_id) => {
-      this.selTraId = Number(tra_id);
-      this.posts = this.getFiltredPosts(this.selTraId);
+    // 🔥 FIX: Reaktion auf Transaction-Wechsel
+    this.form.get("tra_id")!.valueChanges.subscribe((taId) => {
+      this.posts = this.allPosts.filter(
+        (post) => post.postgroup?.transaction?.id === taId,
+      );
+
+      //this.selTransactionId = Number(taId);
+      //this.filterPosts();
+
+      // optional reset post selection
+      this.form.get("pst_id")?.setValue(null);
     });
+    console.log("ngOnInit TransactionId: ", this.selTransactionId);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes["position"] || changes["document"]) {
-      this.isUpdMode = !!this.position;
-
-      if (this.transactions.length > 0) {
-        this.loadDocInfoAndInitForm();
+    if (changes["position"]) {
+      this.loadData();
+      /*
+      if (this.position) {
+        
+      } else {
+        this.resetForm();
       }
+        */
+    }
+
+    console.log("ngOnChanges TransactionId: ", this.selTransactionId);
+  }
+
+  // ---------------- DATA LOAD ----------------
+  private loadData() {
+    const docType = this.document.id.substring(5, 8);
+
+    forkJoin({
+      transactions: this.pstSrv.findAllTransactions(),
+      accounts: this.accSrv.findAllAccounts(),
+      posts: this.pstSrv.findAllPosts(),
+      info: this.infSrv.findOne(docType),
+    })
+      .pipe(
+        tap(({ transactions, accounts, posts, info }) => {
+          this.documentInfo = info;
+
+          // Accounts
+          this.accounts = accounts;
+          this.selAccountId = info.account.id;
+
+          // Transactions
+          this.transactions = transactions;
+
+          // Posts
+          this.allPosts = posts;
+
+          // 🔥 Bestimme Transaction
+          if (this.position?.post?.id) {
+            const postId = this.position.post.id;
+
+            const matchedTransaction = this.transactions.find((t) =>
+              t.postgroups?.some((pg) =>
+                pg.posts?.some((p) => p.id === postId),
+              ),
+            );
+
+            if (matchedTransaction) {
+              this.selTransactionId = matchedTransaction.id;
+            }
+          }
+
+          if (!this.selTransactionId && info.transaction?.id) {
+            this.selTransactionId = info.transaction.id;
+          }
+
+          if (!this.selTransactionId) {
+            this.selTransactionId = this.transactions[0].id;
+          }
+          console.log("loadData TransactionId: ", this.selTransactionId);
+
+          // Form setzen
+          this.form.get("tra_id")?.setValue(this.selTransactionId);
+
+          // Enable / Disable
+          this.canChanged = !this.documentInfo?.transaction?.id;
+          if (this.canChanged) {
+            this.form.get("tra_id")?.enable();
+          } else {
+            this.form.get("tra_id")?.disable();
+          }
+
+          // 🔥 FIX: richtige Quelle
+          this.allPosts = posts;
+
+          // 🔥 FIX: initial filter
+          this.filterPosts();
+
+          this.patchForm();
+        }),
+      )
+      .subscribe();
+  }
+
+  // ---------------- FORM ----------------
+  patchForm() {
+    if (!this.document) return;
+
+    if (this.position) {
+      this.positionId = this.position.id;
+
+      this.selTransactionId =
+        this.position.post?.postgroup?.transaction?.id ??
+        this.documentInfo?.transaction?.id ??
+        this.selTransactionId ??
+        1;
+
+      console.log("updPatch TransactionId: ", this.selTransactionId);
+
+      this.form.patchValue({
+        id: this.position.id,
+        doc_id: this.document.id,
+        acc_id: this.position.account?.id ?? null,
+        tra_id: this.selTransactionId,
+        amt: this.position.amt ?? null,
+        cmt: this.position.cmt ?? "",
+      });
+
+      // 🔥 zuerst Posts laden
+      this.updatePosts(this.selTransactionId);
+
+      // 🔥 dann Post setzen
+      this.form.patchValue({
+        pst_id: this.position?.post?.id ?? null,
+      });
+    } else {
+      this.resetForm();
+      this.positionId = this.getNewPositionId();
+
+      this.selTransactionId =
+        this.documentInfo?.transaction?.id ?? this.transactions[0].id;
+
+      console.log("insPatch TransactionId: ", this.selTransactionId);
+
+      this.form.patchValue({
+        id: this.positionId,
+        doc_id: this.document.id,
+        acc_id: this.documentInfo?.account.id ?? null,
+        tra_id: this.selTransactionId,
+      });
+
+      // 🔥 zuerst Posts laden
+      this.updatePosts(this.selTransactionId);
+
+      // 🔥 dann Post setzen
+      this.form.patchValue({
+        pst_id: null,
+      });
     }
   }
 
-  // Erhalten Daten von BE
-  async loadDropdowns(): Promise<void> {
-    try {
-      const [accData, traData, pstData] = await Promise.all([
-        firstValueFrom(this.accSrv.findAllAccounts()),
-        firstValueFrom(this.pstSrv.findAllTransactions()),
-        firstValueFrom(this.pstSrv.findAllPosts()),
-      ]);
-      this.accounts = accData;
-      this.transactions = traData;
-      this.allPosts = pstData;
-    } catch (error) {
-      console.error("Fehler beim Laden der Dropdowns: ", error);
-    }
+  private resetForm() {
+    this.form.reset({
+      acc_id: null,
+      tra_id: null,
+      pst_id: null,
+      amt: null,
+      cmt: "",
+    });
+
+    this.selTransactionId = undefined;
+    this.selAccountId = undefined;
+    this.posts = [];
+    this.positionId = "";
+
+    Object.keys(this.form.controls).forEach((key) =>
+      this.form.get(key)?.markAsUntouched(),
+    );
   }
 
-  // Eventbearbeitung auf Form
+  // ---------------- MODAL ----------------
   ngAfterViewInit(): void {
     const modalEl = document.getElementById("positionModal");
 
     if (!modalEl) return;
 
-    // Zurücksetzen beim Schließen
     modalEl.addEventListener("hidden.bs.modal", () => {
       this.resetForm();
     });
-  }
 
-  // Laden die Dokumentinformation und Initioalisieren Form-Variablen
-  loadDocInfoAndInitForm() {
-    if (!this.document) return;
-
-    const docTyp = this.document.id.substring(5, 8);
-
-    this.infSrv.findOne(docTyp).subscribe({
-      next: (info) => {
-        this.docInf = info;
-        this.defAccId = info.account.id;
-
-        // 1. Versuche die tra_id anhand des Post der Position zu bestimmen
-        if (this.position?.post?.id) {
-          const postId = this.position.post.id;
-          const matchedTra = this.transactions.find((t) =>
-            t.postgroups?.some((pg) => pg.posts?.some((p) => p.id === postId)),
-          );
-          if (matchedTra) {
-            this.selTraId = matchedTra.id;
-          }
-        }
-
-        // 2. Falls keine zugehörige Transaction gefunden, verwende die Dokument-Default-Transaction
-        if (!this.selTraId && info.transaction?.id) {
-          this.selTraId = info.transaction.id;
-        }
-
-        // 3. Wenn immer noch nichts gefunden, setze auf 1
-        if (!this.selTraId) {
-          this.selTraId = 1;
-        }
-
-        // 4. Setze Wert im Formular und (de)aktiviere entsprechend
-        this.form.get("tra_id")?.setValue(this.selTraId);
-        this.canChanged = !info.transaction?.id;
-        if (this.canChanged) {
-          this.form.get("tra_id")?.enable();
-        } else {
-          this.form.get("tra_id")?.disable();
-        }
-
-        // 5. Filtere Posts und patchForm
-        this.posts = this.getFiltredPosts(this.selTraId);
-
-        if (this.transactions.length > 0) {
-          this.patchForm();
-        }
-      },
-      error: (err) => {
-        console.error("Fehler beim Laden der Dokument-Information:", err);
-      },
+    modalEl.addEventListener("shown.bs.modal", () => {
+      this.patchForm();
     });
+
+    console.log("ngAfterViewInit TransactionId: ", this.selTransactionId);
   }
 
-  // Befüllen die Form mit Daten
-  patchForm() {
-    if (!this.document) return;
-
-    // Für neue Position
-    if (!this.position) {
-      this.posId = this.getNextPosId();
-
-      this.form.patchValue({
-        id: this.posId,
-        doc_id: this.document.id,
-        acc_id: this.defAccId ?? null,
-        tra_id: this.selTraId ?? 1,
-      });
-    } else {
-      // Für editierende Position
-      this.posId = this.position.id;
-      this.form.patchValue({
-        id: this.position.id,
-        doc_id: this.document.id,
-        acc_id: this.position.account?.id ?? null,
-        tra_id: this.selTraId ?? 1,
-        pst_id: this.position.post?.id ?? null,
-        amt: this.position.amt ?? 0,
-        cmt: this.position.cmt ?? "",
-      });
-    }
-    console.log("PositionId: ", this.posId);
-  }
-
+  // ---------------- SUBMIT ----------------
   onSubmit() {
-    if (this.form.valid) {
-      const pos = {
-        id: this.form.value.id,
-        amt: this.form.value.amt,
-        cmt: this.form.value.cmt,
-        document: { id: this.form.value.doc_id },
-        account: { id: this.form.value.acc_id },
-        post: { id: this.form.value.pst_id },
-      };
-
-      this.submitPosition.emit(pos);
-    } else {
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
     }
+
+    const position = {
+      id: this.form.value.id!,
+      amt: this.form.value.amt!,
+      cmt: this.form.value.cmt ?? "",
+      document: { id: this.form.value.doc_id! },
+      account: { id: this.form.value.acc_id! },
+      post: { id: this.form.value.pst_id! },
+    };
+
+    this.submitPosition.emit(position);
   }
 
-  // Beleeren Form
-  private resetForm() {
-    this.form.reset();
-
-    // Touch-Status entfernen (sonst bleibt is-invalid sichtbar)
-    Object.keys(this.form.controls).forEach((key) =>
-      this.form.get(key)?.markAsUntouched(),
+  // ---------------- HELPERS ----------------
+  private filterPosts(): void {
+    this.posts = this.allPosts.filter(
+      (post) => post.postgroup?.transaction?.id === this.selTransactionId,
     );
-
-    // Setze Defaultwerte für neue Position
-    this.form.patchValue({
-      acc_id: this.defAccId,
-      tra_id: this.selTraId ?? 1,
-    });
   }
 
-  //-------------------------------------------------------//
-  //               Hilfsfunktionen                         //
-  //-------------------------------------------------------//
-  private getNextPosId(): string {
+  private updatePosts(taId: number): void {
+    this.posts = this.allPosts.filter(
+      (post) => post.postgroup?.transaction?.id === taId,
+    );
+  }
+
+  private getNewPositionId(): string {
     if (!this.document) return "";
+
     const docId = this.document.id;
 
-    const extPosIds = this.document.positions?.map((pos) => pos.id) || [];
-    const sufNums = extPosIds
-      .map((id) => id.split(".")[1])
-      .map((str) => parseInt(str || "0", 10))
-      .filter((n) => !isNaN(n));
+    const nums =
+      this.document.positions?.map((p) => Number(p.id.split(".")[1])) ?? [];
 
-    const maxNum = sufNums.length > 0 ? Math.max(...sufNums) : 0;
-    const nextNum = (maxNum + 1).toString().padStart(2, "0");
+    const next = Math.max(0, ...nums) + 1;
 
-    return `${docId}.${nextNum}`;
-  }
-
-  private getFiltredPosts(taId: number): PostModel[] {
-    const fltPst = this.allPosts.filter(
-      (p) => String(p.postgroup?.transaction?.id) === String(taId),
-    );
-    return fltPst;
+    return `${docId}.${String(next).padStart(2, "0")}`;
   }
 }

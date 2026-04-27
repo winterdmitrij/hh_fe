@@ -1,80 +1,108 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-
-    <!-- Modal Body -->
     <div class="modal-body">
-        <!-- Position-Id (versteckt) -->
-        <input type="hidden" id="id" formControlName="id" />
-        <div class="form-text">Position-Id: '{{ posId }}'</div>
 
-        <!-- Dokument-Id (versteckt) -->
-        <input type="hidden" id="doc_id" formControlName="doc_id" />
-        <div class="form-text">Dokument-Id: '{{ document?.id }}'</div>
+        <!-- Position-Id (hidden) -->
+        <input type="hidden" formControlName="id" />
+        <div class="form-text mb-2">
+            Position-Id: '{{ form.get('id')?.value }}'
+        </div>
+
+        <!-- Dokument-Id (hidden) -->
+        <input type="hidden" formControlName="doc_id" />
+        <div class="form-text mb-3">
+            Dokument-Id: '{{ document!.id }}'
+        </div>
 
         <!-- Konto -->
-        <div class="mt-3">
+        <div class="mb-3">
             <label for="acc_id" class="form-label">Konto</label>
             <select id="acc_id" class="form-select" formControlName="acc_id"
                 [ngClass]="{ 'is-invalid': form.get('acc_id')?.invalid && form.get('acc_id')?.touched }">
-                <option value="" disabled>-- Konto auswählen --</option>
-                <option *ngFor="let acc of accounts" [value]="acc.id">{{ acc.dsg }}</option>
+                <option [ngValue]="null" disabled>-- Konto auswählen --</option>
+                <option *ngFor="let account of accounts" [ngValue]="account.id">
+                    {{ account.dsg }}
+                </option>
             </select>
-            <div class="invalid-feedback" *ngIf="form.get('acc_id')?.errors">
+
+            <div class="invalid-feedback">
                 Bitte ein gültiges Konto auswählen.
             </div>
         </div>
 
-        <!-- Transaktion -->
-        <div class="mt-3">
+        <!-- Transaktion 
+        <div class="mb-3">
             <label class="form-label d-block mb-2">Transaktion</label>
+
             <div class="row g-2">
-                <div class="col-12 col-sm-6 col-md-4" *ngFor="let tr of transactions">
+                <div class="col-12 col-sm-6 col-md-4" *ngFor="let transaction of transactions">
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" [id]="'tra_' + tr.id" [value]="+tr.id"
-                            formControlName="tra_id" />
-                        <label class="form-check-label" [for]="'tra_' + tr.id">
-                            {{ tr.dsg }}
+                        <input class="form-check-input" type="radio" [id]="'tra_' + transaction.id"
+                            [value]="+transaction.id" formControlName="tra_id" />
+
+                        <label class="form-check-label" [for]="'tra_' + transaction.id">
+                            {{ transaction.dsg }}
                         </label>
                     </div>
                 </div>
             </div>
         </div>
+        -->
+        <div class="mb-3">
+            <label for="tra_id" class="form-label">Transaktion</label>
 
-        <!-- (Postgruppe) - Post -->
-        <div class="mt-3">
+            <select id="tra_id" class="form-select" formControlName="tra_id">
+                <option [ngValue]="null">-- Transaction auswählen --</option>
+
+                <option *ngFor="let transaction of transactions" [ngValue]="transaction.id">
+                    {{ transaction.dsg }}
+                </option>
+            </select>
+        </div>
+
+        <!-- Post -->
+        <div class="mb-3">
             <label for="pst_id" class="form-label">Post</label>
+
             <select id="pst_id" class="form-select" formControlName="pst_id"
                 [ngClass]="{ 'is-invalid': form.get('pst_id')?.invalid && form.get('pst_id')?.touched }">
-                <option value="" disabled>-- Post auswählen --</option>
-                <option *ngFor="let pst of posts" [value]="pst.id">({{ pst.postgroup.dsg }}) - {{ pst.dsg }}</option>
+                <option [ngValue]="null" disabled>-- Post auswählen --</option>
+
+                <option *ngFor="let post of posts" [ngValue]="post.id">
+                    ({{ post.postgroup.dsg }}) - {{ post.dsg }}
+                </option>
             </select>
-            <div class="invalid-feedback" *ngIf="form.get('pst_id')?.errors">
+
+            <div class="invalid-feedback">
                 Bitte einen gültigen Post auswählen.
             </div>
         </div>
 
         <!-- Betrag -->
-        <div class="mt-3">
+        <div class="mb-3">
             <label for="amt" class="form-label">Betrag</label>
+
             <input id="amt" type="number" class="form-control" formControlName="amt"
                 [ngClass]="{ 'is-invalid': form.get('amt')?.invalid && form.get('amt')?.touched }" />
-            <!-- Detail: Lupe data-bs-toggle="modal" data-bs-target="#updPosition" -->
-            <div class="invalid-feedback" *ngIf="form.get('amt')?.errors">
-                Betrag muss ungleich 0 sein.
+
+            <div class="invalid-feedback">
+                Betrag ist erforderlich.
             </div>
         </div>
 
         <!-- Kommentar -->
-        <div class="mt-3">
+        <div class="mb-3">
             <label for="cmt" class="form-label">Kommentar</label>
             <input id="cmt" type="text" class="form-control" formControlName="cmt" />
         </div>
+
     </div>
 
-    <!-- Modal Footer -->
+    <!-- Footer -->
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             Schließen
         </button>
+
         <button type="submit" class="btn btn-success" [disabled]="form.invalid">
             Speichern
         </button>

@@ -1,5 +1,5 @@
 <nav class="navbar fixed-top bg-body-tertiary bg-dark" data-bs-theme="dark">
-  <div class="container-fluid justify-content-start">
+  <div class="container-fluid">
     <!-- Logo -->
     <div class="logo me-2">
       <a [routerLink]="['']" class="navbar-brand">
@@ -8,7 +8,7 @@
       </a>
     </div>
 
-    <!-- Dropdawn-Menu -->
+    <!-- Menu -->
     <ul class="nav nav-tabs">
 
       <!-- Documents -->
@@ -179,6 +179,10 @@
         </ul>
       </li>
     </ul>
+    <!-- Enviroment -->
+    <button type="button" class="btn" [ngClass]="{ 'btn-warning': !isProdEnv, 'btn-danger text-white': isProdEnv }">
+      {{ envName }} SYSTEM
+    </button>
   </div>
 </nav>
 

@@ -106,7 +106,7 @@
                     data-bs-dismiss="modal" aria-label="Schließen">
                 </button>
             </div>
-            <app-position-detail *ngIf="isModalOpen" [position]="dtlPosition!"
+            <app-position-detail *ngIf="isModalOpen && dtlPosition" [position]="dtlPosition!"
                 (submitPosition)="handlePositionDetailSave($event)">
             </app-position-detail>
         </div>

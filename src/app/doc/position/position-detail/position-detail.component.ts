@@ -18,6 +18,7 @@ import {
 import { PositionDetailModel, PositionModel } from "../../doc.model";
 import { PositionDetailService } from "../../services/position-detail.service";
 
+// Validators
 function complexAmountValidator(
   control: AbstractControl,
 ): ValidationErrors | null {
@@ -52,6 +53,7 @@ function complexAmountValidator(
   return null;
 }
 
+// for PositionDetailModal
 type FormMode = "create" | "update";
 
 @Component({
