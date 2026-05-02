@@ -3,8 +3,10 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import {
   BehaviorSubject,
   combineLatest,
+  defer,
   filter,
   map,
+  Observable,
   shareReplay,
   switchMap,
   withLatestFrom,
@@ -16,7 +18,6 @@ import { InformationService } from "../../../cat/services/information.service";
 
 import {
   AccountModel,
-  InformationModel,
   PostModel,
   TransactionModel,
 } from "../../../cat/cat.model";
@@ -42,9 +43,12 @@ export class PositionFormComponent implements OnInit {
   @Output() submitPosition = new EventEmitter<any>();
 
   // ---------------- DATA STREAMS ----------------
-  transactions$ = this.pstSrv.findAllTransactions();
-  accounts$ = this.accSrv.findAllAccounts();
-  posts$ = this.pstSrv.findAllPosts();
+  //transactions$ = this.pstSrv.findAllTransactions();
+  //accounts$ = this.accSrv.findAllAccounts();
+  //posts$ = this.pstSrv.findAllPosts();
+  transactions$ = defer(() => this.pstSrv.findAllTransactions());
+  accounts$ = defer(() => this.accSrv.findAllAccounts());
+  posts$ = defer(() => this.pstSrv.findAllPosts());
 
   documentInfo$ = this.document$.pipe(
     filter((doc): doc is DocumentModel => !!doc),
@@ -123,6 +127,10 @@ export class PositionFormComponent implements OnInit {
 
   // ---------------- INIT ----------------
   ngOnInit(): void {
+    //this.transactions$ = this.pstSrv.findAllTransactions();
+    //this.accounts$ = this.accSrv.findAllAccounts();
+    //this.posts$ = this.pstSrv.findAllPosts();
+
     // 🔥 Form automatisch befüllen
     this.vm$.subscribe((vm) => {
       if (!vm) return;
@@ -169,7 +177,7 @@ export class PositionFormComponent implements OnInit {
 
     const position = {
       id: this.form.value.id!,
-      amt: this.form.value.amt!,
+      amt: this.form.value.amt!, //? vlt: ?? 0  -- Automatisch 0 übergeben, wenn nichts eingegeben wurde ?
       cmt: this.form.value.cmt ?? "",
       document: { id: this.form.value.doc_id! },
       account: { id: this.form.value.acc_id! },
